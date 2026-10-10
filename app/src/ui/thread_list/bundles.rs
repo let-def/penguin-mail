@@ -106,9 +106,16 @@ impl Opened {
             .any(|m| self.0.contains(&(group.clone(), key(&rows[*m]))))
     }
 
-    /// Opens or closes the bundle of `group` holding `members`.
-    pub fn toggle(&mut self, group: &str, rows: &[Row], members: &[usize]) {
+    /// Opens or closes the bundle of `group` holding `members`. Closing
+    /// is the person asking for the unread rows alone, so the read rows
+    /// the bundle kept on screen leave `kept` and hide too.
+    pub fn toggle(&mut self, group: &str, rows: &[Row], members: &[usize], kept: &mut HashSet<Key>) {
         let open = self.holds(group, rows, members);
+        if open {
+            for member in members {
+                kept.remove(&key(&rows[*member]));
+            }
+        }
         let group = group.to_lowercase();
         for member in members {
             let entry = (group.clone(), key(&rows[*member]));
@@ -386,8 +393,8 @@ mod tests {
             ("c", &["Q3"], false),
         ]);
         let mut opened = Opened::default();
-        opened.toggle("Q3", &list, &[0, 1, 2]);
-        let none = HashSet::new();
+        let mut none = HashSet::new();
+        opened.toggle("Q3", &list, &[0, 1, 2], &mut none);
         assert_eq!(
             words(&list, &lay_out(&list, WINDOW, &opened, &none)),
             ["[Q3 3]", "a", "b", "c", "+0"]
@@ -402,7 +409,7 @@ mod tests {
             words(&grown, &lay_out(&grown, WINDOW, &opened, &none)),
             ["[q3 4]", "new", "a", "b", "c", "+0"]
         );
-        opened.toggle("q3", &grown, &[0, 1, 2, 3]);
+        opened.toggle("q3", &grown, &[0, 1, 2, 3], &mut none);
         assert_eq!(
             words(&grown, &lay_out(&grown, WINDOW, &opened, &none)),
             ["[q3 4]", "b", "+3"]
@@ -417,6 +424,24 @@ mod tests {
             words(&list, &lay_out(&list, WINDOW, &Opened::default(), &kept)),
             ["[Q3 2]", "a", "b"]
         );
+    }
+
+    #[test]
+    fn closing_a_bundle_hides_the_read_rows_it_kept() {
+        let list = rows(&[("a", &["Q3"], true), ("b", &["Q3"], false)]);
+        let mut opened = Opened::default();
+        let mut kept = HashSet::new();
+        opened.toggle("Q3", &list, &[0, 1], &mut kept);
+        // The reader opens b while the bundle is open, which keeps it.
+        kept.insert(key(&list[1]));
+        let other = rows(&[("z", &[], false)]);
+        kept.insert(key(&other[0]));
+        opened.toggle("Q3", &list, &[0, 1], &mut kept);
+        assert_eq!(
+            words(&list, &lay_out(&list, WINDOW, &opened, &kept)),
+            ["[Q3 2]", "a", "+1"]
+        );
+        assert!(kept.contains(&key(&other[0])), "rows outside the bundle stay kept");
     }
 
     #[test]

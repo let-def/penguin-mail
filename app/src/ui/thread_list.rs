@@ -823,8 +823,8 @@ impl ThreadList {
             };
             let (group, members) = (bundle.group.clone(), bundle.members.clone());
             let first = key(&shown.rows[members[0]]);
-            let Shown { opened, rows, .. } = &mut *shown;
-            opened.toggle(&group, rows, &members);
+            let Shown { opened, rows, kept, .. } = &mut *shown;
+            opened.toggle(&group, rows, &members, kept);
             (group, first)
         };
         self.relayout();
@@ -1067,8 +1067,8 @@ impl ThreadList {
         if let Some((group, members)) = hiding {
             {
                 let mut shown = self.shown.borrow_mut();
-                let Shown { opened, rows, .. } = &mut *shown;
-                opened.toggle(&group, rows, &members);
+                let Shown { opened, rows, kept, .. } = &mut *shown;
+                opened.toggle(&group, rows, &members, kept);
             }
             self.relayout();
         }
