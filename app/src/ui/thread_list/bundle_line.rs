@@ -250,6 +250,13 @@ impl BundleLine {
         line
     }
 
+    /// The position in the list the line shows, or `None` while it shows
+    /// nothing.
+    pub fn position(&self) -> Option<u32> {
+        let position = self.imp().item.upgrade()?.position();
+        (position != gtk::INVALID_LIST_POSITION).then_some(position)
+    }
+
     /// Draws `kind` for the bundle `shown`, and gives the list item the
     /// words a screen reader says for it.
     pub fn bind(&self, kind: &Kind, shown: &Shown) {

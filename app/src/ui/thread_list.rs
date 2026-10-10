@@ -128,7 +128,18 @@ fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<It
         .iter()
         .map(|entry| match entry {
             Entry::Row { row, .. } => Item::Row(Rc::clone(&rows[*row])),
-            Entry::Header(b) => Item::Line(Kind::Header, shown(*b)),
+            // The header draws neither whether the bundle is open nor how
+            // many rows it hides, so those stay out of its item: opening
+            // or closing then leaves the header's item as it was, and GTK
+            // keeps the view anchored to it instead of jumping.
+            Entry::Header(b) => Item::Line(
+                Kind::Header,
+                bundle_line::Shown {
+                    open: false,
+                    hidden: 0,
+                    ..shown(*b)
+                },
+            ),
             Entry::Trailer(b) => Item::Line(Kind::Trailer, shown(*b)),
             Entry::Summary(b) => {
                 let hidden = layout.bundles[*b]
@@ -813,30 +824,47 @@ impl ThreadList {
         }
     }
 
-    /// Opens or closes the bundle whose line is at `position`, and keeps
-    /// its header in view with the focus on it.
+    /// Opens or closes the bundle whose line is at `position`, leaving the
+    /// view where it was. GTK holds the view on the item that has the
+    /// focus, and when a change takes that item away it holds the same
+    /// place in the list instead, which by then belongs to another item:
+    /// folding from the trailer, which the fold removes, would make the
+    /// list jump by the rows it hid. The focus goes to the header first,
+    /// whose item no toggle changes, so the view stays on it.
     fn toggle_at(&self, position: usize) {
-        let toggled = {
+        let header = {
             let mut shown = self.shown.borrow_mut();
             let Some(bundle) = shown.bundle_at(position) else {
                 return;
             };
-            let (topic, members) = (bundle.topic.clone(), bundle.members.clone());
-            let first = key(&shown.rows[members[0]]);
+            let (topic, members, at) = (bundle.topic.clone(), bundle.members.clone(), bundle.at);
             let Shown { opened, rows, kept, .. } = &mut *shown;
             opened.toggle(&topic, rows, &members, kept);
-            (topic, first)
+            at
         };
-        self.relayout();
-        let at = self
-            .shown
-            .borrow()
-            .bundle_holding(&toggled.0, &toggled.1)
-            .map(|b| b.at);
-        if let Some(at) = at {
-            self.view
-                .scroll_to(at as u32, gtk::ListScrollFlags::FOCUS, None);
+        if let Some(item) = self.item_widget(header) {
+            item.grab_focus();
         }
+        self.relayout();
+    }
+
+    /// The widget GTK shows the item at `position` in, while it is on
+    /// screen.
+    fn item_widget(&self, position: usize) -> Option<gtk::Widget> {
+        let mut child = self.view.first_child();
+        while let Some(widget) = child {
+            let slot = widget.first_child();
+            let line = slot.as_ref().and_then(|s| s.last_child()).and_downcast::<BundleLine>();
+            let row = slot.as_ref().and_then(|s| s.first_child()).and_downcast::<ThreadRow>();
+            let at = line
+                .and_then(|l| l.position())
+                .or_else(|| row.and_then(|r| r.position()));
+            if at == Some(position as u32) {
+                return Some(widget);
+            }
+            child = widget.next_sibling();
+        }
+        None
     }
 
     /// Goes from the bundle whose line is at `position` to the place its
@@ -1414,7 +1442,8 @@ mod tests {
         let shown = shown(rows, false);
         // Header, a, the trailer counting c, then b.
         assert_eq!(shown.items.len(), 4);
-        assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s) if s.count == 2 && s.hidden == 1));
+        assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s) if s.count == 2));
+        assert!(matches!(&shown.items[2], Item::Line(Kind::Trailer, s) if s.hidden == 1));
         assert_eq!(shown.row_at(1).map(|r| r.id.as_str()), Some("a"));
         assert!(shown.row_at(2).is_none(), "the trailer");
         assert_eq!(shown.bundle_at(2).map(|b| b.topic.as_str()), Some("Q3"));

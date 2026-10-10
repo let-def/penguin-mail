@@ -2342,19 +2342,25 @@ msgstr "{provider} não consegue enviar respostas automáticas."
 msgid ""
 "{provider} refused the app password for calendars. Make one with access to "
 "calendars and add it again."
-msgstr "{provider} recusou a palavra-passe de aplicação para os calendários. Crie uma com acesso aos calendários e adicione-a de novo."
+msgstr ""
+"{provider} recusou a palavra-passe de aplicação para os calendários. Crie "
+"uma com acesso aos calendários e adicione-a de novo."
 
 #: app/src/offered.rs:479
 msgid ""
 "{provider} serves calendars over CalDAV, which needs an app password. Add "
 "one under Calendar, Contacts and Rules Servers."
-msgstr "{provider} serve os calendários por CalDAV, que precisa de uma palavra-passe de aplicação. Adicione uma em Servidores de calendário, contactos e regras."
+msgstr ""
+"{provider} serve os calendários por CalDAV, que precisa de uma palavra-passe "
+"de aplicação. Adicione uma em Servidores de calendário, contactos e regras."
 
 #: app/src/offered.rs:484
 msgid ""
 "Penguin Mail cannot change the automatic reply of a {provider} account over "
 "JMAP yet."
-msgstr "O Penguin Mail ainda não pode alterar a resposta automática de uma conta {provider} por JMAP."
+msgstr ""
+"O Penguin Mail ainda não pode alterar a resposta automática de uma conta "
+"{provider} por JMAP."
 
 #: app/src/offered.rs:486
 msgid "{provider} has no calendar that other apps can reach."
@@ -3699,7 +3705,7 @@ msgstr "Abrir o Penguin Mail"
 
 #: app/src/tray.rs:265 app/src/ui/composer/mod.rs:278
 #: app/src/ui/composer/mod.rs:535 app/src/ui/composer/mod.rs:1277
-#: app/src/ui/contact_card.rs:158 app/src/ui/thread_list.rs:568
+#: app/src/ui/contact_card.rs:158 app/src/ui/thread_list.rs:579
 msgid "New Message"
 msgstr "Nova mensagem"
 
@@ -6668,7 +6674,10 @@ msgstr "Palavra-passe de aplicação do calendário"
 msgid ""
 "{provider} serves calendars over CalDAV, which takes an app password rather "
 "than the API token. Make one with access to calendars and paste it here."
-msgstr "{provider} serve os calendários por CalDAV, que pede uma palavra-passe de aplicação em vez do token de API. Crie uma com acesso aos calendários e cole-a aqui."
+msgstr ""
+"{provider} serve os calendários por CalDAV, que pede uma palavra-passe de "
+"aplicação em vez do token de API. Crie uma com acesso aos calendários e cole-"
+"a aqui."
 
 #: app/src/ui/contacts_prefs.rs:256
 msgid ""
@@ -8185,7 +8194,7 @@ msgid "Mailboxes"
 msgstr "Caixas de correio"
 
 #: app/src/ui/sidebar.rs:355 app/src/ui/sidebar.rs:1388
-#: app/src/ui/thread_list.rs:480
+#: app/src/ui/thread_list.rs:491
 msgid "Mail"
 msgstr "Correio"
 
@@ -8434,86 +8443,86 @@ msgstr "Corpo"
 msgid "New Template"
 msgstr "Novo modelo"
 
-#: app/src/ui/thread_list.rs:371
+#: app/src/ui/thread_list.rs:382
 msgid "No Mail"
 msgstr "Sem correio"
 
 #. The two search terms are Gmail's own and stay in English.
-#: app/src/ui/thread_list.rs:389
+#: app/src/ui/thread_list.rs:400
 msgid "Search mail, e.g. from:ann has:attachment"
 msgstr "Pesquisar correio, por exemplo from:ana has:attachment"
 
-#: app/src/ui/thread_list.rs:408
+#: app/src/ui/thread_list.rs:419
 msgid "All Inboxes"
 msgstr "Todas as caixas de entrada"
 
-#: app/src/ui/thread_list.rs:428 app/src/ui/thread_list.rs:448
+#: app/src/ui/thread_list.rs:439 app/src/ui/thread_list.rs:459
 msgid "Show Mailboxes"
 msgstr "Mostrar as caixas de correio"
 
-#: app/src/ui/thread_list.rs:433
+#: app/src/ui/thread_list.rs:444
 msgid "New Message (C)"
 msgstr "Nova mensagem (C)"
 
-#: app/src/ui/thread_list.rs:438
+#: app/src/ui/thread_list.rs:449
 msgid "Search (/)"
 msgstr "Pesquisar (/)"
 
 #. The tooltips already say what these do; the spoken name takes
 #. the words and leaves the keys to a property of their own.
-#: app/src/ui/thread_list.rs:447
+#: app/src/ui/thread_list.rs:458
 msgid "Search mail"
 msgstr "Pesquisar correio"
 
-#: app/src/ui/thread_list/bundle_line.rs:280
+#: app/src/ui/thread_list/bundle_line.rs:287
 msgid "Previous in {topic}"
 msgstr "Anterior em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:281
+#: app/src/ui/thread_list/bundle_line.rs:288
 msgid "Next in {topic}"
 msgstr "Seguinte em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:292
+#: app/src/ui/thread_list/bundle_line.rs:299
 msgid "{count} more in {topic}"
 msgid_plural "{count} more in {topic}"
 msgstr[0] "mais {count} em {topic}"
 msgstr[1] "mais {count} em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:298
+#: app/src/ui/thread_list/bundle_line.rs:305
 msgid "{count} in {topic}"
 msgid_plural "{count} in {topic}"
 msgstr[0] "{count} em {topic}"
 msgstr[1] "{count} em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:385
+#: app/src/ui/thread_list/bundle_line.rs:392
 msgid "Topic {topic}, {count} conversation"
 msgid_plural "Topic {topic}, {count} conversations"
 msgstr[0] "Tópico {topic}, {count} conversa"
 msgstr[1] "Tópico {topic}, {count} conversas"
 
-#: app/src/ui/thread_list/bundle_line.rs:391
+#: app/src/ui/thread_list/bundle_line.rs:398
 msgid "Topic {topic}, {count} message"
 msgid_plural "Topic {topic}, {count} messages"
 msgstr[0] "Tópico {topic}, {count} mensagem"
 msgstr[1] "Tópico {topic}, {count} mensagens"
 
-#: app/src/ui/thread_list/bundle_line.rs:397
+#: app/src/ui/thread_list/bundle_line.rs:404
 msgid "Show only unread in {topic}"
 msgstr "Mostrar só as não lidas em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:402
+#: app/src/ui/thread_list/bundle_line.rs:409
 msgid "Show {count} more in {topic}"
 msgid_plural "Show {count} more in {topic}"
 msgstr[0] "Mostrar mais {count} em {topic}"
 msgstr[1] "Mostrar mais {count} em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:409
+#: app/src/ui/thread_list/bundle_line.rs:416
 msgid "{count} read conversation in {topic}, show it"
 msgid_plural "{count} read conversations in {topic}, show them"
 msgstr[0] "{count} conversa lida em {topic}, mostrá-la"
 msgstr[1] "{count} conversas lidas em {topic}, mostrá-las"
 
-#: app/src/ui/thread_list/bundle_line.rs:415
+#: app/src/ui/thread_list/bundle_line.rs:422
 msgid "{count} read message in {topic}, show it"
 msgid_plural "{count} read messages in {topic}, show them"
 msgstr[0] "{count} mensagem lida em {topic}, mostrá-la"
