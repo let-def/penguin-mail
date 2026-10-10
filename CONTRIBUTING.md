@@ -77,6 +77,8 @@ installs the desktop file, icons and metainfo under it.
 domain/   shared types, Gmail's label names, categories
 mime/     reading mail: charsets, address lists, HTML to text
 gmail/    Gmail REST client, OAuth, quota limiter
+jmap/     JMAP client: the session, batched method calls, blobs, and
+          the mail and submission calls, written against Fastmail
 discover/ from an address to its mail servers: the provider table, MX,
           autoconfig files, SRV records and a probe
 dav/      CalDAV and CardDAV: WebDAV's XML, a client, and calendars and
