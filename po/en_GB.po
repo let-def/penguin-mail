@@ -3515,13 +3515,12 @@ msgstr "Try Again"
 #: app/src/ui/calendar/scope.rs:92 app/src/ui/composer/editor.rs:343
 #: app/src/ui/composer/mod.rs:1561 app/src/ui/composer/mod.rs:1630
 #: app/src/ui/composer/mod.rs:1953 app/src/ui/composer/mod.rs:2404
-#: app/src/ui/confirm.rs:29 app/src/ui/group_picker.rs:71
-#: app/src/ui/rules.rs:445 app/src/ui/rules.rs:625
+#: app/src/ui/confirm.rs:29 app/src/ui/rules.rs:445 app/src/ui/rules.rs:625
 #: app/src/ui/smart_editor.rs:150 app/src/ui/templates.rs:239
-#: app/src/ui/unsubscribe.rs:119 app/src/ui/vacation.rs:45
-#: app/src/ui/when.rs:52 app/src/ui/window/arrange.rs:146
-#: app/src/ui/window/images.rs:101 app/src/ui/window/organize.rs:73
-#: app/src/ui/window/organize.rs:122
+#: app/src/ui/topic_picker.rs:71 app/src/ui/unsubscribe.rs:119
+#: app/src/ui/vacation.rs:45 app/src/ui/when.rs:52
+#: app/src/ui/window/arrange.rs:146 app/src/ui/window/images.rs:101
+#: app/src/ui/window/organize.rs:73 app/src/ui/window/organize.rs:122
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -6251,9 +6250,9 @@ msgstr "Tags…"
 msgid "Remind Me"
 msgstr "Remind Me"
 
-#: app/src/ui/conversation.rs:564 app/src/ui/group_picker.rs:71
-msgid "Group"
-msgstr "Group"
+#: app/src/ui/conversation.rs:564
+msgid "Topic"
+msgstr "Topic"
 
 #: app/src/ui/conversation.rs:568
 msgid "Open in New Window"
@@ -6339,12 +6338,12 @@ msgstr[0] "{count} Message Selected"
 msgstr[1] "{count} Messages Selected"
 
 #: app/src/ui/conversation.rs:1680
-msgid "Choose Group…"
-msgstr "Choose Group…"
+msgid "Choose Topic…"
+msgstr "Choose Topic…"
 
 #: app/src/ui/conversation.rs:1681
-msgid "Remove from Group"
-msgstr "Remove from Group"
+msgid "Remove from Topic"
+msgstr "Remove from Topic"
 
 #: app/src/ui/conversation.rs:1735
 msgid "Unflag (Ctrl+Shift+L)"
@@ -6408,22 +6407,6 @@ msgstr "Previous Match"
 #: app/src/ui/find.rs:129 app/src/ui/find.rs:132
 msgid "Next Match"
 msgstr "Next Match"
-
-#: app/src/ui/group_picker.rs:34 app/src/ui/group_picker.rs:38
-msgid "Group name"
-msgstr "Group name"
-
-#: app/src/ui/group_picker.rs:53 app/src/ui/group_picker.rs:54
-msgid "Known groups"
-msgstr "Known groups"
-
-#: app/src/ui/group_picker.rs:65
-msgid "Choose Group"
-msgstr "Choose Group"
-
-#: app/src/ui/group_picker.rs:67
-msgid "Mail in one group is drawn together in the list. A new name starts a group."
-msgstr "Mail in one group is drawn together in the list. A new name starts a group."
 
 #: app/src/ui/hide_my_email.rs:22
 msgid "Gmail delivers mail sent to these addresses to your inbox. Each one shows which site shared your address, and you can turn one off when the spam starts. Your real address is part of each one, so anyone who removes the tag can still reach you, and your replies come from your main address."
@@ -7775,58 +7758,58 @@ msgid "Search mail"
 msgstr "Search mail"
 
 #: app/src/ui/thread_list/bundle_line.rs:280
-msgid "Previous in {group}"
-msgstr "Previous in {group}"
+msgid "Previous in {topic}"
+msgstr "Previous in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:281
-msgid "Next in {group}"
-msgstr "Next in {group}"
+msgid "Next in {topic}"
+msgstr "Next in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:292
-msgid "{count} more in {group}"
-msgid_plural "{count} more in {group}"
-msgstr[0] "{count} more in {group}"
-msgstr[1] "{count} more in {group}"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "{count} more in {topic}"
+msgstr[1] "{count} more in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:298
-msgid "{count} in {group}"
-msgid_plural "{count} in {group}"
-msgstr[0] "{count} in {group}"
-msgstr[1] "{count} in {group}"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} in {topic}"
+msgstr[1] "{count} in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:385
-msgid "Group {group}, {count} conversation"
-msgid_plural "Group {group}, {count} conversations"
-msgstr[0] "Group {group}, {count} conversation"
-msgstr[1] "Group {group}, {count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "Topic {topic}, {count} conversation"
+msgstr[1] "Topic {topic}, {count} conversations"
 
 #: app/src/ui/thread_list/bundle_line.rs:391
-msgid "Group {group}, {count} message"
-msgid_plural "Group {group}, {count} messages"
-msgstr[0] "Group {group}, {count} message"
-msgstr[1] "Group {group}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "Topic {topic}, {count} message"
+msgstr[1] "Topic {topic}, {count} messages"
 
 #: app/src/ui/thread_list/bundle_line.rs:397
-msgid "Show only unread in {group}"
-msgstr "Show only unread in {group}"
+msgid "Show only unread in {topic}"
+msgstr "Show only unread in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:402
-msgid "Show {count} more in {group}"
-msgid_plural "Show {count} more in {group}"
-msgstr[0] "Show {count} more in {group}"
-msgstr[1] "Show {count} more in {group}"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "Show {count} more in {topic}"
+msgstr[1] "Show {count} more in {topic}"
 
 #: app/src/ui/thread_list/bundle_line.rs:409
-msgid "{count} read conversation in {group}, show it"
-msgid_plural "{count} read conversations in {group}, show them"
-msgstr[0] "{count} read conversation in {group}, show it"
-msgstr[1] "{count} read conversations in {group}, show them"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count} read conversation in {topic}, show it"
+msgstr[1] "{count} read conversations in {topic}, show them"
 
 #: app/src/ui/thread_list/bundle_line.rs:415
-msgid "{count} read message in {group}, show it"
-msgid_plural "{count} read messages in {group}, show them"
-msgstr[0] "{count} read message in {group}, show it"
-msgstr[1] "{count} read messages in {group}, show them"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} read message in {topic}, show it"
+msgstr[1] "{count} read messages in {topic}, show them"
 
 #: app/src/ui/thread_row.rs:96
 msgid "VIP"
@@ -7851,6 +7834,26 @@ msgstr "Invitation, {sender}, {subject}, {snippet}"
 #: app/src/ui/thread_row.rs:289
 msgid "{sender}, {subject}, {snippet}"
 msgstr "{sender}, {subject}, {snippet}"
+
+#: app/src/ui/topic_picker.rs:34 app/src/ui/topic_picker.rs:38
+msgid "Topic name"
+msgstr "Topic name"
+
+#: app/src/ui/topic_picker.rs:53 app/src/ui/topic_picker.rs:54
+msgid "Known topics"
+msgstr "Known topics"
+
+#: app/src/ui/topic_picker.rs:65
+msgid "Choose Topic"
+msgstr "Choose Topic"
+
+#: app/src/ui/topic_picker.rs:67
+msgid "Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr "Mail on one topic is shown together in the list. A new name starts a topic."
+
+#: app/src/ui/topic_picker.rs:71
+msgid "Choose"
+msgstr "Choose"
 
 #: app/src/ui/translation.rs:60 app/src/ui/translation.rs:123
 #: app/src/ui/translation.rs:165
@@ -8108,12 +8111,12 @@ msgid "Labels changed"
 msgstr "Labels changed"
 
 #: app/src/ui/window.rs:402
-msgid "Added to {group}"
-msgstr "Added to {group}"
+msgid "Added to {topic}"
+msgstr "Added to {topic}"
 
 #: app/src/ui/window.rs:404
-msgid "Removed from group"
-msgstr "Removed from group"
+msgid "Removed from topic"
+msgstr "Removed from topic"
 
 #: app/src/ui/window.rs:408
 msgid "Unmuted"
@@ -9389,8 +9392,8 @@ msgid "Change labels"
 msgstr "Change labels"
 
 #: sync/src/actions.rs:130
-msgid "Add to {group}"
-msgstr "Add to {group}"
+msgid "Add to {topic}"
+msgstr "Add to {topic}"
 
 #: sync/src/actions.rs:356
 msgid "Delete Forever failed: {reason}"
@@ -9405,8 +9408,8 @@ msgid "Could not undo: {reason}"
 msgstr "Could not undo: {reason}"
 
 #: sync/src/actions.rs:890
-msgid "“{group}” cannot name a group."
-msgstr "“{group}” cannot name a group."
+msgid "“{topic}” cannot name a topic."
+msgstr "“{topic}” cannot name a topic."
 
 #: sync/src/actions/labelling.rs:101
 msgid "Create the label {names}?"

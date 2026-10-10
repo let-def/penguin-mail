@@ -348,8 +348,8 @@ flowboxchild:focus-visible > .recipient-chip {
   box-shadow: inset 0 0 0 2px var(--accent-bg-color);
 }
 
-/* Bundles: a mail group's rows drawn together in the thread list. The
-   header sits on the row pitch with the group's colour as a dot; the
+/* Bundles: a topic's rows drawn together in the thread list. The
+   header sits on the row pitch with the topic's colour as a dot; the
    trailer and the summary line up with the rows' text at 80 px. Text
    keeps the row inks, so the dim rules above hold their contrast. */
 .bundle-header { padding: 10px 8px 4px 18px; }

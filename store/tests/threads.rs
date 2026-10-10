@@ -413,26 +413,26 @@ fn a_cancelled_invitation_leaves_no_mark() {
 }
 
 #[test]
-fn a_row_names_the_groups_its_messages_are_in_by_keyword_or_label() {
-    use mailrs_domain::mail_group;
+fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
+    use mailrs_domain::topic;
     use mailrs_domain::mailbox::{MailboxKind, RemoteMailbox};
     let (conn, a, b) = two_accounts();
-    let group_label = RemoteMailbox {
+    let topic_label = RemoteMailbox {
         id: "Label_7".into(),
-        name: mail_group::label_of("Q3 Launch"),
+        name: topic::label_of("Q3 Launch"),
         kind: MailboxKind::Label,
         role: None,
         color: None,
         hidden: false,
     };
-    mailrs_store::mailboxes::upsert(&conn, b, &group_label).unwrap();
+    mailrs_store::mailboxes::upsert(&conn, b, &topic_label).unwrap();
     store(&conn, &[meta(a, "a3", "ta2", 250, &["INBOX"])]);
     let keyword = |id: &str, name: &str| Change::SetKeyword {
         message_id: id.into(),
-        keyword: mail_group::keyword_of(name),
+        keyword: topic::keyword_of(name),
         on: true,
     };
-    // Two messages of one thread in the same group, one in another.
+    // Two messages of one thread in the same topic, one in another.
     messages::apply(
         &conn,
         a,
@@ -447,19 +447,19 @@ fn a_row_names_the_groups_its_messages_are_in_by_keyword_or_label() {
     .unwrap();
 
     let rows = threads::list_threads(&conn, &ThreadFilter::unified(set("INBOX")), 0, 10).unwrap();
-    let groups = |id: &str| {
-        let mut names = rows.iter().find(|r| r.id == id).unwrap().groups.clone();
+    let topics = |id: &str| {
+        let mut names = rows.iter().find(|r| r.id == id).unwrap().topics.clone();
         names.sort();
         names
     };
-    assert_eq!(groups("ta2").len(), 2, "{:?}", groups("ta2"));
-    assert!(groups("ta2").iter().any(|n| n == "Café"));
-    assert_eq!(groups("tb1"), ["Q3 Launch"]);
-    assert!(groups("ta1").is_empty());
+    assert_eq!(topics("ta2").len(), 2, "{:?}", topics("ta2"));
+    assert!(topics("ta2").iter().any(|n| n == "Café"));
+    assert_eq!(topics("tb1"), ["Q3 Launch"]);
+    assert!(topics("ta1").is_empty());
 
     let one = threads::list_messages(&conn, &ThreadFilter::account(a, set("INBOX")), 0, 10).unwrap();
     let a3 = one.iter().find(|r| r.message_id.as_deref() == Some("a3")).unwrap();
-    assert_eq!(a3.groups.len(), 2);
+    assert_eq!(a3.topics.len(), 2);
 
-    assert_eq!(threads::group_names(&conn, &[a, b]).unwrap(), ["Café", "Q3 launch"]);
+    assert_eq!(threads::topic_names(&conn, &[a, b]).unwrap(), ["Café", "Q3 launch"]);
 }

@@ -109,10 +109,10 @@ const ACCOUNTS: [SampleAccount; 3] = [
             ("Label_important", "Personal/Important", None),
             ("Label_work", "Work", Some("#4a86e8")),
             ("Label_bugs", "Work/bugs", None),
-            // Mail groups, which the list draws as bundles and the
+            // Topics, which the list draws as bundles and the
             // sidebar leaves out.
-            ("Label_weekend", "group:Weekend plans", None),
-            ("Label_home", "group:Home admin", None),
+            ("Label_weekend", "topic:Weekend plans", None),
+            ("Label_home", "topic:Home admin", None),
         ],
         aliases: &[],
         personal: true,

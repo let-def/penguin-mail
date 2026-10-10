@@ -1,5 +1,5 @@
 //! The lines a bundle adds to the thread list: its header, with the
-//! group's name, how many rows it holds and the arrows to the group's
+//! topic's name, how many rows it holds and the arrows to the topic's
 //! next and previous places; the trailer that opens or closes it; and the
 //! summary that stands for a closed bundle whose rows are all read. One
 //! widget draws all three, since the list reuses its widgets for whatever
@@ -33,14 +33,14 @@ pub enum Kind {
 /// The bundle a line belongs to, as the line shows it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Shown {
-    pub group: String,
-    /// Which of the group colours, `account-N` in the stylesheet.
+    pub topic: String,
+    /// Which of the topic colours, `account-N` in the stylesheet.
     pub color: usize,
     /// How many rows the bundle holds, and how many a closed one hides.
     pub count: usize,
     pub hidden: usize,
     pub open: bool,
-    /// Whether the group shows above or below the bundle, or may show
+    /// Whether the topic shows above or below the bundle, or may show
     /// further down once more rows load.
     pub earlier: bool,
     pub later: bool,
@@ -52,9 +52,9 @@ pub struct Shown {
 #[derive(Clone)]
 pub struct Handlers {
     pub toggle: Rc<dyn Fn(u32)>,
-    /// Goes to the group's place above (`-1`) or below (`1`).
+    /// Goes to the topic's place above (`-1`) or below (`1`).
     pub jump: Rc<dyn Fn(u32, i32)>,
-    /// Mail dropped on the line, to put in its group; true when taken.
+    /// Mail dropped on the line, to put in its topic; true when taken.
     pub dropped: Rc<dyn Fn(u32) -> bool>,
 }
 
@@ -270,15 +270,15 @@ impl BundleLine {
         }
         dot.add_css_class(&wanted);
         let label = |cell: &OnceCell<gtk::Label>| cell.get().expect("built in new").clone();
-        let group = shown.group.as_str();
-        label(&imp.title).set_label(group);
+        let topic = shown.topic.as_str();
+        label(&imp.title).set_label(topic);
         label(&imp.count).set_label(&shown.count.to_string());
         let up = imp.up.get().expect("built in new");
         let down = imp.down.get().expect("built in new");
         up.set_sensitive(shown.earlier);
         down.set_sensitive(shown.later);
-        let previous = fill(&gettext("Previous in {group}"), &[("group", group)]);
-        let next = fill(&gettext("Next in {group}"), &[("group", group)]);
+        let previous = fill(&gettext("Previous in {topic}"), &[("topic", topic)]);
+        let next = fill(&gettext("Next in {topic}"), &[("topic", topic)]);
         up.set_tooltip_text(Some(&previous));
         down.set_tooltip_text(Some(&next));
         crate::ui::name(up, &previous);
@@ -289,16 +289,16 @@ impl BundleLine {
         let more = label(&imp.more);
         more.set_label(&match (kind, shown.open) {
             (Kind::Trailer, false) => fill_plural(
-                "{count} more in {group}",
-                "{count} more in {group}",
+                "{count} more in {topic}",
+                "{count} more in {topic}",
                 shown.hidden,
-                &[("count", &hidden), ("group", group)],
+                &[("count", &hidden), ("topic", topic)],
             ),
             _ => fill_plural(
-                "{count} in {group}",
-                "{count} in {group}",
+                "{count} in {topic}",
+                "{count} in {topic}",
                 shown.count,
-                &[("count", &count), ("group", group)],
+                &[("count", &count), ("topic", topic)],
             ),
         });
         imp.chevron.get().expect("built in new").set_icon_name(Some(match shown.open {
@@ -377,43 +377,43 @@ fn subject(row: &ThreadSummary) -> String {
 
 /// What a screen reader says for a line.
 fn spoken(kind: &Kind, shown: &Shown) -> String {
-    let group = shown.group.as_str();
+    let topic = shown.topic.as_str();
     let count = shown.count.to_string();
-    let values = [("count", count.as_str()), ("group", group)];
+    let values = [("count", count.as_str()), ("topic", topic)];
     match (kind, shown.threaded) {
         (Kind::Header, true) => fill_plural(
-            "Group {group}, {count} conversation",
-            "Group {group}, {count} conversations",
+            "Topic {topic}, {count} conversation",
+            "Topic {topic}, {count} conversations",
             shown.count,
             &values,
         ),
         (Kind::Header, false) => fill_plural(
-            "Group {group}, {count} message",
-            "Group {group}, {count} messages",
+            "Topic {topic}, {count} message",
+            "Topic {topic}, {count} messages",
             shown.count,
             &values,
         ),
         (Kind::Trailer, _) if shown.open => {
-            fill(&gettext("Show only unread in {group}"), &[("group", group)])
+            fill(&gettext("Show only unread in {topic}"), &[("topic", topic)])
         }
         (Kind::Trailer, _) => {
             let hidden = shown.hidden.to_string();
             fill_plural(
-                "Show {count} more in {group}",
-                "Show {count} more in {group}",
+                "Show {count} more in {topic}",
+                "Show {count} more in {topic}",
                 shown.hidden,
-                &[("count", &hidden), ("group", group)],
+                &[("count", &hidden), ("topic", topic)],
             )
         }
         (Kind::Summary(_), true) => fill_plural(
-            "{count} read conversation in {group}, show it",
-            "{count} read conversations in {group}, show them",
+            "{count} read conversation in {topic}, show it",
+            "{count} read conversations in {topic}, show them",
             shown.count,
             &values,
         ),
         (Kind::Summary(_), false) => fill_plural(
-            "{count} read message in {group}, show it",
-            "{count} read messages in {group}, show them",
+            "{count} read message in {topic}, show it",
+            "{count} read messages in {topic}, show them",
             shown.count,
             &values,
         ),

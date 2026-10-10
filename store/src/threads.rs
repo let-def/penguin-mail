@@ -8,7 +8,7 @@ use std::collections::{HashMap, HashSet};
 
 use mailrs_domain::mailbox::keyword::{FLAGGED, MUTED};
 use mailrs_domain::{
-    AccountId, Category, FlagColor, MailSet, Membership, Role, ThreadSummary, mail_group,
+    AccountId, Category, FlagColor, MailSet, Membership, Role, ThreadSummary, topic,
 };
 use rusqlite::types::Value;
 use rusqlite::{Connection, OptionalExtension, Row, params, params_from_iter};
@@ -975,11 +975,11 @@ const COLUMNS: &str = "t.account_id, t.id, t.last_message_at, t.subject, t.snipp
                         CROSS JOIN message_keywords k \
                         ON k.account_id = gm.account_id AND k.message_id = gm.id \
                         WHERE gm.account_id = t.account_id AND gm.thread_id = t.id \
-                        AND k.keyword >= 'group:' AND k.keyword < 'group;'), \
+                        AND k.keyword >= 'topic:' AND k.keyword < 'topic;'), \
                        (SELECT group_concat(b.name, char(31)) FROM thread_mailboxes tb \
                         CROSS JOIN mailboxes b ON b.key = tb.mailbox \
                         WHERE tb.account_id = t.account_id AND tb.thread_id = t.id \
-                        AND b.name >= 'group:' AND b.name < 'group;')";
+                        AND b.name >= 'topic:' AND b.name < 'topic;')";
 
 fn flag_color(row: &Row<'_>, index: usize) -> rusqlite::Result<Option<FlagColor>> {
     Ok(row
@@ -1004,29 +1004,29 @@ fn to_summary(row: &Row<'_>) -> rusqlite::Result<ThreadSummary> {
         from_email: row.get(11)?,
         muted: row.get(12)?,
         invitation: row.get(13)?,
-        groups: groups(row, 14, 15)?,
+        topics: topics(row, 14, 15)?,
     })
 }
 
-/// The group names a row lists: the group keywords in column `keywords`
-/// and the names of the server mailboxes named as groups, such as Gmail
+/// The topic names a row lists: the topic keywords in column `keywords`
+/// and the names of the server mailboxes named as topics, such as Gmail
 /// labels, in column `labels`, each separated by U+001F. A thread whose
-/// messages carry the same group twice lists it once; the query leaves
+/// messages carry the same topic twice lists it once; the query leaves
 /// that to this, since asking SQLite for distinct names sorts every row.
-fn groups(row: &Row<'_>, keywords: usize, labels: usize) -> rusqlite::Result<Vec<String>> {
+fn topics(row: &Row<'_>, keywords: usize, labels: usize) -> rusqlite::Result<Vec<String>> {
     let keywords: Option<String> = row.get(keywords)?;
     let labels: Option<String> = row.get(labels)?;
     let from_keywords = keywords
         .iter()
         .flat_map(|l| l.split('\u{1f}'))
-        .filter_map(mail_group::name_of_keyword);
+        .filter_map(topic::name_of_keyword);
     let from_labels = labels
         .iter()
         .flat_map(|l| l.split('\u{1f}'))
-        .filter_map(|l| mail_group::name_of_label(l).map(str::to_string));
+        .filter_map(|l| topic::name_of_label(l).map(str::to_string));
     let mut names: Vec<String> = Vec::new();
     for name in from_keywords.chain(from_labels) {
-        if !names.iter().any(|n| mail_group::same(n, &name))
+        if !names.iter().any(|n| topic::same(n, &name))
         {
             names.push(name);
         }
@@ -1034,32 +1034,32 @@ fn groups(row: &Row<'_>, keywords: usize, labels: usize) -> rusqlite::Result<Vec
     Ok(names)
 }
 
-/// Every mail group the store knows in `accounts`, each name once,
-/// sorted ignoring case: the group keywords messages carry and the
-/// server mailboxes named as groups, such as Gmail labels.
-pub fn group_names(conn: &Connection, accounts: &[AccountId]) -> Result<Vec<String>> {
+/// Every topic the store knows in `accounts`, each name once,
+/// sorted ignoring case: the topic keywords messages carry and the
+/// server mailboxes named as topics, such as Gmail labels.
+pub fn topic_names(conn: &Connection, accounts: &[AccountId]) -> Result<Vec<String>> {
     let mut names: Vec<String> = Vec::new();
     let mut keep = |name: String| {
-        if !names.iter().any(|n| mail_group::same(n, &name)) {
+        if !names.iter().any(|n| topic::same(n, &name)) {
             names.push(name);
         }
     };
     for account_id in accounts {
         let mut keywords = conn.prepare_cached(
             "SELECT DISTINCT keyword FROM message_keywords \
-             WHERE keyword >= 'group:' AND keyword < 'group;' AND account_id = ?1",
+             WHERE keyword >= 'topic:' AND keyword < 'topic;' AND account_id = ?1",
         )?;
         for keyword in keywords.query_map([account_id], |row| row.get::<_, String>(0))? {
-            if let Some(name) = mail_group::name_of_keyword(&keyword?) {
+            if let Some(name) = topic::name_of_keyword(&keyword?) {
                 keep(name);
             }
         }
         let mut mailboxes = conn.prepare_cached(
             "SELECT name FROM mailboxes \
-             WHERE name >= 'group:' AND name < 'group;' AND account_id = ?1",
+             WHERE name >= 'topic:' AND name < 'topic;' AND account_id = ?1",
         )?;
         for label in mailboxes.query_map([account_id], |row| row.get::<_, String>(0))? {
-            if let Some(name) = mail_group::name_of_label(&label?) {
+            if let Some(name) = topic::name_of_label(&label?) {
                 keep(name.to_string());
             }
         }
@@ -1068,10 +1068,10 @@ pub fn group_names(conn: &Connection, accounts: &[AccountId]) -> Result<Vec<Stri
     Ok(names)
 }
 
-/// The memberships that put thread `thread_id` in a mail group, or only
-/// message `only` of it: each group keyword its messages carry, and each
-/// server mailbox named as a group that holds one, by the server's id.
-pub fn group_memberships(
+/// The memberships that put thread `thread_id` in a topic, or only
+/// message `only` of it: each topic keyword its messages carry, and each
+/// server mailbox named as a topic that holds one, by the server's id.
+pub fn topic_memberships(
     conn: &Connection,
     account_id: AccountId,
     thread_id: &str,
@@ -1082,13 +1082,13 @@ pub fn group_memberships(
         "SELECT DISTINCT k.keyword FROM messages m \
          JOIN message_keywords k ON k.account_id = m.account_id AND k.message_id = m.id \
          WHERE m.account_id = ?1 AND m.thread_id = ?2 AND (?3 IS NULL OR m.id = ?3) \
-         AND k.keyword >= 'group:' AND k.keyword < 'group;'",
+         AND k.keyword >= 'topic:' AND k.keyword < 'topic;'",
     )?;
     for keyword in keywords.query_map(params![account_id, thread_id, only], |row| {
         row.get::<_, String>(0)
     })? {
         let keyword = keyword?;
-        if let Some(name) = mail_group::name_of_keyword(&keyword) {
+        if let Some(name) = topic::name_of_keyword(&keyword) {
             held.push((Membership::Keyword(keyword), name));
         }
     }
@@ -1097,13 +1097,13 @@ pub fn group_memberships(
          JOIN message_mailboxes mb ON mb.account_id = m.account_id AND mb.message_id = m.id \
          JOIN mailboxes b ON b.key = mb.mailbox \
          WHERE m.account_id = ?1 AND m.thread_id = ?2 AND (?3 IS NULL OR m.id = ?3) \
-         AND b.name >= 'group:' AND b.name < 'group;'",
+         AND b.name >= 'topic:' AND b.name < 'topic;'",
     )?;
     for row in mailboxes.query_map(params![account_id, thread_id, only], |row| {
         Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
     })? {
         let (id, label) = row?;
-        if let Some(name) = mail_group::name_of_label(&label) {
+        if let Some(name) = topic::name_of_label(&label) {
             held.push((Membership::Mailbox(id), name.to_string()));
         }
     }
@@ -1221,11 +1221,11 @@ const MESSAGE_COLUMNS: &str = "m.account_id, m.thread_id, m.id, m.date, m.subjec
              AND i.message_id = m.id AND i.cancelled = 0), \
      (SELECT group_concat(k.keyword, char(31)) FROM message_keywords k \
       WHERE k.account_id = m.account_id AND k.message_id = m.id \
-      AND k.keyword >= 'group:' AND k.keyword < 'group;'), \
+      AND k.keyword >= 'topic:' AND k.keyword < 'topic;'), \
      (SELECT group_concat(b.name, char(31)) FROM message_mailboxes mb \
       CROSS JOIN mailboxes b ON b.key = mb.mailbox \
       WHERE mb.account_id = m.account_id AND mb.message_id = m.id \
-      AND b.name >= 'group:' AND b.name < 'group;')";
+      AND b.name >= 'topic:' AND b.name < 'topic;')";
 
 fn to_message_row(row: &Row<'_>) -> rusqlite::Result<ThreadSummary> {
     Ok(ThreadSummary {
@@ -1244,7 +1244,7 @@ fn to_message_row(row: &Row<'_>) -> rusqlite::Result<ThreadSummary> {
         from_email: row.get(11)?,
         muted: row.get(12)?,
         invitation: row.get(13)?,
-        groups: groups(row, 14, 15)?,
+        topics: topics(row, 14, 15)?,
     })
 }
 

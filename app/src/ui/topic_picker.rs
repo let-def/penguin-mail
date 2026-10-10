@@ -1,16 +1,16 @@
-//! The Choose Group dialog: a name typed in an entry that completes the
-//! groups the store knows as the person types, or one picked from a list
-//! of them. A new name starts a group.
+//! The Choose Topic dialog: a name typed in an entry that completes the
+//! topics the store knows as the person types, or one picked from a list
+//! of them. A new name starts a topic.
 
 use std::cell::Cell;
 use std::rc::Rc;
 
 use adw::prelude::*;
 use gtk::glib;
-use mailrs_domain::mail_group;
+use mailrs_domain::topic;
 use mailrs_domain::translate::gettext;
 
-/// The rest of the first known group whose name starts with `typed`,
+/// The rest of the first known topic whose name starts with `typed`,
 /// ignoring case, for the entry to offer after what the person typed.
 /// Nothing while `typed` is empty or already a whole name.
 pub fn completion<'a>(typed: &str, known: &'a [String]) -> Option<&'a str> {
@@ -27,15 +27,15 @@ pub fn completion<'a>(typed: &str, known: &'a [String]) -> Option<&'a str> {
     })
 }
 
-/// Asks which group to put mail in, from `known` or a new name, and
+/// Asks which topic to put mail in, from `known` or a new name, and
 /// answers with the name, or nothing when the person cancels.
 pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<String> {
     let entry = gtk::Entry::builder()
-        .placeholder_text(gettext("Group name"))
+        .placeholder_text(gettext("Topic name"))
         .activates_default(true)
-        .max_length(mail_group::MAX_LEN as i32)
+        .max_length(topic::MAX_LEN as i32)
         .build();
-    super::name(&entry, &gettext("Group name"));
+    super::name(&entry, &gettext("Topic name"));
     complete_as_typed(&entry, Rc::new(known.clone()));
     let content = gtk::Box::new(gtk::Orientation::Vertical, 12);
     content.append(&entry);
@@ -50,8 +50,8 @@ pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<
             None::<&gtk::Expression>,
             "string",
         )));
-        super::name(&list, &gettext("Known groups"));
-        list.set_tooltip_text(Some(&gettext("Known groups")));
+        super::name(&list, &gettext("Known topics"));
+        list.set_tooltip_text(Some(&gettext("Known topics")));
         let typed = entry.clone();
         list.connect_selected_item_notify(move |list| {
             if let Some(name) = list.selected_item().and_downcast::<gtk::StringObject>() {
@@ -62,33 +62,33 @@ pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<
         content.append(&list);
     }
     let dialog = adw::AlertDialog::builder()
-        .heading(gettext("Choose Group"))
+        .heading(gettext("Choose Topic"))
         .body(gettext(
-            "Mail in one group is drawn together in the list. A new name starts a group.",
+            "Mail on one topic is shown together in the list. A new name starts a topic.",
         ))
         .extra_child(&content)
         .build();
-    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("group", &gettext("Group"))]);
-    dialog.set_response_appearance("group", adw::ResponseAppearance::Suggested);
-    dialog.set_default_response(Some("group"));
+    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("topic", &gettext("Choose"))]);
+    dialog.set_response_appearance("topic", adw::ResponseAppearance::Suggested);
+    dialog.set_default_response(Some("topic"));
     dialog.set_close_response("cancel");
-    // The button stays off until the entry holds a name a group can carry.
-    dialog.set_response_enabled("group", false);
+    // The button stays off until the entry holds a name a topic can carry.
+    dialog.set_response_enabled("topic", false);
     let answer = dialog.clone();
     entry.connect_changed(move |entry| {
-        answer.set_response_enabled("group", mail_group::clean(&entry.text()).is_some());
+        answer.set_response_enabled("topic", topic::clean(&entry.text()).is_some());
     });
     let focus = entry.clone();
     dialog.connect_map(move |_| {
         focus.grab_focus();
     });
-    if dialog.choose_future(Some(parent)).await != "group" {
+    if dialog.choose_future(Some(parent)).await != "topic" {
         return None;
     }
-    mail_group::clean(&entry.text())
+    topic::clean(&entry.text())
 }
 
-/// Fills in the rest of a known group's name after the cursor as the
+/// Fills in the rest of a known topic's name after the cursor as the
 /// person types at the end of the entry, selected, so typing on replaces
 /// it and Enter takes it.
 fn complete_as_typed(entry: &gtk::Entry, known: Rc<Vec<String>>) {
@@ -135,7 +135,7 @@ mod tests {
     }
 
     #[test]
-    fn typing_the_start_of_a_group_offers_the_rest() {
+    fn typing_the_start_of_a_topic_offers_the_rest() {
         assert_eq!(completion("q3", &known()), Some(" Launch"));
         assert_eq!(completion("Inv", &known()), Some("oices"));
         assert_eq!(completion("caf", &known()), Some("é trip"));

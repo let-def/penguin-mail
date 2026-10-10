@@ -4,7 +4,7 @@
 use std::collections::{BTreeSet, HashMap};
 use std::ops::RangeInclusive;
 
-use mailrs_domain::{ChangeEvent, EpochMillis, Membership, MessageMeta, Role, mail_group};
+use mailrs_domain::{ChangeEvent, EpochMillis, Membership, MessageMeta, Role, topic};
 use mailrs_store::messages::Change;
 use mailrs_store::{accounts, labels, messages, remote_refs};
 
@@ -215,7 +215,7 @@ impl AccountSync {
                         // the change came under store ids.
                         RemoteChange::StateLost { .. }
                         | RemoteChange::CompareKeywords { .. }
-                        | RemoteChange::GroupsCarried { .. } => {}
+                        | RemoteChange::TopicsCarried { .. } => {}
                     }
                 }
                 let touched = messages::apply(c, account_id, &batch)?.threads;
@@ -484,7 +484,7 @@ fn keyword_changes(
         .collect();
     let lost: Vec<Membership> = held
         .iter()
-        .filter(|k| mail_group::stored(storable, k) && !carried.contains(k))
+        .filter(|k| topic::stored(storable, k) && !carried.contains(k))
         .map(|k| Membership::Keyword(k.clone()))
         .collect();
     let mut changes = Vec::new();

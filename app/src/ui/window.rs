@@ -56,7 +56,7 @@ mod detached;
 mod export;
 mod flags;
 mod followup;
-mod grouping;
+mod topics;
 mod hide_my_email;
 mod images;
 mod invitation;
@@ -398,10 +398,10 @@ fn done_message(action: &MailAction, count: usize, threaded: bool) -> Option<Str
         MailAction::Triage(action) => action,
         MailAction::Flag(color) => return color.map(flagged_message),
         MailAction::Label { .. } => return Some(gettext("Labels changed")),
-        MailAction::Group(Some(group)) => {
-            return Some(fill(&gettext("Added to {group}"), &[("group", group)]));
+        MailAction::Topic(Some(topic)) => {
+            return Some(fill(&gettext("Added to {topic}"), &[("topic", topic)]));
         }
-        MailAction::Group(None) => return Some(gettext("Removed from group")),
+        MailAction::Topic(None) => return Some(gettext("Removed from topic")),
         MailAction::Mute { muted } => {
             return Some(match (*muted, count > 1, threaded) {
                 (true, false, _) => gettext("Muted"),
@@ -939,7 +939,7 @@ impl MainWindow {
         });
         window.install_actions();
         window.install_arrange_actions();
-        window.install_groups();
+        window.install_topics();
         // The assistant's tool calls, one at a time, on this thread.
         let weak = Rc::downgrade(&window);
         glib::spawn_future_local(async move {

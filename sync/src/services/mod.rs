@@ -228,13 +228,13 @@ pub enum RemoteChange {
         uidvalidity: u32,
         uids: RangeInclusive<u32>,
     },
-    /// Every mail group keyword message `id` carries now, from a flag
+    /// Every topic keyword message `id` carries now, from a flag
     /// report that names a message's whole flag set. A server that stores
-    /// any keyword cannot list the group keywords a message lacks, so the
+    /// any keyword cannot list the topic keywords a message lacks, so the
     /// engine takes away each one the store holds and this leaves out.
     /// Only a server that renames what it moves sends it; the engine turns
     /// it into a `Lost` when it reads the change under store ids.
-    GroupsCarried { id: String, keywords: Vec<String> },
+    TopicsCarried { id: String, keywords: Vec<String> },
 }
 
 /// The keywords one message carries on the server, by its UID.

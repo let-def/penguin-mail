@@ -13,7 +13,7 @@ use gtk::{gio, glib};
 use ksni::TrayMethods;
 use mailrs_domain::translate::{fill, gettext};
 use mailrs_domain::{
-    Account, AccountId, Address, ChangeEvent, Label, MailSet, Provider, Role, mail_group,
+    Account, AccountId, Address, ChangeEvent, Label, MailSet, Provider, Role, topic,
 };
 use mailrs_store::{accounts, labels, messages, threads};
 use mailrs_sync::{History, MovedFrom};
@@ -732,11 +732,11 @@ impl App {
                 let mut out: Vec<(Account, Vec<Label>)> = Vec::new();
                 let mut order = HashMap::new();
                 for account in accounts::list_accounts(c)? {
-                    // A mail group's label shows as the group in the
+                    // A topic's label shows as the topic in the
                     // list, never among the labels.
                     let account_labels: Vec<Label> = labels::list_labels(c, account.id)?
                         .into_iter()
-                        .filter(|l| mail_group::name_of_label(&l.name).is_none())
+                        .filter(|l| topic::name_of_label(&l.name).is_none())
                         .collect();
                     order.insert(account.id, labels::positions(c, account.id)?);
                     out.push((account, account_labels));

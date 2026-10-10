@@ -18,7 +18,7 @@ use crate::{
 };
 
 mod categorize;
-mod grouping;
+mod topics;
 mod labelling;
 mod returning;
 
@@ -101,10 +101,10 @@ pub enum MailAction {
     /// again. Only this computer knows about Follow Up, so Gmail hears
     /// nothing of it.
     DismissFollowUp,
-    /// Puts the targets in the mail group of that name and out of any
-    /// other, or with `None` out of every group. A name that matches a
-    /// group the store knows, ignoring case, joins that group.
-    Group(Option<String>),
+    /// Puts the targets in the topic of that name and out of any
+    /// other, or with `None` out of every topic. A name that matches a
+    /// topic the store knows, ignoring case, joins that topic.
+    Topic(Option<String>),
 }
 
 impl MailAction {
@@ -127,8 +127,8 @@ impl MailAction {
             MailAction::Mute { muted: false } => TriageAction::Unmute.describe(),
             MailAction::Label { .. } => gettext("Change labels"),
             MailAction::DismissFollowUp => gettext("Dismiss Follow-Up"),
-            MailAction::Group(Some(group)) => fill(&gettext("Add to {group}"), &[("group", group)]),
-            MailAction::Group(None) => gettext("Remove from Group"),
+            MailAction::Topic(Some(topic)) => fill(&gettext("Add to {topic}"), &[("topic", topic)]),
+            MailAction::Topic(None) => gettext("Remove from Topic"),
         }
     }
 }
@@ -507,7 +507,7 @@ impl<A: Accounts> MailActions<A> {
             MailAction::Triage(_)
             | MailAction::Label { .. }
             | MailAction::Mute { .. }
-            | MailAction::Group(_) => {}
+            | MailAction::Topic(_) => {}
         }
         Ok(())
     }
@@ -852,7 +852,7 @@ impl<A: Accounts> MailActions<A> {
                 });
             }
             MailAction::DismissFollowUp => return vec![Ok(None); targets.len()],
-            MailAction::Group(name) => return self.resolve_group(targets, name.as_deref()).await,
+            MailAction::Topic(name) => return self.resolve_topic(targets, name.as_deref()).await,
             MailAction::Label {
                 add,
                 remove,
@@ -874,21 +874,21 @@ impl<A: Accounts> MailActions<A> {
             .collect()
     }
 
-    /// The change each target needs to join the group `name`, or with
-    /// `None` to leave every group.
-    async fn resolve_group(
+    /// The change each target needs to join the topic `name`, or with
+    /// `None` to leave every topic.
+    async fn resolve_topic(
         &self,
         targets: &[Target],
         name: Option<&str>,
     ) -> Vec<Result<Option<TriageAction>, String>> {
         let spelled = match name {
             None => None,
-            Some(name) => match self.group_spelling(targets, name).await {
+            Some(name) => match self.topic_spelling(targets, name).await {
                 Some(spelled) => Some(spelled),
                 None => {
                     let error = fill(
-                        &gettext("“{group}” cannot name a group."),
-                        &[("group", name)],
+                        &gettext("“{topic}” cannot name a topic."),
+                        &[("topic", name)],
                     );
                     return vec![Err(error); targets.len()];
                 }
@@ -896,7 +896,7 @@ impl<A: Accounts> MailActions<A> {
         };
         let mut resolved = Vec::with_capacity(targets.len());
         for target in targets {
-            resolved.push(self.regroup(target, spelled.as_deref()).await);
+            resolved.push(self.topic_change(target, spelled.as_deref()).await);
         }
         resolved
     }

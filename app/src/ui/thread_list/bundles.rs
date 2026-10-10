@@ -1,13 +1,13 @@
-//! Bundles: the rows of one mail group that sit near each other in the
+//! Bundles: the rows of one topic that sit near each other in the
 //! list, drawn together under a header. Nothing here touches GTK; the list
 //! hands over its rows and draws the entries this lays out.
 //!
 //! The list keeps its order, newest first. Walking down it, a row in a
-//! group gathers every later row of that group that comes within
-//! [`WINDOW`] rows of the last one gathered, so a long run of the group
+//! topic gathers every later row of that topic that comes within
+//! [`WINDOW`] rows of the last one gathered, so a long run of the topic
 //! keeps growing. A bundle sits where its newest row was; the rows it
 //! pulled up leave their places, and the rows between keep their order. A
-//! row of a group with no other row of it near is an ordinary row.
+//! row of a topic with no other row of it near is an ordinary row.
 //!
 //! A bundle shows only its unread rows until it is opened, with a trailer
 //! counting the rest. One whose rows are all read shows a summary of its
@@ -17,15 +17,15 @@
 
 use std::collections::HashSet;
 
-use mailrs_domain::{ThreadSummary, mail_group};
+use mailrs_domain::{ThreadSummary, topic};
 
 use super::{Key, Row, key};
 
-/// How many rows past the last row of a bundle the next row of its group
+/// How many rows past the last row of a bundle the next row of its topic
 /// may come and still join it.
 pub const WINDOW: usize = 20;
 
-/// How many colours bundles take, by the hash of their group's name: the
+/// How many colours bundles take, by the hash of their topic's name: the
 /// account colours, `account-0` and on in the stylesheet.
 pub const COLORS: usize = crate::format::PALETTE.len();
 
@@ -34,7 +34,7 @@ pub const COLORS: usize = crate::format::PALETTE.len();
 pub enum Entry {
     /// A list row, by its index into the rows, and the bundle it sits in.
     Row { row: usize, bundle: Option<usize> },
-    /// A bundle's header: its group, how many rows it holds, the arrows.
+    /// A bundle's header: its topic, how many rows it holds, the arrows.
     Header(usize),
     /// The line under an opened bundle, or under a closed one hiding read
     /// rows, which opens or closes it.
@@ -44,11 +44,11 @@ pub enum Entry {
     Summary(usize),
 }
 
-/// One bundle of rows of a group.
+/// One bundle of rows of a topic.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Bundle {
-    /// The group's name, as the newest row spells it.
-    pub group: String,
+    /// The topic's name, as the newest row spells it.
+    pub topic: String,
     /// The rows, by index, in list order.
     pub members: Vec<usize>,
     pub open: bool,
@@ -57,7 +57,7 @@ pub struct Bundle {
     /// Where the header is among the entries.
     pub at: usize,
     /// The entry the up and down arrows go to: the nearest place above
-    /// and below where the group shows again, outside this bundle.
+    /// and below where the topic shows again, outside this bundle.
     pub earlier: Option<usize>,
     pub later: Option<usize>,
 }
@@ -93,32 +93,32 @@ impl Layout {
     }
 }
 
-/// Which bundles the person opened, remembered by group and row, so a
+/// Which bundles the person opened, remembered by topic and row, so a
 /// bundle stays open when a new row joins it or the list reloads.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Opened(HashSet<(String, Key)>);
 
 impl Opened {
-    fn holds(&self, group: &str, rows: &[Row], members: &[usize]) -> bool {
-        let group = group.to_lowercase();
+    fn holds(&self, topic: &str, rows: &[Row], members: &[usize]) -> bool {
+        let topic = topic.to_lowercase();
         members
             .iter()
-            .any(|m| self.0.contains(&(group.clone(), key(&rows[*m]))))
+            .any(|m| self.0.contains(&(topic.clone(), key(&rows[*m]))))
     }
 
-    /// Opens or closes the bundle of `group` holding `members`. Closing
+    /// Opens or closes the bundle of `topic` holding `members`. Closing
     /// is the person asking for the unread rows alone, so the read rows
     /// the bundle kept on screen leave `kept` and hide too.
-    pub fn toggle(&mut self, group: &str, rows: &[Row], members: &[usize], kept: &mut HashSet<Key>) {
-        let open = self.holds(group, rows, members);
+    pub fn toggle(&mut self, topic: &str, rows: &[Row], members: &[usize], kept: &mut HashSet<Key>) {
+        let open = self.holds(topic, rows, members);
         if open {
             for member in members {
                 kept.remove(&key(&rows[*member]));
             }
         }
-        let group = group.to_lowercase();
+        let topic = topic.to_lowercase();
         for member in members {
-            let entry = (group.clone(), key(&rows[*member]));
+            let entry = (topic.clone(), key(&rows[*member]));
             match open {
                 true => self.0.remove(&entry),
                 false => self.0.insert(entry),
@@ -134,7 +134,7 @@ impl Opened {
 /// Lays `rows` out in bundles. A row whose key is in `kept` shows even in
 /// a closed bundle.
 pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>) -> Layout {
-    let groups: Vec<Vec<&String>> = rows.iter().map(|r| sorted_groups(r)).collect();
+    let topics: Vec<Vec<&String>> = rows.iter().map(|r| sorted_topics(r)).collect();
     let mut placed = vec![false; rows.len()];
     let mut layout = Layout::default();
     for start in 0..rows.len() {
@@ -142,11 +142,11 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
             continue;
         }
         placed[start] = true;
-        let gathered = groups[start].iter().find_map(|group| {
-            let members = gather(&groups, &placed, start, group, window);
-            (members.len() > 1).then_some((group, members))
+        let gathered = topics[start].iter().find_map(|topic| {
+            let members = gather(&topics, &placed, start, topic, window);
+            (members.len() > 1).then_some((topic, members))
         });
-        let Some((group, members)) = gathered else {
+        let Some((topic, members)) = gathered else {
             layout.entries.push(Entry::Row {
                 row: start,
                 bundle: None,
@@ -156,7 +156,7 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
         for member in &members {
             placed[*member] = true;
         }
-        let open = opened.holds(group, rows, &members);
+        let open = opened.holds(topic, rows, &members);
         let index = layout.bundles.len();
         let at = layout.entries.len();
         layout.entries.push(Entry::Header(index));
@@ -175,7 +175,7 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
             }
         }
         layout.bundles.push(Bundle {
-            group: (*group).clone(),
+            topic: (*topic).clone(),
             members,
             open,
             hidden,
@@ -196,27 +196,27 @@ pub fn flat(rows: usize) -> Layout {
     }
 }
 
-/// A row's groups in a fixed order, so a row in two groups tries them the
+/// A row's topics in a fixed order, so a row in two topics tries them the
 /// same way on every device.
-fn sorted_groups(row: &ThreadSummary) -> Vec<&String> {
-    let mut groups: Vec<&String> = row.groups.iter().collect();
-    groups.sort_by_key(|g| g.to_lowercase());
-    groups
+fn sorted_topics(row: &ThreadSummary) -> Vec<&String> {
+    let mut topics: Vec<&String> = row.topics.iter().collect();
+    topics.sort_by_key(|g| g.to_lowercase());
+    topics
 }
 
-/// `start` and the rows after it that join it in `group`: each unplaced
-/// row of the group within `window` rows of the last one gathered.
+/// `start` and the rows after it that join it in `topic`: each unplaced
+/// row of the topic within `window` rows of the last one gathered.
 fn gather(
-    groups: &[Vec<&String>],
+    topics: &[Vec<&String>],
     placed: &[bool],
     start: usize,
-    group: &str,
+    topic: &str,
     window: usize,
 ) -> Vec<usize> {
     let mut members = vec![start];
     let mut next = start + 1;
-    while next < groups.len() && next <= members[members.len() - 1] + window {
-        let joins = !placed[next] && groups[next].iter().any(|g| mail_group::same(g, group));
+    while next < topics.len() && next <= members[members.len() - 1] + window {
+        let joins = !placed[next] && topics[next].iter().any(|g| topic::same(g, topic));
         if joins {
             members.push(next);
         }
@@ -226,8 +226,8 @@ fn gather(
 }
 
 /// Fills in where each bundle's arrows go: the nearest entry above and
-/// below where its group shows again, outside the bundle. A row of the
-/// group hidden inside another bundle shows through that bundle's header.
+/// below where its topic shows again, outside the bundle. A row of the
+/// topic hidden inside another bundle shows through that bundle's header.
 fn link_occurrences(rows: &[Row], layout: &mut Layout) {
     let place_of_row = |row: usize| -> Option<usize> {
         layout.entry_of_row(row).or_else(|| {
@@ -245,7 +245,7 @@ fn link_occurrences(rows: &[Row], layout: &mut Layout) {
             .enumerate()
             .filter(|(index, row)| {
                 !bundle.members.contains(index)
-                    && row.groups.iter().any(|g| mail_group::same(g, &bundle.group))
+                    && row.topics.iter().any(|g| topic::same(g, &bundle.topic))
             })
             .filter_map(|(index, _)| place_of_row(index))
             .collect();
@@ -261,29 +261,29 @@ fn link_occurrences(rows: &[Row], layout: &mut Layout) {
     }
 }
 
-/// The groups the rows name, newest first and each once: what a menu
-/// offers as the groups in use.
+/// The topics the rows name, newest first and each once: what a menu
+/// offers as the topics in use.
 pub fn recent(rows: &[Row], most: usize) -> Vec<String> {
     let mut names: Vec<String> = Vec::new();
     for row in rows {
-        for group in sorted_groups(row) {
+        for topic in sorted_topics(row) {
             if names.len() == most {
                 return names;
             }
-            if !names.iter().any(|n| mail_group::same(n, group)) {
-                names.push(group.clone());
+            if !names.iter().any(|n| topic::same(n, topic)) {
+                names.push(topic.clone());
             }
         }
     }
     names
 }
 
-/// Which of the [`COLORS`] a group takes: the same on every device, since
+/// Which of the [`COLORS`] a topic takes: the same on every device, since
 /// it comes from the name alone.
-pub fn color_of(group: &str) -> usize {
+pub fn color_of(topic: &str) -> usize {
     // FNV-1a, whose result no Rust release changes.
     let mut hash: u32 = 0x811c_9dc5;
-    for byte in group.to_lowercase().bytes() {
+    for byte in topic.to_lowercase().bytes() {
         hash ^= u32::from(byte);
         hash = hash.wrapping_mul(0x0100_0193);
     }
@@ -296,23 +296,23 @@ mod tests {
 
     use super::*;
 
-    /// Rows named by letter, each with its groups and whether it is
+    /// Rows named by letter, each with its topics and whether it is
     /// unread: `("a", &["Q3"], true)`.
     fn rows(spec: &[(&str, &[&str], bool)]) -> Vec<Row> {
         spec.iter()
-            .map(|(id, groups, unread)| {
+            .map(|(id, topics, unread)| {
                 Rc::new(ThreadSummary {
                     account_id: 1,
                     id: id.to_string(),
                     unread: *unread,
-                    groups: groups.iter().map(|g| g.to_string()).collect(),
+                    topics: topics.iter().map(|g| g.to_string()).collect(),
                     ..ThreadSummary::default()
                 })
             })
             .collect()
     }
 
-    /// The layout in words: a row by its id, a header as `[group n]`, a
+    /// The layout in words: a row by its id, a header as `[topic n]`, a
     /// trailer as `+hidden`, a summary as `(summary)`.
     fn words(rows: &[Row], layout: &Layout) -> Vec<String> {
         layout
@@ -322,7 +322,7 @@ mod tests {
                 Entry::Row { row, .. } => rows[*row].id.clone(),
                 Entry::Header(b) => {
                     let bundle = &layout.bundles[*b];
-                    format!("[{} {}]", bundle.group, bundle.members.len())
+                    format!("[{} {}]", bundle.topic, bundle.members.len())
                 }
                 Entry::Trailer(b) => format!("+{}", layout.bundles[*b].hidden),
                 Entry::Summary(_) => "(summary)".into(),
@@ -335,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn rows_of_a_group_near_each_other_gather_under_the_newest() {
+    fn rows_of_a_topic_near_each_other_gather_under_the_newest() {
         let list = rows(&[
             ("a", &["Q3"], true),
             ("b", &[], true),
@@ -346,7 +346,7 @@ mod tests {
     }
 
     #[test]
-    fn a_row_too_far_from_the_rest_of_its_group_stands_alone() {
+    fn a_row_too_far_from_the_rest_of_its_topic_stands_alone() {
         let list = rows(&[
             ("a", &["Q3"], true),
             ("b", &[], true),
@@ -445,7 +445,7 @@ mod tests {
     }
 
     #[test]
-    fn a_row_in_two_groups_joins_the_first_that_gathers_it() {
+    fn a_row_in_two_topics_joins_the_first_that_gathers_it() {
         let list = rows(&[
             ("a", &["Zed", "Alpha"], true),
             ("b", &["Zed"], true),
@@ -457,7 +457,7 @@ mod tests {
     }
 
     #[test]
-    fn the_arrows_reach_the_group_where_it_shows_again() {
+    fn the_arrows_reach_the_topic_where_it_shows_again() {
         let list = rows(&[
             ("a", &["Q3"], true),
             ("b", &["Q3"], true),
@@ -494,12 +494,12 @@ mod tests {
             ["[Inv 2]", "(summary)", "c", "[Q3 2]", "d", "e"]
         );
         assert_eq!(layout.bundles[1].earlier, Some(0));
-        assert_eq!(layout.hiding(0).map(|b| b.group.as_str()), Some("Inv"));
+        assert_eq!(layout.hiding(0).map(|b| b.topic.as_str()), Some("Inv"));
         assert_eq!(layout.hiding(3), None);
     }
 
     #[test]
-    fn recent_groups_come_newest_first_each_once() {
+    fn recent_topics_come_newest_first_each_once() {
         let list = rows(&[
             ("a", &["Q3"], true),
             ("b", &["Inv"], true),
@@ -510,7 +510,7 @@ mod tests {
     }
 
     #[test]
-    fn a_group_keeps_its_colour_whatever_the_case() {
+    fn a_topic_keeps_its_colour_whatever_the_case() {
         assert_eq!(color_of("Q3 Launch"), color_of("q3 launch"));
         assert!(color_of("Invoices") < COLORS);
         let spread: HashSet<usize> = ["Q3", "Inv", "Web", "Hiring", "Taxes", "Trip"]

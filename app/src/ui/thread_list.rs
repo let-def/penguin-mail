@@ -2,7 +2,7 @@
 //! One page of rows loads at a time; scrolling near the end asks for more.
 //! Every row is held once, behind an `Rc`, and shared with the list model.
 //!
-//! Rows of one mail group that sit near each other are drawn together as
+//! Rows of one topic that sit near each other are drawn together as
 //! a bundle ([`bundles`]), so the model holds a bundle's header, trailer
 //! or summary between the rows. A position in the model is therefore an
 //! item, and only some items are rows: everything that maps a position to
@@ -43,16 +43,16 @@ type Key = (AccountId, String, Option<String>);
 /// A row shared between the list model and the rows this pane keeps.
 pub type Row = Rc<ThreadSummary>;
 
-/// Hands over the groups the rows name, newest first.
-type ShowGroups = dyn Fn(Vec<String>);
+/// Hands over the topics the rows name, newest first.
+type ShowTopics = dyn Fn(Vec<String>);
 
-/// Puts the dragged rows in a group; true when it took them.
-type PutInGroup = dyn Fn(String) -> bool;
+/// Puts the dragged rows in a topic; true when it took them.
+type PutInTopic = dyn Fn(String) -> bool;
 
-/// How many groups the Group menu offers by name.
-const RECENT_GROUPS: usize = 5;
+/// How many topics the Topic menu offers by name.
+const RECENT_TOPICS: usize = 5;
 
-/// How many pages a jump to a group's next place loads before it gives
+/// How many pages a jump to a topic's next place loads before it gives
 /// up on finding one.
 const JUMP_PAGES: u8 = 10;
 
@@ -78,8 +78,8 @@ struct Shown {
     bundling: bool,
     /// The mailbox has rows past the last one loaded.
     more: bool,
-    /// A jump down to a group's next place waiting for more rows: the
-    /// group, the first row of the bundle it left, and the pages it may
+    /// A jump down to a topic's next place waiting for more rows: the
+    /// topic, the first row of the bundle it left, and the pages it may
     /// still load.
     jump: Option<(String, Key, u8)>,
 }
@@ -97,10 +97,10 @@ impl Shown {
         }
     }
 
-    /// The bundle of `group` whose rows include `row`.
-    fn bundle_holding(&self, group: &str, row: &Key) -> Option<&bundles::Bundle> {
+    /// The bundle of `topic` whose rows include `row`.
+    fn bundle_holding(&self, topic: &str, row: &Key) -> Option<&bundles::Bundle> {
         self.layout.bundles.iter().find(|b| {
-            mailrs_domain::mail_group::same(&b.group, group)
+            mailrs_domain::topic::same(&b.topic, topic)
                 && b.members.iter().any(|m| key(&self.rows[*m]) == *row)
         })
     }
@@ -108,13 +108,13 @@ impl Shown {
 
 /// The items for `layout` over `rows`. `threaded` says whether the rows
 /// stand for conversations, and `more` whether rows past the last may
-/// hold a group's next place.
+/// hold a topic's next place.
 fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<Item> {
     let shown = |b: usize| {
         let bundle = &layout.bundles[b];
         bundle_line::Shown {
-            group: bundle.group.clone(),
-            color: bundles::color_of(&bundle.group),
+            topic: bundle.topic.clone(),
+            color: bundles::color_of(&bundle.topic),
             count: bundle.members.len(),
             hidden: bundle.hidden,
             open: bundle.open,
@@ -180,12 +180,12 @@ pub struct ThreadList {
     shown: Rc<RefCell<Shown>>,
     /// Asks the window for the next page, as scrolling to the end does.
     more: RefCell<Option<Rc<dyn Fn()>>>,
-    /// Hands the window the groups the rows name, newest first, for the
-    /// Group menu, whenever they change.
-    on_groups: RefCell<Option<Box<ShowGroups>>>,
-    groups: RefCell<Vec<String>>,
-    /// Puts the dragged rows in a group, from a drop on a bundle.
-    on_group_drop: RefCell<Option<Box<PutInGroup>>>,
+    /// Hands the window the topics the rows name, newest first, for the
+    /// Topic menu, whenever they change.
+    on_topics: RefCell<Option<Box<ShowTopics>>>,
+    topics: RefCell<Vec<String>>,
+    /// Puts the dragged rows in a topic, from a drop on a bundle.
+    on_topic_drop: RefCell<Option<Box<PutInTopic>>>,
     /// The rows of the drag in progress.
     dragged: Rc<RefCell<Vec<ThreadSummary>>>,
     show_accounts: Rc<Cell<bool>>,
@@ -506,9 +506,9 @@ impl ThreadList {
             scroller,
             shown: state,
             more: RefCell::new(None),
-            on_groups: RefCell::new(None),
-            groups: RefCell::new(Vec::new()),
-            on_group_drop: RefCell::new(None),
+            on_topics: RefCell::new(None),
+            topics: RefCell::new(Vec::new()),
+            on_topic_drop: RefCell::new(None),
             dragged,
             show_accounts,
             vips,
@@ -677,7 +677,7 @@ impl ThreadList {
     }
 
     /// Runs `more` when the view scrolls within a screenful of the end,
-    /// and when a jump to a group's next place needs rows not loaded yet.
+    /// and when a jump to a topic's next place needs rows not loaded yet.
     pub fn connect_more(&self, more: impl Fn() + 'static) {
         let more: Rc<dyn Fn()> = Rc::new(more);
         *self.more.borrow_mut() = Some(Rc::clone(&more));
@@ -692,7 +692,7 @@ impl ThreadList {
     }
 
     /// Says whether the mailbox has rows past the last one loaded, where
-    /// a group may show again.
+    /// a topic may show again.
     pub fn set_more(&self, more: bool) {
         let changed = {
             let mut shown = self.shown.borrow_mut();
@@ -725,17 +725,17 @@ impl ThreadList {
         shown.jump = None;
     }
 
-    /// Runs `show` with the groups the rows name, newest first, whenever
+    /// Runs `show` with the topics the rows name, newest first, whenever
     /// they change.
-    pub fn connect_groups(&self, show: impl Fn(Vec<String>) + 'static) {
-        show(self.groups.borrow().clone());
-        *self.on_groups.borrow_mut() = Some(Box::new(show));
+    pub fn connect_topics(&self, show: impl Fn(Vec<String>) + 'static) {
+        show(self.topics.borrow().clone());
+        *self.on_topics.borrow_mut() = Some(Box::new(show));
     }
 
-    /// Runs `put` with a bundle's group when rows are dropped on it; it
+    /// Runs `put` with a bundle's topic when rows are dropped on it; it
     /// says whether it took them.
-    pub fn connect_group_drop(&self, put: impl Fn(String) -> bool + 'static) {
-        *self.on_group_drop.borrow_mut() = Some(Box::new(put));
+    pub fn connect_topic_drop(&self, put: impl Fn(String) -> bool + 'static) {
+        *self.on_topic_drop.borrow_mut() = Some(Box::new(put));
     }
 
     pub fn show_loading(&self) {
@@ -804,11 +804,11 @@ impl ThreadList {
         }
         self.reselect(&keys);
         self.muted.set(false);
-        let groups = bundles::recent(&self.shown.borrow().rows, RECENT_GROUPS);
-        if *self.groups.borrow() != groups {
-            self.groups.replace(groups.clone());
-            if let Some(show) = self.on_groups.borrow().as_ref() {
-                show(groups);
+        let topics = bundles::recent(&self.shown.borrow().rows, RECENT_TOPICS);
+        if *self.topics.borrow() != topics {
+            self.topics.replace(topics.clone());
+            if let Some(show) = self.on_topics.borrow().as_ref() {
+                show(topics);
             }
         }
     }
@@ -821,11 +821,11 @@ impl ThreadList {
             let Some(bundle) = shown.bundle_at(position) else {
                 return;
             };
-            let (group, members) = (bundle.group.clone(), bundle.members.clone());
+            let (topic, members) = (bundle.topic.clone(), bundle.members.clone());
             let first = key(&shown.rows[members[0]]);
             let Shown { opened, rows, kept, .. } = &mut *shown;
-            opened.toggle(&group, rows, &members, kept);
-            (group, first)
+            opened.toggle(&topic, rows, &members, kept);
+            (topic, first)
         };
         self.relayout();
         let at = self
@@ -840,8 +840,8 @@ impl ThreadList {
     }
 
     /// Goes from the bundle whose line is at `position` to the place its
-    /// group shows next above (`way` -1) or below (1). Below, when no
-    /// loaded row has the group, the list loads more rows and looks again.
+    /// topic shows next above (`way` -1) or below (1). Below, when no
+    /// loaded row has the topic, the list loads more rows and looks again.
     fn jump_from(&self, position: usize, way: i32) {
         let (target, waiting) = {
             let shown = self.shown.borrow();
@@ -853,13 +853,13 @@ impl ThreadList {
                 false => bundle.later,
             };
             let first = key(&shown.rows[bundle.members[0]]);
-            (target, (bundle.group.clone(), first))
+            (target, (bundle.topic.clone(), first))
         };
         match target {
             Some(target) => self.land_on(target),
             None if way > 0 && self.shown.borrow().more => {
-                let (group, first) = waiting;
-                self.shown.borrow_mut().jump = Some((group, first, JUMP_PAGES));
+                let (topic, first) = waiting;
+                self.shown.borrow_mut().jump = Some((topic, first, JUMP_PAGES));
                 self.ask_more();
             }
             None => {}
@@ -869,18 +869,18 @@ impl ThreadList {
     /// After a page arrives, finishes a jump down that waited for it, or
     /// asks for another page while it may.
     fn continue_jump(&self) {
-        let Some((group, first, pages)) = self.shown.borrow_mut().jump.take() else {
+        let Some((topic, first, pages)) = self.shown.borrow_mut().jump.take() else {
             return;
         };
         let (target, more) = {
             let shown = self.shown.borrow();
-            let target = shown.bundle_holding(&group, &first).and_then(|b| b.later);
+            let target = shown.bundle_holding(&topic, &first).and_then(|b| b.later);
             (target, shown.more)
         };
         match target {
             Some(target) => self.land_on(target),
             None if more && pages > 1 => {
-                self.shown.borrow_mut().jump = Some((group, first, pages - 1));
+                self.shown.borrow_mut().jump = Some((topic, first, pages - 1));
                 self.ask_more();
             }
             None => {}
@@ -900,16 +900,16 @@ impl ThreadList {
             .scroll_to(position as u32, gtk::ListScrollFlags::FOCUS, None);
     }
 
-    /// Hands the dragged rows to the group of the bundle whose line is at
+    /// Hands the dragged rows to the topic of the bundle whose line is at
     /// `position`.
     fn dropped_on(&self, position: usize) -> bool {
-        let group = self
+        let topic = self
             .shown
             .borrow()
             .bundle_at(position)
-            .map(|b| b.group.clone());
-        match (group, self.on_group_drop.borrow().as_ref()) {
-            (Some(group), Some(put)) => put(group),
+            .map(|b| b.topic.clone());
+        match (topic, self.on_topic_drop.borrow().as_ref()) {
+            (Some(topic), Some(put)) => put(topic),
             _ => false,
         }
     }
@@ -1063,12 +1063,12 @@ impl ThreadList {
             .borrow()
             .layout
             .hiding(row)
-            .map(|b| (b.group.clone(), b.members.clone()));
-        if let Some((group, members)) = hiding {
+            .map(|b| (b.topic.clone(), b.members.clone()));
+        if let Some((topic, members)) = hiding {
             {
                 let mut shown = self.shown.borrow_mut();
                 let Shown { opened, rows, kept, .. } = &mut *shown;
-                opened.toggle(&group, rows, &members, kept);
+                opened.toggle(&topic, rows, &members, kept);
             }
             self.relayout();
         }
@@ -1368,12 +1368,12 @@ mod tests {
         })
     }
 
-    fn grouped(id: &str, group: &str, unread: bool) -> Row {
+    fn in_topic(id: &str, topic: &str, unread: bool) -> Row {
         Rc::new(ThreadSummary {
             account_id: 1,
             id: id.into(),
             unread,
-            groups: vec![group.into()],
+            topics: vec![topic.into()],
             ..ThreadSummary::default()
         })
     }
@@ -1406,9 +1406,9 @@ mod tests {
     #[test]
     fn a_position_names_a_row_only_where_the_model_shows_one() {
         let rows = vec![
-            grouped("a", "Q3", true),
+            in_topic("a", "Q3", true),
             row("b"),
-            grouped("c", "Q3", false),
+            in_topic("c", "Q3", false),
         ];
         let keys: HashSet<Key> = rows.iter().map(|r| key(r)).collect();
         let shown = shown(rows, false);
@@ -1417,13 +1417,13 @@ mod tests {
         assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s) if s.count == 2 && s.hidden == 1));
         assert_eq!(shown.row_at(1).map(|r| r.id.as_str()), Some("a"));
         assert!(shown.row_at(2).is_none(), "the trailer");
-        assert_eq!(shown.bundle_at(2).map(|b| b.group.as_str()), Some("Q3"));
+        assert_eq!(shown.bundle_at(2).map(|b| b.topic.as_str()), Some("Q3"));
         assert_eq!(positions_of(&shown, &keys), [1, 3], "c is hidden");
     }
 
     #[test]
-    fn the_down_arrow_stays_on_while_more_rows_may_hold_the_group() {
-        let rows = vec![grouped("a", "Q3", true), grouped("b", "Q3", true)];
+    fn the_down_arrow_stays_on_while_more_rows_may_hold_the_topic() {
+        let rows = vec![in_topic("a", "Q3", true), in_topic("b", "Q3", true)];
         let later = |shown: &Shown| match &shown.items[0] {
             Item::Line(Kind::Header, s) => s.later,
             other => panic!("{other:?}"),

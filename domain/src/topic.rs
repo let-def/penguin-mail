@@ -1,27 +1,27 @@
-//! Mail groups: names a person gives a piece of work, which the thread list
-//! draws as bundles of nearby rows. A message joins a group as a keyword
+//! Topics: names a person gives a piece of work, which the thread list
+//! draws as bundles of nearby rows. A message joins a topic as a keyword
 //! on a server that stores keywords, and as a label on Gmail.
 //!
 //! An IMAP keyword is an ASCII atom without spaces, compared without case,
 //! so the keyword spells the name in lower-case letters and digits and
 //! writes every other byte of its UTF-8 as `=` and two lower-case hex
-//! digits: "Foo bar" is `group:=46oo=20bar`. The spelling survives a
+//! digits: "Foo bar" is `topic:=46oo=20bar`. The spelling survives a
 //! server that changes the case of keywords, and every device decodes the
 //! same name from it. A Gmail label takes any text, so it is the name
-//! itself after the prefix: `group:Foo bar`.
+//! itself after the prefix: `topic:Foo bar`.
 
-/// What every group keyword and group label starts with.
-pub const PREFIX: &str = "group:";
+/// What every topic keyword and topic label starts with.
+pub const PREFIX: &str = "topic:";
 
-/// The entry in a list of stored keywords that stands for every group
+/// The entry in a list of stored keywords that stands for every topic
 /// keyword, since a server that takes `\*` stores any of them.
-pub const FAMILY: &str = "group:*";
+pub const FAMILY: &str = "topic:*";
 
-/// The longest name a group may have, in characters. Escaped, the longest
+/// The longest name a topic may have, in characters. Escaped, the longest
 /// keyword stays well under the line lengths IMAP servers take.
 pub const MAX_LEN: usize = 64;
 
-/// The name as a group may carry it: trimmed, with runs of white space
+/// The name as a topic may carry it: trimmed, with runs of white space
 /// made one space. `None` for an empty name, one with a control
 /// character, or one longer than [`MAX_LEN`].
 pub fn clean(name: &str) -> Option<String> {
@@ -32,13 +32,13 @@ pub fn clean(name: &str) -> Option<String> {
     fits.then_some(cleaned)
 }
 
-/// Whether two names stand for the same group. Groups match ignoring
+/// Whether two names stand for the same topic. Topics match ignoring
 /// case, as Gmail's labels do, so "Q3 launch" joins "Q3 Launch".
 pub fn same(one: &str, other: &str) -> bool {
     one.to_lowercase() == other.to_lowercase()
 }
 
-/// The keyword that puts a message in the group `name`.
+/// The keyword that puts a message in the topic `name`.
 pub fn keyword_of(name: &str) -> String {
     let mut keyword = String::from(PREFIX);
     for byte in name.bytes() {
@@ -50,7 +50,7 @@ pub fn keyword_of(name: &str) -> String {
     keyword
 }
 
-/// The group a keyword puts its message in. `None` for a keyword of
+/// The topic a keyword puts its message in. `None` for a keyword of
 /// another kind, or one that is not a whole escape of a UTF-8 name.
 pub fn name_of_keyword(keyword: &str) -> Option<String> {
     let escaped = keyword.get(..PREFIX.len())?;
@@ -74,12 +74,12 @@ pub fn name_of_keyword(keyword: &str) -> Option<String> {
     clean(&name).filter(|cleaned| *cleaned == name)
 }
 
-/// The label that puts a message in the group `name` on Gmail.
+/// The label that puts a message in the topic `name` on Gmail.
 pub fn label_of(name: &str) -> String {
     format!("{PREFIX}{name}")
 }
 
-/// The group a label stands for, from the label's name.
+/// The topic a label stands for, from the label's name.
 pub fn name_of_label(label: &str) -> Option<&str> {
     let name = label.strip_prefix(PREFIX)?;
     (!name.trim().is_empty()).then_some(name)
@@ -90,7 +90,7 @@ fn hex(digit: u8) -> Option<u8> {
 }
 
 /// Whether a server whose stored keywords are `stored` keeps `keyword`:
-/// it is among them, or it is a group keyword and they hold [`FAMILY`].
+/// it is among them, or it is a topic keyword and they hold [`FAMILY`].
 pub fn stored(stored: &[&str], keyword: &str) -> bool {
     stored.contains(&keyword)
         || (stored.contains(&FAMILY) && name_of_keyword(keyword).is_some())
@@ -112,8 +112,8 @@ mod tests {
                 "a server that raises the case keeps the name"
             );
         }
-        assert_eq!(keyword_of("Foo bar"), "group:=46oo=20bar");
-        assert_eq!(keyword_of("Café"), "group:=43af=c3=a9");
+        assert_eq!(keyword_of("Foo bar"), "topic:=46oo=20bar");
+        assert_eq!(keyword_of("Café"), "topic:=43af=c3=a9");
     }
 
     #[test]
@@ -124,19 +124,19 @@ mod tests {
     }
 
     #[test]
-    fn other_keywords_and_broken_escapes_name_no_group() {
-        for keyword in ["$seen", "group:", "group:=4", "group:=zz", "group:a b", "group:=ff", "groupa"] {
+    fn other_keywords_and_broken_escapes_name_no_topic() {
+        for keyword in ["$seen", "topic:", "topic:=4", "topic:=zz", "topic:a b", "topic:=ff", "topica"] {
             assert_eq!(name_of_keyword(keyword), None, "{keyword}");
         }
-        assert_eq!(name_of_keyword("group:=20a"), None, "a padded name is not clean");
+        assert_eq!(name_of_keyword("topic:=20a"), None, "a padded name is not clean");
     }
 
     #[test]
     fn a_label_carries_the_name_as_it_is() {
-        assert_eq!(label_of("Foo bar"), "group:Foo bar");
-        assert_eq!(name_of_label("group:Foo bar"), Some("Foo bar"));
+        assert_eq!(label_of("Foo bar"), "topic:Foo bar");
+        assert_eq!(name_of_label("topic:Foo bar"), Some("Foo bar"));
         assert_eq!(name_of_label("Receipts"), None);
-        assert_eq!(name_of_label("group: "), None);
+        assert_eq!(name_of_label("topic: "), None);
     }
 
     #[test]
@@ -149,14 +149,14 @@ mod tests {
     }
 
     #[test]
-    fn groups_match_ignoring_case() {
+    fn topics_match_ignoring_case() {
         assert!(same("Q3 Launch", "q3 launch"));
         assert!(same("CAFÉ", "café"));
         assert!(!same("Q3", "Q4"));
     }
 
     #[test]
-    fn a_server_that_takes_any_keyword_stores_every_group() {
+    fn a_server_that_takes_any_keyword_stores_every_topic() {
         let open = ["$seen", FAMILY];
         assert!(stored(&open, "$seen"));
         assert!(stored(&open, &keyword_of("Foo")));
