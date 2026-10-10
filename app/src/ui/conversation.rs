@@ -297,6 +297,9 @@ pub struct ConversationView {
     thread_menu: gio::Menu,
     /// Remind Me times, recomputed whenever a conversation opens.
     remind: gio::Menu,
+    /// The Group submenu: the groups the list names, then Choose Group and
+    /// Remove from Group.
+    groups: gio::Menu,
     buttons: Buttons,
     /// One linked box per capsule of the header bar, in the order of
     /// `toolbar::CAPSULES`.
@@ -557,6 +560,8 @@ impl ConversationView {
         marks.append_item(&tags_item);
         let remind_menu = gio::Menu::new();
         marks.append_submenu(Some(&gettext("Remind Me")), &remind_menu);
+        let group_menu = gio::Menu::new();
+        marks.append_submenu(Some(&gettext("Group")), &group_menu);
         more.append_section(None, &marks);
         let views = gio::Menu::new();
         views.append(
@@ -590,6 +595,7 @@ impl ConversationView {
         let filing_menu = filing.clone();
         let thread_menu = more.clone();
         let remind = remind_menu.clone();
+        let groups = group_menu.clone();
         let header = adw::HeaderBar::builder()
             .title_widget(&gtk::Label::new(None))
             .css_classes(["conversation-header"])
@@ -722,6 +728,7 @@ impl ConversationView {
             filing_menu,
             thread_menu,
             remind,
+            groups,
             buttons,
             capsules,
             menu: menu_popover,
@@ -832,6 +839,9 @@ impl ConversationView {
             glib::Propagation::Stop
         });
         view.page.add_controller(keys);
+        // A window of its own never hears the list's groups, and still
+        // offers the rest of the submenu.
+        view.set_recent_groups(&[]);
         view
     }
 
@@ -1653,6 +1663,23 @@ impl ConversationView {
         if let Some(open) = self.open.borrow().as_ref() {
             self.update_buttons(open);
         }
+    }
+
+    /// Fills the Group submenu: a quick item for each of `recent`, newest
+    /// first, then Choose Group and Remove from Group.
+    pub fn set_recent_groups(&self, recent: &[String]) {
+        self.groups.remove_all();
+        let named = gio::Menu::new();
+        for group in recent {
+            let item = gio::MenuItem::new(Some(group), None);
+            item.set_action_and_target_value(Some("win.join-group"), Some(&group.to_variant()));
+            named.append_item(&item);
+        }
+        self.groups.append_section(None, &named);
+        let other = gio::Menu::new();
+        other.append(Some(&gettext("Choose Group…")), Some("win.choose-group"));
+        other.append(Some(&gettext("Remove from Group")), Some("win.leave-group"));
+        self.groups.append_section(None, &other);
     }
 
     /// Fills Remind Me with times that make sense now.

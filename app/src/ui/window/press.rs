@@ -77,6 +77,9 @@ pub(super) enum Press {
     Flag(Option<FlagColor>),
     /// Dismiss Follow-Up from the menu.
     DismissFollowUp,
+    /// Into the mail group of that name, from the Group menu or a drop on
+    /// a bundle, or with `None` out of every group.
+    Group(Option<String>),
 }
 
 /// How much of the thread a press covers.
@@ -310,6 +313,7 @@ pub(super) fn plan(pressed: Pressed) -> Plan {
         ),
         Press::Flag(color) => act(MailAction::Flag(color), History::Record, None),
         Press::DismissFollowUp => act(MailAction::DismissFollowUp, History::Record, None),
+        Press::Group(name) => act(MailAction::Group(name), History::Record, None),
         Press::Drop(to) => dropped(&targets, mailbox, &to, &accounts, act),
     };
     Plan {

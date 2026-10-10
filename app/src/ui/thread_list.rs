@@ -1,7 +1,15 @@
 //! The middle pane: threads of the current mailbox, or search results.
 //! One page of rows loads at a time; scrolling near the end asks for more.
 //! Every row is held once, behind an `Rc`, and shared with the list model.
+//!
+//! Rows of one mail group that sit near each other are drawn together as
+//! a bundle ([`bundles`]), so the model holds a bundle's header, trailer
+//! or summary between the rows. A position in the model is therefore an
+//! item, and only some items are rows: everything that maps a position to
+//! a row goes through the layout.
 
+mod bundle_line;
+mod bundles;
 mod entry;
 
 use std::cell::{Cell, RefCell};
@@ -15,6 +23,8 @@ use mailrs_domain::{AccountId, ThreadSummary};
 use super::sidebar::DRAG_MAIL;
 use super::thread_row::{Avatar, OpenMenu, ThreadRow};
 use crate::diff::splice;
+use bundle_line::{BundleLine, Handlers, Kind};
+use bundles::{Entry, Layout, Opened};
 use mailrs_domain::translate::gettext;
 
 /// The keys that open the menu of the row with the focus, in GTK's
@@ -32,6 +42,105 @@ type Key = (AccountId, String, Option<String>);
 
 /// A row shared between the list model and the rows this pane keeps.
 pub type Row = Rc<ThreadSummary>;
+
+/// Hands over the groups the rows name, newest first.
+type ShowGroups = dyn Fn(Vec<String>);
+
+/// Puts the dragged rows in a group; true when it took them.
+type PutInGroup = dyn Fn(String) -> bool;
+
+/// How many groups the Group menu offers by name.
+const RECENT_GROUPS: usize = 5;
+
+/// How many pages a jump to a group's next place loads before it gives
+/// up on finding one.
+const JUMP_PAGES: u8 = 10;
+
+/// One item of the list model: a row, or a line a bundle adds.
+#[derive(Debug, Clone, PartialEq)]
+enum Item {
+    Row(Row),
+    Line(Kind, bundle_line::Shown),
+}
+
+/// What the list shows: the rows in list order, laid out in bundles, and
+/// the items the model holds for that layout.
+#[derive(Default)]
+struct Shown {
+    rows: Vec<Row>,
+    layout: Layout,
+    items: Vec<Item>,
+    opened: Opened,
+    /// Rows a closed bundle keeps showing once read: those the reader
+    /// selected in this mailbox, so a row does not vanish as it is read.
+    kept: HashSet<Key>,
+    /// Whether rows gather into bundles at all; a search lists hits.
+    bundling: bool,
+    /// The mailbox has rows past the last one loaded.
+    more: bool,
+    /// A jump down to a group's next place waiting for more rows: the
+    /// group, the first row of the bundle it left, and the pages it may
+    /// still load.
+    jump: Option<(String, Key, u8)>,
+}
+
+impl Shown {
+    fn row_at(&self, position: usize) -> Option<&Row> {
+        self.layout.row_at(position).and_then(|r| self.rows.get(r))
+    }
+
+    /// The bundle whose header, trailer or summary is at `position`.
+    fn bundle_at(&self, position: usize) -> Option<&bundles::Bundle> {
+        match self.layout.entries.get(position)? {
+            Entry::Header(b) | Entry::Trailer(b) | Entry::Summary(b) => self.layout.bundles.get(*b),
+            Entry::Row { .. } => None,
+        }
+    }
+
+    /// The bundle of `group` whose rows include `row`.
+    fn bundle_holding(&self, group: &str, row: &Key) -> Option<&bundles::Bundle> {
+        self.layout.bundles.iter().find(|b| {
+            mailrs_domain::mail_group::same(&b.group, group)
+                && b.members.iter().any(|m| key(&self.rows[*m]) == *row)
+        })
+    }
+}
+
+/// The items for `layout` over `rows`. `threaded` says whether the rows
+/// stand for conversations, and `more` whether rows past the last may
+/// hold a group's next place.
+fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<Item> {
+    let shown = |b: usize| {
+        let bundle = &layout.bundles[b];
+        bundle_line::Shown {
+            group: bundle.group.clone(),
+            color: bundles::color_of(&bundle.group),
+            count: bundle.members.len(),
+            hidden: bundle.hidden,
+            open: bundle.open,
+            earlier: bundle.earlier.is_some(),
+            later: bundle.later.is_some() || more,
+            threaded,
+        }
+    };
+    layout
+        .entries
+        .iter()
+        .map(|entry| match entry {
+            Entry::Row { row, .. } => Item::Row(Rc::clone(&rows[*row])),
+            Entry::Header(b) => Item::Line(Kind::Header, shown(*b)),
+            Entry::Trailer(b) => Item::Line(Kind::Trailer, shown(*b)),
+            Entry::Summary(b) => {
+                let hidden = layout.bundles[*b]
+                    .members
+                    .iter()
+                    .map(|m| Rc::clone(&rows[*m]))
+                    .collect();
+                Item::Line(Kind::Summary(hidden), shown(*b))
+            }
+        })
+        .collect()
+}
 
 fn key(row: &ThreadSummary) -> Key {
     (row.account_id, row.id.clone(), row.message_id.clone())
@@ -68,7 +177,15 @@ pub struct ThreadList {
     selection: gtk::MultiSelection,
     view: gtk::ListView,
     scroller: gtk::ScrolledWindow,
-    rows: Rc<RefCell<Vec<Row>>>,
+    shown: Rc<RefCell<Shown>>,
+    /// Asks the window for the next page, as scrolling to the end does.
+    more: RefCell<Option<Rc<dyn Fn()>>>,
+    /// Hands the window the groups the rows name, newest first, for the
+    /// Group menu, whenever they change.
+    on_groups: RefCell<Option<Box<ShowGroups>>>,
+    groups: RefCell<Vec<String>>,
+    /// Puts the dragged rows in a group, from a drop on a bundle.
+    on_group_drop: RefCell<Option<Box<PutInGroup>>>,
     /// The rows of the drag in progress.
     dragged: Rc<RefCell<Vec<ThreadSummary>>>,
     show_accounts: Rc<Cell<bool>>,
@@ -94,19 +211,49 @@ impl ThreadList {
         let store = gio::ListStore::new::<glib::BoxedAnyObject>();
         let selection = gtk::MultiSelection::new(Some(store.clone()));
         let show_accounts = Rc::new(Cell::new(true));
-        let rows: Rc<RefCell<Vec<Row>>> = Rc::new(RefCell::new(Vec::new()));
+        let state = Rc::new(RefCell::new(Shown {
+            bundling: true,
+            ..Shown::default()
+        }));
+        // The lines a bundle adds reach the list through this, which is
+        // filled in once the list exists.
+        let me: Rc<RefCell<std::rc::Weak<ThreadList>>> = Rc::default();
+        let handlers = {
+            let (toggle, jump, dropped) = (Rc::clone(&me), Rc::clone(&me), Rc::clone(&me));
+            Handlers {
+                toggle: Rc::new(move |at| {
+                    if let Some(list) = toggle.borrow().upgrade() {
+                        list.toggle_at(at as usize);
+                    }
+                }),
+                jump: Rc::new(move |at, way| {
+                    if let Some(list) = jump.borrow().upgrade() {
+                        list.jump_from(at as usize, way);
+                    }
+                }),
+                dropped: Rc::new(move |at| {
+                    dropped
+                        .borrow()
+                        .upgrade()
+                        .is_some_and(|list| list.dropped_on(at as usize))
+                }),
+            }
+        };
         let row_popover = gtk::PopoverMenu::from_model(None::<&gio::MenuModel>);
         super::name_menu_items(&row_popover);
         row_popover.set_has_arrow(false);
         row_popover.set_halign(gtk::Align::Start);
         let dragged: Rc<RefCell<Vec<ThreadSummary>>> = Rc::new(RefCell::new(Vec::new()));
         let factory = gtk::SignalListItemFactory::new();
-        let (all, drag_rows, picked) = (Rc::clone(&rows), Rc::clone(&dragged), selection.clone());
+        let (all, drag_rows, picked) = (Rc::clone(&state), Rc::clone(&dragged), selection.clone());
         let menu = row_popover.clone();
         factory.connect_setup(move |_, item| {
             let item = item
                 .downcast_ref::<gtk::ListItem>()
                 .expect("list items are ListItems");
+            // A slot holds a row and a bundle's line, and shows the one
+            // its item calls for.
+            let slot = gtk::Box::new(gtk::Orientation::Vertical, 0);
             let row = ThreadRow::default();
             row.set_item(item);
             context_menu(&row, item, &picked, &menu);
@@ -122,15 +269,15 @@ impl ThreadList {
             );
             source.connect_prepare(move |_, _, _| {
                 let position = list_item.position();
-                let rows = all.borrow();
+                let shown = all.borrow();
                 let copy = |row: &Row| (**row).clone();
                 let taken: Vec<ThreadSummary> = if picked.is_selected(position) {
-                    (0..rows.len() as u32)
+                    (0..shown.items.len() as u32)
                         .filter(|p| picked.is_selected(*p))
-                        .filter_map(|p| rows.get(p as usize).map(copy))
+                        .filter_map(|p| shown.row_at(p as usize).map(copy))
                         .collect()
                 } else {
-                    rows.get(position as usize).map(copy).into_iter().collect()
+                    shown.row_at(position as usize).map(copy).into_iter().collect()
                 };
                 if taken.is_empty() {
                     return None;
@@ -149,7 +296,9 @@ impl ThreadList {
                 source.set_icon(None::<&gdk::Paintable>, 0, 0);
             });
             row.add_controller(source);
-            item.set_child(Some(&row));
+            slot.append(&row);
+            slot.append(&BundleLine::new(item, handlers.clone()));
+            item.set_child(Some(&slot));
         });
         let shown = Rc::clone(&show_accounts);
         let vips: Rc<RefCell<HashSet<String>>> = Rc::new(RefCell::new(HashSet::new()));
@@ -161,13 +310,29 @@ impl ThreadList {
             let item = item
                 .downcast_ref::<gtk::ListItem>()
                 .expect("list items are ListItems");
-            let (Some(row), Some(object)) = (
-                item.child().and_downcast::<ThreadRow>(),
-                item.item().and_downcast::<glib::BoxedAnyObject>(),
+            let (Some(slot), Some(object)) = (item.child(), item.item().and_downcast::<glib::BoxedAnyObject>())
+            else {
+                return;
+            };
+            let (Some(row), Some(line)) = (
+                slot.first_child().and_downcast::<ThreadRow>(),
+                slot.last_child().and_downcast::<BundleLine>(),
             ) else {
                 return;
             };
-            let thread = object.borrow::<Row>();
+            let thread = match &*object.borrow::<Item>() {
+                Item::Row(thread) => Rc::clone(thread),
+                Item::Line(kind, shown) => {
+                    row.set_visible(false);
+                    line.set_visible(true);
+                    item.set_selectable(false);
+                    line.bind(kind, shown);
+                    return;
+                }
+            };
+            row.set_visible(true);
+            line.set_visible(false);
+            item.set_selectable(true);
             let sender = thread.from_email.to_lowercase();
             let vip = starred_people.borrow().contains(&sender);
             let faces = faces.borrow();
@@ -339,7 +504,11 @@ impl ThreadList {
             selection,
             view,
             scroller,
-            rows,
+            shown: state,
+            more: RefCell::new(None),
+            on_groups: RefCell::new(None),
+            groups: RefCell::new(Vec::new()),
+            on_group_drop: RefCell::new(None),
             dragged,
             show_accounts,
             vips,
@@ -348,12 +517,17 @@ impl ThreadList {
             muted: Cell::new(false),
             row_popover,
         });
+        *me.borrow_mut() = Rc::downgrade(&list);
         let weak = Rc::downgrade(&list);
         list.selection.connect_selection_changed(move |_, _, _| {
             let Some(list) = weak.upgrade() else { return };
-            if !list.muted.get() {
-                on_select(list.picked());
+            if list.muted.get() {
+                return;
             }
+            list.drop_lines_from_selection();
+            let keys = list.selected_keys();
+            list.shown.borrow_mut().kept.extend(keys);
+            on_select(list.picked());
         });
         list.search_entry.connect_activate(move |entry| {
             let query = entry.text().trim().to_string();
@@ -422,8 +596,7 @@ impl ThreadList {
 
     /// Draws every row again, for example after account colours change.
     pub fn rebind(&self) {
-        let rows = self.rows.borrow().clone();
-        self.replace_all(&rows);
+        self.replace_all();
     }
 
     /// The contact photos rows may show, by lower-case address. An empty
@@ -500,11 +673,14 @@ impl ThreadList {
     /// The rows loaded so far, for asking the mailbox for the page after
     /// them. The mailbox may hold more.
     pub fn loaded(&self) -> mailrs_sync::Loaded {
-        mailrs_sync::Loaded::rows(&self.rows.borrow())
+        mailrs_sync::Loaded::rows(&self.shown.borrow().rows)
     }
 
-    /// Runs `more` when the view scrolls within a screenful of the end.
+    /// Runs `more` when the view scrolls within a screenful of the end,
+    /// and when a jump to a group's next place needs rows not loaded yet.
     pub fn connect_more(&self, more: impl Fn() + 'static) {
+        let more: Rc<dyn Fn()> = Rc::new(more);
+        *self.more.borrow_mut() = Some(Rc::clone(&more));
         self.scroller
             .vadjustment()
             .connect_value_changed(move |adjustment| {
@@ -513,6 +689,53 @@ impl ThreadList {
                     more();
                 }
             });
+    }
+
+    /// Says whether the mailbox has rows past the last one loaded, where
+    /// a group may show again.
+    pub fn set_more(&self, more: bool) {
+        let changed = {
+            let mut shown = self.shown.borrow_mut();
+            let changed = shown.more != more;
+            shown.more = more;
+            if !more {
+                shown.jump = None;
+            }
+            changed
+        };
+        if changed {
+            self.relayout();
+        }
+    }
+
+    /// Turns bundles on or off: a search lists its hits as they come.
+    pub fn set_bundling(&self, on: bool) {
+        let changed = std::mem::replace(&mut self.shown.borrow_mut().bundling, on) != on;
+        if changed {
+            self.relayout();
+        }
+    }
+
+    /// Forgets which bundles were open and which read rows they kept, as
+    /// the list turns to another mailbox.
+    pub fn forget_bundles(&self) {
+        let mut shown = self.shown.borrow_mut();
+        shown.opened.clear();
+        shown.kept.clear();
+        shown.jump = None;
+    }
+
+    /// Runs `show` with the groups the rows name, newest first, whenever
+    /// they change.
+    pub fn connect_groups(&self, show: impl Fn(Vec<String>) + 'static) {
+        show(self.groups.borrow().clone());
+        *self.on_groups.borrow_mut() = Some(Box::new(show));
+    }
+
+    /// Runs `put` with a bundle's group when rows are dropped on it; it
+    /// says whether it took them.
+    pub fn connect_group_drop(&self, put: impl Fn(String) -> bool + 'static) {
+        *self.on_group_drop.borrow_mut() = Some(Box::new(put));
     }
 
     pub fn show_loading(&self) {
@@ -529,25 +752,12 @@ impl ThreadList {
     /// Updates the list with one splice, keeping the selected rows selected
     /// when they are still present.
     pub fn set_rows(&self, rows: Vec<Row>, empty_title: &str, empty_icon: &str) {
-        let keys = self.selected_keys();
-        self.muted.set(true);
-        let old = self.rows.replace(rows);
-        {
-            let new = self.rows.borrow();
-            if let Some(change) = splice(&old, &new) {
-                let added: Vec<glib::BoxedAnyObject> = new[change.added]
-                    .iter()
-                    .map(|row| glib::BoxedAnyObject::new(Rc::clone(row)))
-                    .collect();
-                self.store.splice(change.position, change.removed, &added);
-            }
-        }
-        self.reselect(&keys);
-        self.muted.set(false);
+        self.shown.borrow_mut().rows = rows;
+        self.relayout();
         self.empty.set_title(empty_title);
         self.empty.set_icon_name(Some(empty_icon));
         self.stack
-            .set_visible_child_name(if self.rows.borrow().is_empty() {
+            .set_visible_child_name(if self.shown.borrow().rows.is_empty() {
                 "empty"
             } else {
                 "list"
@@ -555,20 +765,174 @@ impl ThreadList {
     }
 
     /// Adds a page of older rows at the end, leaving the selection alone.
+    /// A bundle near the end may gather some of them.
     pub fn append(&self, rows: Vec<Row>) {
         if rows.is_empty() {
+            self.continue_jump();
+            return;
+        }
+        self.shown.borrow_mut().rows.extend(rows);
+        self.relayout();
+        self.stack.set_visible_child_name("list");
+        self.continue_jump();
+    }
+
+    /// Lays the rows out again and brings the model to the new layout in
+    /// one splice, keeping the selected rows selected.
+    fn relayout(&self) {
+        let keys = self.selected_keys();
+        let threaded;
+        let (old, new) = {
+            let mut shown = self.shown.borrow_mut();
+            threaded = shown.rows.first().is_none_or(|r| r.message_id.is_none());
+            let layout = match shown.bundling {
+                true => bundles::lay_out(&shown.rows, bundles::WINDOW, &shown.opened, &shown.kept),
+                false => bundles::flat(shown.rows.len()),
+            };
+            let items = items_of(&shown.rows, &layout, threaded, shown.more);
+            shown.layout = layout;
+            let old = std::mem::replace(&mut shown.items, items.clone());
+            (old, items)
+        };
+        self.muted.set(true);
+        if let Some(change) = splice(&old, &new) {
+            let added: Vec<glib::BoxedAnyObject> = new[change.added]
+                .iter()
+                .map(|item| glib::BoxedAnyObject::new(item.clone()))
+                .collect();
+            self.store.splice(change.position, change.removed, &added);
+        }
+        self.reselect(&keys);
+        self.muted.set(false);
+        let groups = bundles::recent(&self.shown.borrow().rows, RECENT_GROUPS);
+        if *self.groups.borrow() != groups {
+            self.groups.replace(groups.clone());
+            if let Some(show) = self.on_groups.borrow().as_ref() {
+                show(groups);
+            }
+        }
+    }
+
+    /// Opens or closes the bundle whose line is at `position`, and keeps
+    /// its header in view with the focus on it.
+    fn toggle_at(&self, position: usize) {
+        let toggled = {
+            let mut shown = self.shown.borrow_mut();
+            let Some(bundle) = shown.bundle_at(position) else {
+                return;
+            };
+            let (group, members) = (bundle.group.clone(), bundle.members.clone());
+            let first = key(&shown.rows[members[0]]);
+            let Shown { opened, rows, .. } = &mut *shown;
+            opened.toggle(&group, rows, &members);
+            (group, first)
+        };
+        self.relayout();
+        let at = self
+            .shown
+            .borrow()
+            .bundle_holding(&toggled.0, &toggled.1)
+            .map(|b| b.at);
+        if let Some(at) = at {
+            self.view
+                .scroll_to(at as u32, gtk::ListScrollFlags::FOCUS, None);
+        }
+    }
+
+    /// Goes from the bundle whose line is at `position` to the place its
+    /// group shows next above (`way` -1) or below (1). Below, when no
+    /// loaded row has the group, the list loads more rows and looks again.
+    fn jump_from(&self, position: usize, way: i32) {
+        let (target, waiting) = {
+            let shown = self.shown.borrow();
+            let Some(bundle) = shown.bundle_at(position) else {
+                return;
+            };
+            let target = match way < 0 {
+                true => bundle.earlier,
+                false => bundle.later,
+            };
+            let first = key(&shown.rows[bundle.members[0]]);
+            (target, (bundle.group.clone(), first))
+        };
+        match target {
+            Some(target) => self.land_on(target),
+            None if way > 0 && self.shown.borrow().more => {
+                let (group, first) = waiting;
+                self.shown.borrow_mut().jump = Some((group, first, JUMP_PAGES));
+                self.ask_more();
+            }
+            None => {}
+        }
+    }
+
+    /// After a page arrives, finishes a jump down that waited for it, or
+    /// asks for another page while it may.
+    fn continue_jump(&self) {
+        let Some((group, first, pages)) = self.shown.borrow_mut().jump.take() else {
+            return;
+        };
+        let (target, more) = {
+            let shown = self.shown.borrow();
+            let target = shown.bundle_holding(&group, &first).and_then(|b| b.later);
+            (target, shown.more)
+        };
+        match target {
+            Some(target) => self.land_on(target),
+            None if more && pages > 1 => {
+                self.shown.borrow_mut().jump = Some((group, first, pages - 1));
+                self.ask_more();
+            }
+            None => {}
+        }
+    }
+
+    fn ask_more(&self) {
+        let more = self.more.borrow().clone();
+        if let Some(more) = more {
+            more();
+        }
+    }
+
+    /// Scrolls to the item at `position` and puts the focus on it.
+    fn land_on(&self, position: usize) {
+        self.view
+            .scroll_to(position as u32, gtk::ListScrollFlags::FOCUS, None);
+    }
+
+    /// Hands the dragged rows to the group of the bundle whose line is at
+    /// `position`.
+    fn dropped_on(&self, position: usize) -> bool {
+        let group = self
+            .shown
+            .borrow()
+            .bundle_at(position)
+            .map(|b| b.group.clone());
+        match (group, self.on_group_drop.borrow().as_ref()) {
+            (Some(group), Some(put)) => put(group),
+            _ => false,
+        }
+    }
+
+    /// Takes the lines a bundle adds out of the selection, which a range
+    /// or Select All sweeps up along with the rows.
+    fn drop_lines_from_selection(&self) {
+        let lines: Vec<u32> = {
+            let shown = self.shown.borrow();
+            self.positions()
+                .into_iter()
+                .filter(|p| shown.layout.row_at(*p).is_none())
+                .map(|p| p as u32)
+                .collect()
+        };
+        if lines.is_empty() {
             return;
         }
         self.muted.set(true);
-        let added: Vec<glib::BoxedAnyObject> = rows
-            .iter()
-            .map(|row| glib::BoxedAnyObject::new(Rc::clone(row)))
-            .collect();
-        let at = self.store.n_items();
-        self.rows.borrow_mut().extend(rows);
-        self.store.splice(at, 0, &added);
+        for position in lines {
+            self.selection.unselect_item(position);
+        }
         self.muted.set(false);
-        self.stack.set_visible_child_name("list");
     }
 
     /// Puts fresh rows in place of the ones belonging to `changed` threads.
@@ -580,8 +944,9 @@ impl ThreadList {
                 .any(|(account_id, id)| *account_id == row.account_id && *id == row.id)
         };
         let mut rows: Vec<Row> = self
-            .rows
+            .shown
             .borrow()
+            .rows
             .iter()
             .filter(|row| !touched(row))
             .map(Rc::clone)
@@ -606,12 +971,16 @@ impl ThreadList {
         self.set_rows(rows, &title, &icon);
     }
 
-    fn replace_all(&self, rows: &[Row]) {
+    /// Hands every item to the model again, so each one binds afresh.
+    fn replace_all(&self) {
         let keys = self.selected_keys();
         self.muted.set(true);
-        let objects: Vec<glib::BoxedAnyObject> = rows
+        let objects: Vec<glib::BoxedAnyObject> = self
+            .shown
+            .borrow()
+            .items
             .iter()
-            .map(|row| glib::BoxedAnyObject::new(Rc::clone(row)))
+            .map(|item| glib::BoxedAnyObject::new(item.clone()))
             .collect();
         self.store.splice(0, self.store.n_items(), &objects);
         self.reselect(&keys);
@@ -620,22 +989,22 @@ impl ThreadList {
 
     /// The keys of the selected rows.
     fn selected_keys(&self) -> HashSet<Key> {
-        let rows = self.rows.borrow();
+        let shown = self.shown.borrow();
         self.positions()
             .into_iter()
-            .filter_map(|p| rows.get(p).map(|row| key(row)))
+            .filter_map(|p| shown.row_at(p).map(|row| key(row)))
             .collect()
     }
 
     /// Selects exactly the rows whose keys are in `keys`, in one change to
     /// the selection rather than one per row.
     fn reselect(&self, keys: &HashSet<Key>) {
-        let rows = self.rows.borrow();
+        let shown = self.shown.borrow();
         let selected = gtk::Bitset::new_empty();
-        for position in positions_of(&rows, keys) {
+        for position in positions_of(&shown, keys) {
             selected.add(position);
         }
-        let every = gtk::Bitset::new_range(0, rows.len() as u32);
+        let every = gtk::Bitset::new_range(0, shown.items.len() as u32);
         self.selection.set_selection(&selected, &every);
     }
 
@@ -654,16 +1023,15 @@ impl ThreadList {
 
     /// How many rows are selected.
     pub fn selected_count(&self) -> usize {
-        self.selection.selection().size() as usize
+        let shown = self.shown.borrow();
+        self.positions()
+            .into_iter()
+            .filter(|p| shown.layout.row_at(*p).is_some())
+            .count()
     }
 
     pub fn picked(&self) -> Picked {
-        let rows = self.rows.borrow();
-        let mut picked: Vec<ThreadSummary> = self
-            .positions()
-            .into_iter()
-            .filter_map(|p| rows.get(p).map(|row| (**row).clone()))
-            .collect();
+        let mut picked = self.selected_rows();
         match picked.len() {
             0 => Picked::None,
             1 => Picked::One(picked.remove(0)),
@@ -672,20 +1040,39 @@ impl ThreadList {
     }
 
     pub fn selected_rows(&self) -> Vec<ThreadSummary> {
-        let rows = self.rows.borrow();
+        let shown = self.shown.borrow();
         self.positions()
             .into_iter()
-            .filter_map(|p| rows.get(p).map(|row| (**row).clone()))
+            .filter_map(|p| shown.row_at(p).map(|row| (**row).clone()))
             .collect()
     }
 
-    /// Selects a row alone: the thread's first row, or the given message's row.
+    /// Selects a row alone: the thread's first row, or the given message's
+    /// row. A closed bundle that hides it opens.
     pub fn select(&self, account_id: AccountId, thread_id: &str, message_id: Option<&str>) {
-        let position = self.rows.borrow().iter().position(|t| {
+        let found = self.shown.borrow().rows.iter().position(|t| {
             t.account_id == account_id
                 && t.id == thread_id
                 && message_id.is_none_or(|m| t.message_id.as_deref() == Some(m))
         });
+        let Some(row) = found else {
+            return;
+        };
+        let hiding = self
+            .shown
+            .borrow()
+            .layout
+            .hiding(row)
+            .map(|b| (b.group.clone(), b.members.clone()));
+        if let Some((group, members)) = hiding {
+            {
+                let mut shown = self.shown.borrow_mut();
+                let Shown { opened, rows, .. } = &mut *shown;
+                opened.toggle(&group, rows, &members);
+            }
+            self.relayout();
+        }
+        let position = self.shown.borrow().layout.entry_of_row(row);
         if let Some(position) = position {
             self.selection.select_item(position as u32, true);
             self.view
@@ -703,15 +1090,25 @@ impl ThreadList {
         self.selection.select_all();
     }
 
-    /// Moves to the row `delta` away from the last selected one and opens it.
+    /// Moves to the row `delta` rows away from the last selected one and
+    /// opens it, passing over the lines bundles add.
     pub fn step(&self, delta: i32) {
-        let count = self.rows.borrow().len() as i64;
-        if count == 0 {
-            return;
-        }
-        let next = match self.positions().last() {
-            None => 0,
-            Some(&current) => (current as i64 + delta as i64).clamp(0, count - 1),
+        let next = {
+            let shown = self.shown.borrow();
+            let rows: Vec<usize> = (0..shown.items.len())
+                .filter(|p| shown.layout.row_at(*p).is_some())
+                .collect();
+            let Some(last) = rows.len().checked_sub(1) else {
+                return;
+            };
+            let at = match self.positions().last() {
+                None => 0,
+                Some(&current) => {
+                    let here = rows.partition_point(|p| *p < current) as i64;
+                    (here + delta as i64).clamp(0, last as i64) as usize
+                }
+            };
+            rows[at]
         };
         self.selection.select_item(next as u32, true);
         self.view
@@ -725,20 +1122,24 @@ impl ThreadList {
         if selected.is_empty() {
             return None;
         }
-        let rows = self.rows.borrow();
-        let at = neighbour(
-            rows.len(),
-            selected.minimum() as usize,
-            selected.maximum() as usize,
-        )?;
-        rows.get(at).map(|row| (**row).clone())
+        let shown = self.shown.borrow();
+        let rows: Vec<usize> = (0..shown.items.len())
+            .filter(|p| shown.layout.row_at(*p).is_some())
+            .collect();
+        let first = rows.partition_point(|p| *p < selected.minimum() as usize);
+        let last = rows
+            .partition_point(|p| *p <= selected.maximum() as usize)
+            .checked_sub(1)?;
+        let at = neighbour(rows.len(), first, last)?;
+        shown.row_at(rows[at]).map(|row| (**row).clone())
     }
 
     /// Keeps only the rows `keep` accepts, leaving the rest selected as they were.
     pub fn retain(&self, keep: impl Fn(&ThreadSummary) -> bool) {
         let rows: Vec<Row> = self
-            .rows
+            .shown
             .borrow()
+            .rows
             .iter()
             .filter(|r| keep(r))
             .map(Rc::clone)
@@ -752,16 +1153,20 @@ impl ThreadList {
         self.set_rows(rows, &title, &icon);
     }
 
-    /// Runs `open` with a row that was double-clicked or activated with Enter.
-    pub fn connect_open(&self, open: impl Fn(ThreadSummary) + 'static) {
-        let rows = Rc::clone(&self.rows);
+    /// Runs `open` with a row that was double-clicked or activated with
+    /// Enter. A bundle's line opens or closes the bundle instead.
+    pub fn connect_open(self: &Rc<Self>, open: impl Fn(ThreadSummary) + 'static) {
+        let weak = Rc::downgrade(self);
         self.view.connect_activate(move |_, position| {
-            let row = rows
+            let Some(list) = weak.upgrade() else { return };
+            let row = list
+                .shown
                 .borrow()
-                .get(position as usize)
+                .row_at(position as usize)
                 .map(|row| (**row).clone());
-            if let Some(row) = row {
-                open(row);
+            match row {
+                Some(row) => open(row),
+                None => list.toggle_at(position as usize),
             }
         });
     }
@@ -851,8 +1256,7 @@ fn menu_keys() -> gtk::ShortcutController {
         let action = gtk::CallbackAction::new(|list, _| {
             let opened = list
                 .focus_child()
-                .and_then(|item| item.first_child())
-                .and_downcast::<ThreadRow>()
+                .and_then(|item| row_in(&item))
                 .is_some_and(|row| row.open_menu());
             match opened {
                 true => glib::Propagation::Stop,
@@ -890,10 +1294,7 @@ fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection) {
         glib::idle_add_local_once(move || {
             let Some(list) = list.upgrade() else { return };
             let Some(row) = list.focus_child() else { return };
-            let focused = row
-                .first_child()
-                .and_downcast::<ThreadRow>()
-                .and_then(|row| row.position());
+            let focused = row_in(&row).and_then(|row| row.position());
             let chosen = selection.selection();
             let first = (!chosen.is_empty()).then(|| chosen.minimum());
             let held = focused.is_some_and(|at| chosen.contains(at));
@@ -905,8 +1306,18 @@ fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection) {
     view.add_controller(focus);
 }
 
+/// The row inside the widget GTK wraps a list item in, when the item
+/// shows a row: the wrapper holds the slot, and the slot the row first.
+fn row_in(wrapper: &gtk::Widget) -> Option<ThreadRow> {
+    wrapper
+        .first_child()?
+        .first_child()
+        .and_downcast::<ThreadRow>()
+        .filter(|row| row.is_visible())
+}
+
 /// The positions of the rows whose keys are in `keys`, in order.
-fn positions_of(rows: &[Row], keys: &HashSet<Key>) -> Vec<u32> {
+fn positions_of(shown: &Shown, keys: &HashSet<Key>) -> Vec<u32> {
     if keys.is_empty() {
         return Vec::new();
     }
@@ -915,10 +1326,15 @@ fn positions_of(rows: &[Row], keys: &HashSet<Key>) -> Vec<u32> {
         .iter()
         .map(|(account_id, id, message_id)| (*account_id, id.as_str(), message_id.as_deref()))
         .collect();
-    rows.iter()
+    shown
+        .items
+        .iter()
         .enumerate()
-        .filter(|(_, row)| {
-            wanted.contains(&(row.account_id, row.id.as_str(), row.message_id.as_deref()))
+        .filter(|(_, item)| match item {
+            Item::Row(row) => {
+                wanted.contains(&(row.account_id, row.id.as_str(), row.message_id.as_deref()))
+            }
+            Item::Line(..) => false,
         })
         .map(|(p, _)| p as u32)
         .collect()
@@ -952,21 +1368,75 @@ mod tests {
         })
     }
 
+    fn grouped(id: &str, group: &str, unread: bool) -> Row {
+        Rc::new(ThreadSummary {
+            account_id: 1,
+            id: id.into(),
+            unread,
+            groups: vec![group.into()],
+            ..ThreadSummary::default()
+        })
+    }
+
+    /// The list showing `rows`, bundled as the list bundles them.
+    fn shown(rows: Vec<Row>, more: bool) -> Shown {
+        let layout = bundles::lay_out(&rows, bundles::WINDOW, &Opened::default(), &HashSet::new());
+        let items = items_of(&rows, &layout, true, more);
+        Shown {
+            rows,
+            layout,
+            items,
+            bundling: true,
+            more,
+            ..Shown::default()
+        }
+    }
+
     #[test]
     fn a_selection_finds_its_rows_again_after_the_list_changes() {
         let rows: Vec<Row> = ["a", "b", "c", "d"].into_iter().map(row).collect();
         let keys: HashSet<Key> = [key(&rows[3]), key(&rows[1]), (1, "gone".into(), None)]
             .into_iter()
             .collect();
-        assert_eq!(positions_of(&rows, &keys), [1, 3]);
-        assert!(positions_of(&rows, &HashSet::new()).is_empty());
+        let shown = shown(rows, false);
+        assert_eq!(positions_of(&shown, &keys), [1, 3]);
+        assert!(positions_of(&shown, &HashSet::new()).is_empty());
+    }
+
+    #[test]
+    fn a_position_names_a_row_only_where_the_model_shows_one() {
+        let rows = vec![
+            grouped("a", "Q3", true),
+            row("b"),
+            grouped("c", "Q3", false),
+        ];
+        let keys: HashSet<Key> = rows.iter().map(|r| key(r)).collect();
+        let shown = shown(rows, false);
+        // Header, a, the trailer counting c, then b.
+        assert_eq!(shown.items.len(), 4);
+        assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s) if s.count == 2 && s.hidden == 1));
+        assert_eq!(shown.row_at(1).map(|r| r.id.as_str()), Some("a"));
+        assert!(shown.row_at(2).is_none(), "the trailer");
+        assert_eq!(shown.bundle_at(2).map(|b| b.group.as_str()), Some("Q3"));
+        assert_eq!(positions_of(&shown, &keys), [1, 3], "c is hidden");
+    }
+
+    #[test]
+    fn the_down_arrow_stays_on_while_more_rows_may_hold_the_group() {
+        let rows = vec![grouped("a", "Q3", true), grouped("b", "Q3", true)];
+        let later = |shown: &Shown| match &shown.items[0] {
+            Item::Line(Kind::Header, s) => s.later,
+            other => panic!("{other:?}"),
+        };
+        assert!(!later(&shown(rows.clone(), false)));
+        assert!(later(&shown(rows, true)));
     }
 
     #[test]
     fn fifteen_thousand_selected_rows_come_back_in_one_pass() {
         let rows: Vec<Row> = (0..15_000).map(|n| row(&format!("t{n}"))).collect();
         let keys: HashSet<Key> = rows[200..].iter().map(|r| key(r)).collect();
-        let found = positions_of(&rows, &keys);
+        let found = positions_of(&shown(rows, false), &keys);
         assert_eq!(found.len(), 14_800);
         assert_eq!(found.first(), Some(&200));
     }

@@ -12,6 +12,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 ### New
 
 - Choose a language for AI answers, summaries and translations without changing the interface language.
+- Put mail in a named group from the Group menu or by dragging it onto a group, and the list shows nearby mail of each group together, unread first; on Gmail and on IMAP servers that store keywords, your other devices see the same groups.
 
 ## 1.0.6 (2026-10-09)
 

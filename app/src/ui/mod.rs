@@ -21,6 +21,7 @@ pub mod dav_edit;
 pub mod contacts_prefs;
 pub mod conversation;
 pub mod find;
+pub mod group_picker;
 pub mod hide_my_email;
 pub mod ics_file;
 pub mod invitation;

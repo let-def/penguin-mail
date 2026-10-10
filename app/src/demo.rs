@@ -109,6 +109,10 @@ const ACCOUNTS: [SampleAccount; 3] = [
             ("Label_important", "Personal/Important", None),
             ("Label_work", "Work", Some("#4a86e8")),
             ("Label_bugs", "Work/bugs", None),
+            // Mail groups, which the list draws as bundles and the
+            // sidebar leaves out.
+            ("Label_weekend", "group:Weekend plans", None),
+            ("Label_home", "group:Home admin", None),
         ],
         aliases: &[],
         personal: true,
@@ -288,7 +292,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME],
             subject: "Saturday hike?",
             minutes_ago: 3 * HOUR,
-            labels: &["INBOX"],
+            labels: &["INBOX", "Label_weekend"],
             text: "Weather looks perfect for Saturday. I was thinking the ridge loop from the north trailhead, about 14 km. Leave at 8, back by 3?\n\nTheo might join if he can get the car.",
             ..PLAIN
         },
@@ -312,7 +316,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME],
             subject: "Re: Saturday hike?",
             minutes_ago: 12,
-            labels: &["INBOX", "UNREAD"],
+            labels: &["INBOX", "UNREAD", "Label_weekend"],
             text: "Theo's in. Meet at mine at 7:45 and we'll drive up together. Bring layers, it'll be cold at the top.",
             ..PLAIN
         },
@@ -336,7 +340,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME],
             subject: "Your September statement is ready",
             minutes_ago: 5 * HOUR,
-            labels: &["INBOX", "CATEGORY_UPDATES"],
+            labels: &["INBOX", "CATEGORY_UPDATES", "Label_home"],
             text: "Your September statement is ready to view.",
             html: Some(
                 r#"<table width="100%" cellpadding="0" cellspacing="0" style="font-family:Helvetica,Arial,sans-serif;background:#f4f1ec"><tr><td align="center" style="padding:28px 12px"><table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:14px"><tr><td style="padding:26px 32px 8px;font-size:13px;letter-spacing:.12em;color:#2f6b4f;font-weight:bold">JUNIPER BANK <img src="https://juniper.example/logo.png" width="18" height="18" alt=""></td></tr><tr><td style="padding:4px 32px 0;font-size:24px;font-weight:bold;color:#1d1d1f">Your September statement is ready</td></tr><tr><td style="padding:14px 32px;font-size:15px;line-height:1.55;color:#444">Hi Dana, your statement for the account ending 4821 is now available in online banking.</td></tr><tr><td style="padding:6px 32px 20px"><table width="100%" style="font-size:14px;color:#1d1d1f;border-top:1px solid #eee"><tr><td style="padding:10px 0">Opening balance</td><td align="right">$3,412.08</td></tr><tr><td style="padding:10px 0;border-top:1px solid #eee">Money in</td><td align="right" style="border-top:1px solid #eee;color:#2f6b4f">+$4,950.00</td></tr><tr><td style="padding:10px 0;border-top:1px solid #eee">Money out</td><td align="right" style="border-top:1px solid #eee">−$3,877.41</td></tr><tr><td style="padding:10px 0;border-top:1px solid #eee;font-weight:bold">Closing balance</td><td align="right" style="border-top:1px solid #eee;font-weight:bold">$4,484.67</td></tr></table></td></tr><tr><td style="padding:0 32px 30px"><a href="https://juniper.example/statements" style="display:inline-block;background:#2f6b4f;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:bold;font-size:14px">View statement</a></td></tr></table><p style="font-size:12px;color:#8a8a8a;margin:18px 0 0">Juniper Bank will never ask for your password by email.</p></td></tr></table>"#,
@@ -351,7 +355,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME, ("Mara Okafor", "mara.okafor@example.org")],
             subject: "Photos from the lake",
             minutes_ago: DAY + 3 * HOUR,
-            labels: &["INBOX", "STARRED"],
+            labels: &["INBOX", "STARRED", "Label_weekend"],
             text: "Finally got these off the camera. The one of the dock at sunrise might be the best photo I've taken all year.\n\nFull album: https://photos.example.net/lake-2026",
             attachments: &[
                 ("dock-sunrise.jpg", "image/jpeg", 2_480_000),
@@ -379,7 +383,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME],
             subject: "Your parcel is out for delivery",
             minutes_ago: 2 * DAY + 2 * HOUR,
-            labels: &["INBOX", "CATEGORY_UPDATES"],
+            labels: &["INBOX", "CATEGORY_UPDATES", "Label_home"],
             text: "Your parcel is out for delivery today between 10:00 and 14:00.",
             html: Some(
                 r#"<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#222"><div style="font-size:20px;font-weight:bold;color:#d9480f">Packet Post</div><h2 style="margin:18px 0 6px;font-size:22px">Arriving today</h2><p style="font-size:15px;color:#444;margin:0 0 18px">Your parcel from Linden Books is out for delivery between <b>10:00 and 14:00</b>.</p><div style="background:#fff4e6;border-radius:10px;padding:14px 16px;font-size:14px">Tracking number <b>PP 4417 2290 118</b></div><p style="font-size:12px;color:#888;margin-top:22px">You're receiving this because you placed an order with a Packet Post partner.</p></div>"#,
