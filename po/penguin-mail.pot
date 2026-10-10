@@ -190,235 +190,235 @@ msgstr ""
 msgid "Make one in {provider}'s settings."
 msgstr ""
 
-#: app/src/add_account.rs:491
+#: app/src/add_account.rs:508
 msgid "App Password"
 msgstr ""
 
-#: app/src/add_account.rs:492
+#: app/src/add_account.rs:509
 msgid "Password"
 msgstr ""
 
-#: app/src/add_account.rs:527
+#: app/src/add_account.rs:544
 msgid "{host} · port {port} · {security}"
 msgstr ""
 
-#: app/src/add_account.rs:544 app/src/add_account.rs:548
+#: app/src/add_account.rs:561 app/src/add_account.rs:565
 msgid "{first} and {host}"
 msgstr ""
 
-#: app/src/add_account.rs:556
+#: app/src/add_account.rs:573
 msgid "{first} and {second}"
 msgstr ""
 
-#: app/src/add_account.rs:564
+#: app/src/add_account.rs:581
 msgid "{hosts} · {security}"
 msgstr ""
 
-#: app/src/add_account.rs:574
+#: app/src/add_account.rs:591
 msgid ""
 "Penguin Mail's own list knows this provider. Nothing has left this computer."
 msgstr ""
 
-#: app/src/add_account.rs:576
+#: app/src/add_account.rs:593
 msgid "Found by its mail servers. Nothing else was asked."
 msgstr ""
 
-#: app/src/add_account.rs:578
+#: app/src/add_account.rs:595
 msgid "Found in the domain's own settings."
 msgstr ""
 
-#: app/src/add_account.rs:580
+#: app/src/add_account.rs:597
 msgid "Found in Mozilla's provider list."
 msgstr ""
 
-#: app/src/add_account.rs:581
+#: app/src/add_account.rs:598
 msgid "Found by trying common server names."
 msgstr ""
 
-#: app/src/add_account.rs:582
+#: app/src/add_account.rs:599
 msgid "The servers you gave."
 msgstr ""
 
-#: app/src/add_account.rs:591
+#: app/src/add_account.rs:608
 msgid "{time} left"
 msgstr ""
 
-#: app/src/add_account.rs:600
+#: app/src/add_account.rs:617
 msgid "two"
 msgstr ""
 
-#: app/src/add_account.rs:601
+#: app/src/add_account.rs:618
 msgid "three"
 msgstr ""
 
-#: app/src/add_account.rs:602
+#: app/src/add_account.rs:619
 msgid "four"
 msgstr ""
 
-#: app/src/add_account.rs:603
+#: app/src/add_account.rs:620
 msgid "five"
 msgstr ""
 
-#: app/src/add_account.rs:604
+#: app/src/add_account.rs:621
 msgid "six"
 msgstr ""
 
-#: app/src/add_account.rs:605
+#: app/src/add_account.rs:622
 msgid "seven"
 msgstr ""
 
-#: app/src/add_account.rs:606
+#: app/src/add_account.rs:623
 msgid "eight"
 msgstr ""
 
-#: app/src/add_account.rs:607
+#: app/src/add_account.rs:624
 msgid "nine"
 msgstr ""
 
-#: app/src/add_account.rs:618
+#: app/src/add_account.rs:635
 msgid "Waiting"
 msgstr ""
 
-#: app/src/add_account.rs:619
+#: app/src/add_account.rs:636
 msgid "Empty"
 msgstr ""
 
-#: app/src/add_account.rs:623
+#: app/src/add_account.rs:640
 msgid "{count} conversation"
 msgid_plural "{count} conversations"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/src/add_account.rs:753
+#: app/src/add_account.rs:770
 msgid "Could not sign in"
 msgstr ""
 
-#: app/src/add_account.rs:766
+#: app/src/add_account.rs:783
 msgid "Could not sign in: {reason}"
 msgstr ""
 
-#: app/src/add_account.rs:773
+#: app/src/add_account.rs:790
 msgid "The server refused the password."
 msgstr ""
 
-#: app/src/add_account.rs:781
+#: app/src/add_account.rs:798
 msgid "IMAP is off for this account."
 msgstr ""
 
-#: app/src/add_account.rs:784
+#: app/src/add_account.rs:801
 msgid "IMAP is off for this account"
 msgstr ""
 
-#: app/src/add_account.rs:787
+#: app/src/add_account.rs:804
 msgid "Turn on IMAP in {provider}'s settings, then choose Sign In."
 msgstr ""
 
-#: app/src/add_account.rs:790
+#: app/src/add_account.rs:807
 msgid "Turn on IMAP in your mail settings, then choose Sign In."
 msgstr ""
 
-#: app/src/add_account.rs:798
+#: app/src/add_account.rs:815
 msgid "The server's certificate does not match {host}."
 msgstr ""
 
-#: app/src/add_account.rs:803
+#: app/src/add_account.rs:820
 msgid "The certificate does not match"
 msgstr ""
 
-#: app/src/add_account.rs:809
+#: app/src/add_account.rs:826
 msgid "Could not reach {host}: {reason}"
 msgstr ""
 
-#: app/src/add_account.rs:813
+#: app/src/add_account.rs:830
 msgid "No answer on port {port}"
 msgstr ""
 
-#: app/src/add_account.rs:817
+#: app/src/add_account.rs:834
 msgid ""
 "The server did not answer. Check the server name and port, or try again when "
 "you are online."
 msgstr ""
 
-#: app/src/add_account.rs:837
+#: app/src/add_account.rs:854
 msgid ""
 "{host} answered but turned down another connection. Try again in a few "
 "minutes."
 msgstr ""
 
-#: app/src/add_account.rs:841
+#: app/src/add_account.rs:858
 msgid "Too many connections"
 msgstr ""
 
-#: app/src/add_account.rs:847
+#: app/src/add_account.rs:864
 msgid "{host} answered in a way this app cannot work with."
 msgstr ""
 
-#: app/src/add_account.rs:858
+#: app/src/add_account.rs:875
 msgid "This app cannot send these sign-in details to the server."
 msgstr ""
 
-#: app/src/add_account.rs:874
+#: app/src/add_account.rs:891
 msgid ""
 "Penguin Mail cannot save your sign-in until the snap can reach your keyring. "
 "Run this command in a terminal, restart Penguin Mail, then add the account "
 "again."
 msgstr ""
 
-#: app/src/add_account.rs:879
+#: app/src/add_account.rs:896
 msgid "Connect Your Keyring"
 msgstr ""
 
-#: app/src/add_account.rs:908
+#: app/src/add_account.rs:925
 msgid "{provider} refused the password"
 msgstr ""
 
-#: app/src/add_account.rs:911
+#: app/src/add_account.rs:928
 msgid "The server refused the password"
 msgstr ""
 
-#: app/src/add_account.rs:919
+#: app/src/add_account.rs:936
 msgid ""
 "{provider} wants an app password here, not your website password. Make one, "
 "paste it above, then choose Sign In."
 msgstr ""
 
-#: app/src/add_account.rs:923
+#: app/src/add_account.rs:940
 msgid "Check the password, then choose Sign In."
 msgstr ""
 
-#: app/src/add_account.rs:940
+#: app/src/add_account.rs:957
 msgid "The server said: {reason}"
 msgstr ""
 
-#: app/src/add_account.rs:960
+#: app/src/add_account.rs:977
 msgid "Make an App Password"
 msgstr ""
 
-#: app/src/add_account.rs:964
+#: app/src/add_account.rs:981
 msgid "Turn On IMAP"
 msgstr ""
 
-#: app/src/add_account.rs:1110
+#: app/src/add_account.rs:1127
 msgid "{host} is not a server name."
 msgstr ""
 
-#: app/src/add_account.rs:1116
+#: app/src/add_account.rs:1133
 msgid "Type the incoming server's name."
 msgstr ""
 
-#: app/src/add_account.rs:1117
+#: app/src/add_account.rs:1134
 msgid "Type the outgoing server's name."
 msgstr ""
 
-#: app/src/add_account.rs:1243
+#: app/src/add_account.rs:1260
 msgid "Mail is downloading. You can close this window."
 msgstr ""
 
-#: app/src/add_account.rs:1244 app/src/add_account.rs:1273
+#: app/src/add_account.rs:1261 app/src/add_account.rs:1290
 msgid "Your mail is here."
 msgstr ""
 
-#: app/src/add_account.rs:1258
+#: app/src/add_account.rs:1275
 msgid ""
 "Your organization did not allow one of the permissions Penguin Mail asked "
 "for, so this feature stays off:"
@@ -428,41 +428,41 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/src/add_account.rs:1265
+#: app/src/add_account.rs:1282
 msgid "You left one box unticked on Google's page, so this feature stays off:"
 msgid_plural ""
 "You left {count} boxes unticked on Google's page, so these features stay off:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/src/add_account.rs:1272
+#: app/src/add_account.rs:1289
 msgid "Mail is downloading."
 msgstr ""
 
-#: app/src/add_account.rs:1292
+#: app/src/add_account.rs:1309
 msgid ""
 "Newest mail comes first. Older mail keeps coming in the background, even "
 "with the window closed."
 msgstr ""
 
-#: app/src/add_account.rs:1294
+#: app/src/add_account.rs:1311
 msgid "Penguin Mail keeps checking for new mail, even with the window closed."
 msgstr ""
 
-#: app/src/add_account.rs:1304
+#: app/src/add_account.rs:1321
 msgid ""
 "Penguin Mail downloads the server's mail into Inbox and keeps checking in "
 "the background, even with the window closed. Mail stays on the server."
 msgstr ""
 
-#: app/src/add_account.rs:1307
+#: app/src/add_account.rs:1324
 msgid ""
 "Penguin Mail downloads the server's mail into Inbox and keeps checking in "
 "the background, even with the window closed. It removes each message from "
 "the server after downloading it."
 msgstr ""
 
-#: app/src/add_account.rs:1310
+#: app/src/add_account.rs:1327
 msgid ""
 "Penguin Mail downloads the server's mail into Inbox and keeps checking in "
 "the background, even with the window closed. It removes each message from "
@@ -474,7 +474,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/src/add_account.rs:1326
+#: app/src/add_account.rs:1343
 msgid "Penguin Mail needs the password for {address} again."
 msgstr ""
 
@@ -1659,6 +1659,7 @@ msgid "Penguin Mail could not update its mail store, and kept the old one."
 msgstr ""
 
 #: app/src/core.rs:717 app/src/core.rs:774 app/src/core.rs:819
+#: app/src/core.rs:851
 msgid "Demo mode cannot add real accounts."
 msgstr ""
 
@@ -1668,6 +1669,10 @@ msgstr ""
 
 #: app/src/core.rs:735
 msgid "Gave up waiting for the browser after five minutes."
+msgstr ""
+
+#: app/src/core.rs:831
+msgid "This token belongs to {address}, not {account}."
 msgstr ""
 
 #: app/src/event_reminders/notice.rs:31
@@ -3539,7 +3544,7 @@ msgstr ""
 msgid "Enter server settings by hand"
 msgstr ""
 
-#: app/src/ui/add_account.rs:563 app/src/ui/add_account.rs:1584
+#: app/src/ui/add_account.rs:563 app/src/ui/add_account.rs:1600
 msgid "Add Account"
 msgstr ""
 
@@ -3608,7 +3613,7 @@ msgstr ""
 msgid "Copy Link"
 msgstr ""
 
-#: app/src/ui/add_account.rs:802 app/src/ui/add_account.rs:927
+#: app/src/ui/add_account.rs:802 app/src/ui/add_account.rs:931
 #: app/src/ui/key_import.rs:213
 msgid "Try Again"
 msgstr ""
@@ -3628,125 +3633,126 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: app/src/ui/add_account.rs:895 app/src/ui/add_account.rs:988
-#: app/src/ui/add_account.rs:2284 app/src/ui/window.rs:1214
+#: app/src/ui/add_account.rs:899 app/src/ui/add_account.rs:999
+#: app/src/ui/add_account.rs:2384 app/src/ui/add_account.rs:2419
+#: app/src/ui/window.rs:1214
 msgid "Sign In"
 msgstr ""
 
-#: app/src/ui/add_account.rs:900 app/src/ui/add_account.rs:903
+#: app/src/ui/add_account.rs:904 app/src/ui/add_account.rs:907
 msgid "Your Name"
 msgstr ""
 
-#: app/src/ui/add_account.rs:922 app/src/ui/add_account.rs:1473
+#: app/src/ui/add_account.rs:926 app/src/ui/add_account.rs:1486
 msgid "Server Settings"
 msgstr ""
 
-#: app/src/ui/add_account.rs:946 app/src/ui/add_account.rs:2367
+#: app/src/ui/add_account.rs:950 app/src/ui/add_account.rs:2526
 msgid "Outgoing"
 msgstr ""
 
-#: app/src/ui/add_account.rs:951
+#: app/src/ui/add_account.rs:955
 msgid "Keep this account's mail on this computer alone"
 msgstr ""
 
-#: app/src/ui/add_account.rs:956
+#: app/src/ui/add_account.rs:966
 msgid "Servers"
 msgstr ""
 
-#: app/src/ui/add_account.rs:961 app/src/ui/add_account.rs:963
+#: app/src/ui/add_account.rs:971 app/src/ui/add_account.rs:973
 msgid "Use these servers"
 msgstr ""
 
-#: app/src/ui/add_account.rs:965
+#: app/src/ui/add_account.rs:975
 msgid ""
 "Penguin Mail guessed these servers. Your password goes to them only after "
 "you check the box."
 msgstr ""
 
-#: app/src/ui/add_account.rs:1031
+#: app/src/ui/add_account.rs:1044
 msgid "No Other Mail Apps"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1037
+#: app/src/ui/add_account.rs:1050
 msgid "Use another address"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1038
+#: app/src/ui/add_account.rs:1051
 msgid "Change the address and look it up again"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1044
+#: app/src/ui/add_account.rs:1057
 msgid "Choose another provider"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1045
+#: app/src/ui/add_account.rs:1058
 msgid "Back to the list"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1091
+#: app/src/ui/add_account.rs:1104
 msgid "Account Added"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1114
+#: app/src/ui/add_account.rs:1127
 msgctxt "mailbox"
 msgid "Archive"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1147
+#: app/src/ui/add_account.rs:1160
 msgid ""
 "Grant Access opens Google's page again. You can also do it later in "
 "Preferences."
 msgstr ""
 
-#: app/src/ui/add_account.rs:1150
+#: app/src/ui/add_account.rs:1163
 msgid "Open Inbox"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1152
+#: app/src/ui/add_account.rs:1165
 msgid "Add Another Account"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1154 app/src/ui/confirm.rs:46
+#: app/src/ui/add_account.rs:1167 app/src/ui/confirm.rs:46
 msgid "Not Now"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1159 app/src/ui/calendar/editor.rs:1606
+#: app/src/ui/add_account.rs:1172 app/src/ui/calendar/editor.rs:1606
 #: app/src/ui/calendar/sidebar.rs:922 app/src/ui/contacts_prefs.rs:365
 #: app/src/ui/invitation.rs:461 app/src/ui/permission.rs:42
 #: app/src/ui/permission.rs:66 app/src/ui/window.rs:1332
 msgid "Grant Access"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1229
+#: app/src/ui/add_account.rs:1242
 msgid "Server"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1232 app/src/ui/add_account.rs:1233
+#: app/src/ui/add_account.rs:1245 app/src/ui/add_account.rs:1246
 msgid "Port"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1243 app/src/ui/add_account.rs:1245
+#: app/src/ui/add_account.rs:1256 app/src/ui/add_account.rs:1258
 msgid "Security"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1306
+#: app/src/ui/add_account.rs:1319
 msgid "Mail on the Server"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1308
+#: app/src/ui/add_account.rs:1321
 msgid "Penguin Mail keeps every message it downloads on this computer."
 msgstr ""
 
-#: app/src/ui/add_account.rs:1313 app/src/ui/add_account.rs:1314
+#: app/src/ui/add_account.rs:1326 app/src/ui/add_account.rs:1327
 #: app/src/ui/preferences.rs:1096
 msgid "Days"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1388
+#: app/src/ui/add_account.rs:1401
 msgid "Incoming User Name"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1389
+#: app/src/ui/add_account.rs:1402
 msgid "Outgoing User Name"
 msgstr ""
 
@@ -3754,99 +3760,130 @@ msgstr ""
 #. text draws over the title. The rule goes in a tooltip, since a
 #. second line under the group would push this row off a 768-pixel
 #. screen.
-#: app/src/ui/add_account.rs:1395
+#: app/src/ui/add_account.rs:1408
 msgid "Leave it empty to use the incoming user name."
 msgstr ""
 
-#: app/src/ui/add_account.rs:1398
+#: app/src/ui/add_account.rs:1411
 msgid "Incoming Mail"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1408 app/src/ui/add_account.rs:1410
+#: app/src/ui/add_account.rs:1421 app/src/ui/add_account.rs:1423
 msgid "Protocol"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1439
+#: app/src/ui/add_account.rs:1452
 msgid "Outgoing Mail"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1450
+#: app/src/ui/add_account.rs:1463
 msgid "Sign-In"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1451
+#: app/src/ui/add_account.rs:1464
 msgid "Leave them empty to sign in with your address."
 msgstr ""
 
-#: app/src/ui/add_account.rs:1462
+#: app/src/ui/add_account.rs:1475
 msgid "Use These Settings"
 msgstr ""
 
-#: app/src/ui/add_account.rs:1900 app/src/ui/add_account.rs:3049
+#: app/src/ui/add_account.rs:1919 app/src/ui/add_account.rs:3216
 msgid "Looking up {domain}"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2141
+#: app/src/ui/add_account.rs:2157
 msgid "Sign in to {domain}"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2144
+#: app/src/ui/add_account.rs:2160
 msgid "{domain} uses {provider}"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2168
+#: app/src/ui/add_account.rs:2201
+msgid "{provider} needs an API token"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2204
+msgid ""
+"Make one in {provider}'s settings under Privacy & Security, with access to "
+"email and to sending email, and paste it here."
+msgstr ""
+
+#: app/src/ui/add_account.rs:2232
 msgid ""
 "Not your {provider} website password. Make one with mail access in "
 "{provider}'s settings and paste it here."
 msgstr ""
 
-#: app/src/ui/add_account.rs:2276 app/src/ui/add_account.rs:3119
+#: app/src/ui/add_account.rs:2250
+msgid "API Token"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2259
+msgid "Connect over IMAP Instead"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2259
+msgid "With an app password, as other mail apps do"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2260
+msgid "Connect over JMAP Instead"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2260
+msgid "Syncs faster, with an API token"
+msgstr ""
+
+#: app/src/ui/add_account.rs:2376 app/src/ui/add_account.rs:2409
+#: app/src/ui/add_account.rs:3286
 msgid "Signing In…"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2386
+#: app/src/ui/add_account.rs:2545
 msgid "Could not reach {host}"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2388
+#: app/src/ui/add_account.rs:2547
 msgid "Your password was not sent."
 msgstr ""
 
-#: app/src/ui/add_account.rs:2596
+#: app/src/ui/add_account.rs:2763
 msgid "Sign in with {provider} in your browser"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2601
+#: app/src/ui/add_account.rs:2768
 msgid ""
 "{provider}'s sign-in page is open in your browser. When you finish there, "
 "this window moves on."
 msgstr ""
 
-#: app/src/ui/add_account.rs:2621
+#: app/src/ui/add_account.rs:2788
 msgid ""
 "This copy of Penguin Mail was built without Google sign-in. Get a release "
 "from github.com/c9dev/penguin-mail/releases."
 msgstr ""
 
-#: app/src/ui/add_account.rs:2624
+#: app/src/ui/add_account.rs:2791
 msgid ""
 "This copy of Penguin Mail was built without Microsoft sign-in. Get a release "
 "from github.com/c9dev/penguin-mail/releases."
 msgstr ""
 
-#: app/src/ui/add_account.rs:2791
+#: app/src/ui/add_account.rs:2958
 msgid "Link copied"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2818
+#: app/src/ui/add_account.rs:2985
 msgid "{account} is added"
 msgstr ""
 
-#: app/src/ui/add_account.rs:2838
+#: app/src/ui/add_account.rs:3005
 msgid "{account} is ready"
 msgstr ""
 
-#: app/src/ui/add_account.rs:3122
+#: app/src/ui/add_account.rs:3289
 msgid ""
 "This server cannot tell its messages apart, so Penguin Mail cannot download "
 "from it safely."

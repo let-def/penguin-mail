@@ -146,7 +146,7 @@ impl Connector {
                 };
                 connect_microsoft(db, Arc::clone(&self.secrets.microsoft), client, account, window_days).await
             }
-            Provider::Jmap => connect_jmap(db, Arc::clone(&self.secrets.jmap), account, window_days, STEP_WAIT).await,
+            Provider::Jmap => connect_jmap(db, Arc::clone(&self.secrets.jmap), account, window_days).await,
         };
         match started {
             Ok(services) => Ok(Connected::Ready(services)),
@@ -217,7 +217,16 @@ pub(crate) async fn connect_account_within(
 /// sign in again, which the store records before this answers. Nothing
 /// talks to the server here; the client reads the session when sync
 /// first asks.
-pub(crate) async fn connect_jmap<P: PasswordStore + 'static>(
+pub async fn connect_jmap<P: PasswordStore + 'static>(
+    db: &Db,
+    tokens: Arc<P>,
+    account: &Account,
+    window_days: i64,
+) -> Result<AccountServices, SyncError> {
+    connect_jmap_within(db, tokens, account, window_days, STEP_WAIT).await
+}
+
+pub(crate) async fn connect_jmap_within<P: PasswordStore + 'static>(
     db: &Db,
     tokens: Arc<P>,
     account: &Account,

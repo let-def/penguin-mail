@@ -523,13 +523,13 @@ async fn a_jmap_account_starts_from_its_token_or_needs_to_sign_in() {
     let account = account(&db, "dana@fastmail.com").await;
     let tokens = Arc::new(MemoryPasswords::default());
     let refused =
-        crate::connect::connect_jmap(&db, Arc::clone(&tokens), &account, 30, std::time::Duration::from_secs(5)).await;
+        crate::connect::connect_jmap_within(&db, Arc::clone(&tokens), &account, 30, std::time::Duration::from_secs(5)).await;
     assert!(matches!(refused, Err(SyncError::Backend(BackendError::NeedsReauth))));
     let state = db.read(move |c| accounts::account(c, id)).await.unwrap().unwrap().state;
     assert_eq!(state, AccountState::NeedsReauth);
 
     tokens.save(id, "tok").unwrap();
-    let services = crate::connect::connect_jmap(&db, tokens, &account, 30, std::time::Duration::from_secs(5))
+    let services = crate::connect::connect_jmap_within(&db, tokens, &account, 30, std::time::Duration::from_secs(5))
         .await
         .unwrap();
     assert!(matches!(services.mail, crate::AnyMail::Jmap(_)));

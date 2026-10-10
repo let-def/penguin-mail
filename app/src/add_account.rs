@@ -484,6 +484,23 @@ pub fn password_hint(proposal: &Proposal) -> Option<Hint> {
     Some(Hint { line, link })
 }
 
+/// Fastmail's page for API tokens, which a JMAP sign-in needs.
+pub const FASTMAIL_TOKENS: &str = "https://app.fastmail.com/settings/security/tokens";
+
+/// The JMAP session a proposal's provider offers beside IMAP, for the
+/// choice between the two on the sign-in page. Only Fastmail's for now.
+pub fn jmap_session(proposal: &Proposal) -> Option<&'static str> {
+    let fastmail = proposal.provider_name.eq_ignore_ascii_case("fastmail")
+        || proposal.incoming.host.to_ascii_lowercase().ends_with(".fastmail.com");
+    fastmail.then_some(mailrs_jmap::FASTMAIL_SESSION)
+}
+
+/// Whether Sign In can go with an API token: there is one, and no
+/// sign-in is on its way.
+pub fn can_sign_in_with_token(token: &str, running: bool) -> bool {
+    !running && !token.trim().is_empty()
+}
+
 /// What the password field is called: App Password where nothing else
 /// will do, Password otherwise.
 pub fn password_title(proposal: &Proposal) -> String {
@@ -1673,6 +1690,17 @@ mod tests {
             line,
             "Penguin Mail found no mail servers for example.org. Enter them below."
         );
+    }
+
+    #[test]
+    fn fastmail_offers_jmap_beside_imap_and_other_servers_do_not() {
+        assert_eq!(jmap_session(&fastmail()), Some(mailrs_jmap::FASTMAIL_SESSION));
+        assert_eq!(jmap_session(&guess(&dana())), Some(mailrs_jmap::FASTMAIL_SESSION), "a guess at fastmail.com");
+        let elsewhere = Address::parse("dana@example.org").unwrap();
+        assert_eq!(jmap_session(&guess(&elsewhere)), None);
+        assert!(can_sign_in_with_token(" fmu1-abc ", false));
+        assert!(!can_sign_in_with_token("  ", false));
+        assert!(!can_sign_in_with_token("fmu1-abc", true), "one sign-in at a time");
     }
 
     #[test]

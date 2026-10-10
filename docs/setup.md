@@ -28,6 +28,18 @@ your desktop's keyring, never into a file.
 
 The account appears in the sidebar and starts downloading.
 
+### Fastmail over JMAP
+
+A Fastmail address signs in over JMAP, Fastmail's own protocol, unless you
+choose **Connect over IMAP Instead**. JMAP syncs faster and shares more
+with Fastmail's own apps, such as your sending identities and the topics
+you put mail on. It needs an API token rather than an app password: in
+Fastmail, open **Settings > Privacy & Security > Manage API tokens**, make
+one with access to email and to sending email, and paste it in. The token
+goes to your desktop's keyring under the service `penguin-mail-jmap`.
+Rules run on this computer while Penguin Mail is open, and the automatic
+reply, calendars and contacts are not offered on a JMAP account yet.
+
 ### Calendars, contacts and rules on other providers
 
 Penguin Mail looks for an IMAP account's calendar (CalDAV), contacts

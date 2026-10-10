@@ -37,7 +37,7 @@ use crate::add_account::lookup::{Check, Heard, check_of_url};
 use crate::assistant::run::{Background, Modules};
 use crate::demo::{self, DemoMail};
 use crate::starting::{self, Connected, Starting};
-use mailrs_domain::translate::gettext;
+use mailrs_domain::translate::{fill, gettext};
 
 /// The store could not be updated to this version, and the copy taken
 /// before the attempt was put back. Startup shows this with a way to
@@ -803,6 +803,38 @@ impl Core {
             };
             let account = imap_signed_in(&db, Arc::clone(&passwords), new, now_millis()).await?;
             let services = connect_imap(&db, passwords, &account, window_days).await?;
+            engine.start_account(account.id, services);
+            Ok::<_, anyhow::Error>(account)
+        })
+        .await
+    }
+
+    /// Signs in to a JMAP account with an API token: reads the session to
+    /// check the token and learn its address, keeps the account and the
+    /// token, and starts syncing it. Signing in again for `again`, an
+    /// account already here, refuses a token that belongs to another
+    /// address, which would sign in someone else's mail under its name.
+    pub async fn sign_in_jmap(&self, new: mailrs_sync::sign_in::NewJmap, again: Option<String>) -> Result<Account> {
+        if self.demo {
+            bail!(gettext("Demo mode cannot add real accounts."));
+        }
+        let engine = self
+            .engine
+            .current()
+            .ok_or_else(|| anyhow!("sync is not running"))?;
+        let (db, tokens) = (self.db.clone(), Arc::clone(&self.secrets.jmap));
+        let window_days = self.config.borrow().engine_config().window_days;
+        self.call(async move {
+            let address = mailrs_sync::sign_in::check_jmap(&new).await?;
+            if let Some(again) = again.filter(|again| !again.eq_ignore_ascii_case(&address)) {
+                bail!(fill(
+                    &gettext("This token belongs to {address}, not {account}."),
+                    &[("address", &address), ("account", &again)],
+                ));
+            }
+            let account =
+                mailrs_sync::sign_in::jmap_signed_in(&db, Arc::clone(&tokens), new, &address, now_millis()).await?;
+            let services = mailrs_sync::connect_jmap(&db, tokens, &account, window_days).await?;
             engine.start_account(account.id, services);
             Ok::<_, anyhow::Error>(account)
         })
