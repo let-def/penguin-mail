@@ -146,7 +146,10 @@ impl Connector {
                 };
                 connect_microsoft(db, Arc::clone(&self.secrets.microsoft), client, account, window_days).await
             }
-            Provider::Jmap => connect_jmap(db, Arc::clone(&self.secrets.jmap), account, window_days).await,
+            Provider::Jmap => {
+                let (tokens, passwords) = (Arc::clone(&self.secrets.jmap), Arc::clone(&self.secrets.passwords));
+                connect_jmap(db, tokens, passwords, account, window_days).await
+            }
         };
         match started {
             Ok(services) => Ok(Connected::Ready(services)),
@@ -214,21 +217,25 @@ pub(crate) async fn connect_account_within(
 
 /// The services for a JMAP account, from the API token under its id and
 /// the session URL the store keeps. No token means the account needs to
-/// sign in again, which the store records before this answers. Nothing
-/// talks to the server here; the client reads the session when sync
-/// first asks.
-pub async fn connect_jmap<P: PasswordStore + 'static>(
+/// sign in again, which the store records before this answers. The
+/// calendar comes over CalDAV with the app password `passwords` keeps
+/// under the account's id, from a confirmed server the finder kept; an
+/// account without one has no calendar. Nothing talks to a server here;
+/// the clients log in when sync first asks.
+pub async fn connect_jmap<P: PasswordStore + 'static, Q: PasswordStore + 'static>(
     db: &Db,
     tokens: Arc<P>,
+    passwords: Arc<Q>,
     account: &Account,
     window_days: i64,
 ) -> Result<AccountServices, SyncError> {
-    connect_jmap_within(db, tokens, account, window_days, STEP_WAIT).await
+    connect_jmap_within(db, tokens, passwords, account, window_days, STEP_WAIT).await
 }
 
-pub(crate) async fn connect_jmap_within<P: PasswordStore + 'static>(
+pub(crate) async fn connect_jmap_within<P: PasswordStore + 'static, Q: PasswordStore + 'static>(
     db: &Db,
     tokens: Arc<P>,
+    passwords: Arc<Q>,
     account: &Account,
     window_days: i64,
     wait: Duration,
@@ -242,12 +249,23 @@ pub(crate) async fn connect_jmap_within<P: PasswordStore + 'static>(
     let session = bounded(id, "the mail store", wait, db.read(move |c| accounts::jmap_session(c, id))).await?;
     let url = session.unwrap_or_else(|| mailrs_jmap::FASTMAIL_SESSION.to_string());
     let client = mailrs_jmap::Jmap::new(&url, &token).map_err(crate::services::jmap::backend)?;
+    let provider_name = account.provider_name().to_string();
     let settings = JmapSettings {
         address: account.email.clone(),
-        provider_name: account.provider_name().to_string(),
+        provider_name: provider_name.clone(),
         window_days,
     };
-    Ok(AccountServices::jmap(db.clone(), id, client, settings))
+    let mut services = AccountServices::jmap(db.clone(), id, client, settings);
+    let Some(password) = read_secret(passwords, id, wait).await? else {
+        return Ok(services);
+    };
+    let found = bounded(id, "the mail store", wait, db.read(move |c| mailrs_store::services::load(c, id))).await?;
+    // The address book comes over JMAP and Fastmail runs no ManageSieve,
+    // so only a calendar server is taken from what was found.
+    for service in found.iter().filter(|f| f.confirmed && f.kind == ServiceKind::CalDav) {
+        services = attach(services, service, &password, account, &provider_name);
+    }
+    Ok(services)
 }
 
 /// The services for a Microsoft account, from the refresh token under its

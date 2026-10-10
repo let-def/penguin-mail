@@ -5,9 +5,12 @@
 //! each changed message comes back whole, with every mailbox it is in and
 //! every keyword it carries. JMAP stores any keyword, so topics reach the
 //! person's other devices. Mailboxes are folders here, one per message,
-//! as Fastmail's own interface files mail.
+//! as Fastmail's own interface files mail. The address book comes over
+//! JMAP for Contacts with the same token; the calendar does not, since
+//! Fastmail serves it over CalDAV alone.
 
 mod api;
+mod contacts;
 mod feed;
 mod fetch;
 mod mailboxes;

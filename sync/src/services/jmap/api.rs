@@ -3,7 +3,9 @@
 //! over `GraphApi`. Each method is one call of `mailrs_jmap::Jmap`, named
 //! and shaped as it names it.
 
-use mailrs_jmap::{Changed, Email, Got, Identity, Jmap, JmapError, Mailbox, Queried, SetAnswer, Submitted, Thread};
+use mailrs_jmap::{
+    AddressBook, Changed, Email, Got, Identity, Jmap, JmapError, Mailbox, Queried, SetAnswer, Submitted, Thread,
+};
 use serde_json::{Map, Value};
 
 type Answer<T> = Result<T, JmapError>;
@@ -25,6 +27,14 @@ pub trait JmapApi: Send + Sync + 'static {
     fn identities(&self) -> impl Future<Output = Answer<Vec<Identity>>> + Send;
     fn send(&self, raw: Vec<u8>, identity_id: &str, drafts: &str, sent: &str) -> impl Future<Output = Answer<Submitted>> + Send;
     fn submit(&self, email_id: &str, identity_id: &str, drafts: &str, sent: &str) -> impl Future<Output = Answer<()>> + Send;
+
+    fn address_books(&self) -> impl Future<Output = Answer<Got<AddressBook>>> + Send;
+    fn card_state(&self) -> impl Future<Output = Answer<String>> + Send;
+    fn card_changes(&self, since: &str, most: u64) -> impl Future<Output = Answer<Changed>> + Send;
+    fn query_cards(&self, position: u64, limit: u64) -> impl Future<Output = Answer<Queried>> + Send;
+    fn cards(&self, ids: &[String]) -> impl Future<Output = Answer<Got<Value>>> + Send;
+    fn set_cards(&self, create: Map<String, Value>, update: Map<String, Value>) -> impl Future<Output = Answer<SetAnswer>> + Send;
+    fn card_blob(&self, blob_id: &str, limit: usize) -> impl Future<Output = Answer<Vec<u8>>> + Send;
 }
 
 impl JmapApi for Jmap {
@@ -75,5 +85,26 @@ impl JmapApi for Jmap {
     }
     async fn submit(&self, email_id: &str, identity_id: &str, drafts: &str, sent: &str) -> Answer<()> {
         Jmap::submit(self, email_id, identity_id, drafts, sent).await
+    }
+    async fn address_books(&self) -> Answer<Got<AddressBook>> {
+        Jmap::address_books(self).await
+    }
+    async fn card_state(&self) -> Answer<String> {
+        Jmap::card_state(self).await
+    }
+    async fn card_changes(&self, since: &str, most: u64) -> Answer<Changed> {
+        Jmap::card_changes(self, since, most).await
+    }
+    async fn query_cards(&self, position: u64, limit: u64) -> Answer<Queried> {
+        Jmap::query_cards(self, position, limit).await
+    }
+    async fn cards(&self, ids: &[String]) -> Answer<Got<Value>> {
+        Jmap::cards(self, ids).await
+    }
+    async fn set_cards(&self, create: Map<String, Value>, update: Map<String, Value>) -> Answer<SetAnswer> {
+        Jmap::set_cards(self, create, update).await
+    }
+    async fn card_blob(&self, blob_id: &str, limit: usize) -> Answer<Vec<u8>> {
+        Jmap::card_blob(self, blob_id, limit).await
     }
 }

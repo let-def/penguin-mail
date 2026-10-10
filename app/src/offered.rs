@@ -465,6 +465,24 @@ pub fn reason(account: &Account, missing: Missing, missed: Option<Miss>) -> Stri
         (Provider::Imap, Missing::AutoReply) => {
             gettext("{provider} cannot send automatic replies.")
         }
+        // A JMAP account's calendar is CalDAV, which takes an app password
+        // rather than the API token.
+        (Provider::Jmap, Missing::Calendar) => match missed {
+            Some(Miss::Refused) => gettext(
+                "{provider} refused the app password for calendars. Make one with access to \
+                 calendars and add it again.",
+            ),
+            Some(Miss::Unreachable) => {
+                gettext("Penguin Mail could not reach the calendar server for {provider}.")
+            }
+            Some(Miss::NotFound) | None => gettext(
+                "{provider} serves calendars over CalDAV, which needs an app password. Add one \
+                 under Calendar, Contacts and Rules Servers.",
+            ),
+        },
+        (Provider::Jmap, Missing::AutoReply) => {
+            gettext("Penguin Mail cannot change the automatic reply of a {provider} account over JMAP yet.")
+        }
         (_, Missing::Calendar) => gettext("{provider} has no calendar that other apps can reach."),
         (_, Missing::Contacts) => {
             gettext("{provider} keeps no contacts that other apps can reach.")
@@ -805,6 +823,17 @@ mod tests {
             "Fastmail refused the password for contacts. Some providers need an app \
              password with access to calendars and contacts."
         );
+    }
+
+    #[test]
+    fn a_jmap_account_without_a_calendar_is_told_to_add_an_app_password() {
+        let jmap = Account { provider: Provider::Jmap, ..fastmail() };
+        assert_eq!(
+            reason(&jmap, Missing::Calendar, None),
+            "Fastmail serves calendars over CalDAV, which needs an app password. Add one \
+             under Calendar, Contacts and Rules Servers."
+        );
+        assert!(reason(&jmap, Missing::Calendar, Some(Miss::Refused)).starts_with("Fastmail refused the app password"));
     }
 
     #[test]

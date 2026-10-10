@@ -9,7 +9,8 @@ use std::sync::{Mutex, MutexGuard, PoisonError};
 
 use mailrs_domain::EpochMillis;
 use mailrs_jmap::{
-    Changed, Email, EmailAddress, Got, Identity, JmapError, Mailbox, Queried, SetAnswer, SetError, Submitted, Thread,
+    AddressBook, Changed, Email, EmailAddress, Got, Identity, JmapError, Mailbox, Queried, SetAnswer, SetError,
+    Submitted, Thread,
 };
 use serde_json::{Map, Value, json};
 
@@ -44,6 +45,15 @@ pub struct JmapState {
     /// answers `cannotCalculateChanges`.
     pub forgotten: u64,
     next: u64,
+    pub books: Vec<AddressBook>,
+    /// Contact cards by id, as JSContact.
+    pub cards: BTreeMap<String, Value>,
+    /// Photo bytes by blob id.
+    pub blobs: BTreeMap<String, Vec<u8>>,
+    /// The token reaches no contacts, as one made without that access.
+    pub no_contacts: bool,
+    card_state: u64,
+    card_log: Vec<(u64, String, Logged)>,
 }
 
 impl JmapState {
@@ -55,6 +65,11 @@ impl JmapState {
     fn log(&mut self, id: &str, what: Logged) {
         self.state += 1;
         self.log.push((self.state, id.to_string(), what));
+    }
+
+    fn log_card(&mut self, id: &str, what: Logged) {
+        self.card_state += 1;
+        self.card_log.push((self.card_state, id.to_string(), what));
     }
 
     pub fn role(&self, role: &str) -> String {
@@ -100,6 +115,11 @@ impl FakeJmap {
                 name: "Me".into(),
                 email: own.into(),
                 ..Identity::default()
+            }],
+            books: vec![AddressBook {
+                id: "ab-default".into(),
+                name: "Personal".into(),
+                is_default: true,
             }],
             ..JmapState::default()
         };
@@ -152,6 +172,27 @@ impl FakeJmap {
         let mut state = self.lock();
         if state.emails.remove(id).is_some() {
             state.log(id, Logged::Destroyed);
+        }
+    }
+
+    /// Puts `card` in the address book under `id`, or replaces it, as
+    /// another device would.
+    pub fn put_card(&self, id: &str, card: Value) {
+        let mut state = self.lock();
+        let mut card = card;
+        card["id"] = json!(id);
+        let what = match state.cards.insert(id.to_string(), card) {
+            Some(_) => Logged::Updated,
+            None => Logged::Created,
+        };
+        state.log_card(id, what);
+    }
+
+    /// Deletes a card, as another device would.
+    pub fn remove_card(&self, id: &str) {
+        let mut state = self.lock();
+        if state.cards.remove(id).is_some() {
+            state.log_card(id, Logged::Destroyed);
         }
     }
 
@@ -511,5 +552,111 @@ impl JmapApi for FakeJmap {
         state.log(email_id, Logged::Updated);
         state.sent.push((raw, identity_id.to_string()));
         Ok(())
+    }
+
+    async fn address_books(&self) -> Answer<Got<AddressBook>> {
+        let state = self.contacts()?;
+        Ok(Got { state: "ab".into(), list: state.books.clone(), not_found: Vec::new() })
+    }
+
+    async fn card_state(&self) -> Answer<String> {
+        Ok(self.contacts()?.card_state.to_string())
+    }
+
+    async fn card_changes(&self, since: &str, most: u64) -> Answer<Changed> {
+        let state = self.contacts()?;
+        let since: u64 = since.parse().map_err(|_| JmapError::StateLost)?;
+        let later: Vec<&(u64, String, Logged)> = state.card_log.iter().filter(|(at, _, _)| *at > since).collect();
+        let taken = &later[..later.len().min(most as usize)];
+        let mut changed = Changed {
+            old_state: since.to_string(),
+            new_state: taken.last().map_or(since, |(at, _, _)| *at).to_string(),
+            has_more_changes: taken.len() < later.len(),
+            ..Changed::default()
+        };
+        for (_, id, what) in taken {
+            let list = match what {
+                Logged::Created => &mut changed.created,
+                Logged::Updated => &mut changed.updated,
+                Logged::Destroyed => &mut changed.destroyed,
+            };
+            if !list.contains(id) {
+                list.push(id.clone());
+            }
+        }
+        Ok(changed)
+    }
+
+    async fn query_cards(&self, position: u64, limit: u64) -> Answer<Queried> {
+        let state = self.contacts()?;
+        Ok(Queried {
+            query_state: "cq".into(),
+            ids: state.cards.keys().skip(position as usize).take(limit as usize).cloned().collect(),
+            position,
+            total: None,
+        })
+    }
+
+    async fn cards(&self, ids: &[String]) -> Answer<Got<Value>> {
+        let state = self.contacts()?;
+        let mut got = Got { state: state.card_state.to_string(), list: Vec::new(), not_found: Vec::new() };
+        for id in ids {
+            match state.cards.get(id) {
+                Some(card) => got.list.push(card.clone()),
+                None => got.not_found.push(id.clone()),
+            }
+        }
+        Ok(got)
+    }
+
+    async fn set_cards(&self, create: Map<String, Value>, update: Map<String, Value>) -> Answer<SetAnswer> {
+        // Refused like every other contacts call, then written under the
+        // same lock.
+        let mut state = self.contacts()?;
+        let mut answer = SetAnswer::default();
+        for (key, mut card) in create {
+            if card["addressBookIds"].as_object().is_none_or(|books| books.is_empty()) {
+                let refused = SetError { kind: "invalidProperties".into(), description: Some("addressBookIds".into()) };
+                answer.not_created.get_or_insert_default().insert(key, refused);
+                continue;
+            }
+            let id = state.id("k");
+            card["id"] = json!(id);
+            state.cards.insert(id.clone(), card);
+            state.log_card(&id, Logged::Created);
+            answer.created.get_or_insert_default().insert(key, json!({ "id": id }));
+        }
+        for (id, patch) in update {
+            let Some(card) = state.cards.get_mut(&id) else {
+                let missing = SetError { kind: "notFound".into(), description: None };
+                answer.not_updated.get_or_insert_default().insert(id, missing);
+                continue;
+            };
+            for (path, value) in patch.as_object().into_iter().flatten() {
+                card[path] = value.clone();
+            }
+            state.log_card(&id, Logged::Updated);
+        }
+        Ok(answer)
+    }
+
+    async fn card_blob(&self, blob_id: &str, limit: usize) -> Answer<Vec<u8>> {
+        let state = self.contacts()?;
+        let bytes = state.blobs.get(blob_id).ok_or(JmapError::NotFound)?;
+        match bytes.len() > limit {
+            true => Err(JmapError::TooLarge { limit }),
+            false => Ok(bytes.clone()),
+        }
+    }
+}
+
+impl FakeJmap {
+    /// The state, when the token reaches contacts.
+    fn contacts(&self) -> Answer<MutexGuard<'_, JmapState>> {
+        let state = self.lock();
+        match state.no_contacts {
+            true => Err(JmapError::Missing(mailrs_jmap::CONTACTS)),
+            false => Ok(state),
+        }
     }
 }

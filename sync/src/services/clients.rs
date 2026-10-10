@@ -25,7 +25,9 @@ use mailrs_graph::{
     AutomaticReplies, ContactFolder, DeltaPage, Graph, GraphCalendar, GraphContact, GraphError, GraphEvent, Listing,
     MailFolder, MasterCategory, Me, MessageBody, MessageRule, Override, Page, Response, Write,
 };
-use mailrs_jmap::{Changed, Email, Got, Identity, Jmap, JmapError, Mailbox, Queried, SetAnswer, Submitted, Thread};
+use mailrs_jmap::{
+    AddressBook, Changed, Email, Got, Identity, Jmap, JmapError, Mailbox, Queried, SetAnswer, Submitted, Thread,
+};
 use mailrs_imap::{
     AppendUid, BodyStructure, Capabilities, CopyUid, FlagsOf, ImapClient, ImapError, Listed, Selected, Since,
     SmtpClient, UidSet, Woke,
@@ -185,6 +187,13 @@ either_client! {
         fn identities() -> Jmapped<Vec<Identity>>;
         fn send(raw: Vec<u8>, identity_id: &str, drafts: &str, sent: &str) -> Jmapped<Submitted>;
         fn submit(email_id: &str, identity_id: &str, drafts: &str, sent: &str) -> Jmapped<()>;
+        fn address_books() -> Jmapped<Got<AddressBook>>;
+        fn card_state() -> Jmapped<String>;
+        fn card_changes(since: &str, most: u64) -> Jmapped<Changed>;
+        fn query_cards(position: u64, limit: u64) -> Jmapped<Queried>;
+        fn cards(ids: &[String]) -> Jmapped<Got<Value>>;
+        fn set_cards(create: serde_json::Map<String, Value>, update: serde_json::Map<String, Value>) -> Jmapped<SetAnswer>;
+        fn card_blob(blob_id: &str, limit: usize) -> Jmapped<Vec<u8>>;
     }
 }
 

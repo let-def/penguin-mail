@@ -260,3 +260,36 @@ async fn a_blob_comes_from_the_session_template_and_stops_at_the_limit() {
     assert_eq!(jmap.raw("B 1", 100).await.unwrap(), b"0123456789");
     assert_eq!(jmap.raw("B 1", 4).await, Err(JmapError::TooLarge { limit: 4 }));
 }
+
+#[tokio::test]
+async fn contact_calls_go_to_the_contacts_account() {
+    let server = MockServer::start().await;
+    let base = server.uri();
+    Mock::given(method("GET"))
+        .and(path("/session"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
+            "capabilities": { "urn:ietf:params:jmap:core": {}, "urn:ietf:params:jmap:contacts": {} },
+            "primaryAccounts": { "urn:ietf:params:jmap:contacts": "c1" },
+            "username": "dana@fastmail.com",
+            "apiUrl": format!("{base}/api/"), "downloadUrl": format!("{base}/d/{{accountId}}/{{blobId}}"),
+            "uploadUrl": format!("{base}/u/"), "state": "s1"
+        })))
+        .mount(&server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path("/api/"))
+        .and(body_partial_json(json!({
+            "using": ["urn:ietf:params:jmap:core", "urn:ietf:params:jmap:contacts"],
+            "methodCalls": [["ContactCard/get", { "accountId": "c1", "ids": ["k1"] }, "c0"]]
+        })))
+        .respond_with(Echo(
+            |_, _| json!({ "state": "cs", "list": [{ "id": "k1", "name": { "full": "Ann" } }] }),
+            "s1",
+        ))
+        .mount(&server)
+        .await;
+    let jmap = Jmap::new(&format!("{base}/session"), "secret").unwrap();
+    let got = jmap.cards(&["k1".to_string()]).await.unwrap();
+    assert_eq!(got.list[0]["name"]["full"], "Ann");
+    assert_eq!(jmap.mailboxes().await, Err(JmapError::Missing("urn:ietf:params:jmap:mail")));
+}

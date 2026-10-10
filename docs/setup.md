@@ -37,8 +37,15 @@ you put mail on. It needs an API token rather than an app password: in
 Fastmail, open **Settings > Privacy & Security > Manage API tokens**, make
 one with access to email and to sending email, and paste it in. The token
 goes to your desktop's keyring under the service `penguin-mail-jmap`.
+
+Your contacts come over JMAP with the same token, if you gave it access
+to contacts. Fastmail serves calendars over CalDAV only, which takes an
+app password rather than the token: in **Preferences > Contacts &
+Calendar**, under **Calendar, Contacts and Rules Servers**, choose **App
+Password…** on the account and paste one made with access to calendars
+(**Settings > Privacy & Security > Manage app passwords and access**).
 Rules run on this computer while Penguin Mail is open, and the automatic
-reply, calendars and contacts are not offered on a JMAP account yet.
+reply is not offered on a JMAP account yet.
 
 ### Calendars, contacts and rules on other providers
 

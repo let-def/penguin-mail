@@ -490,15 +490,16 @@ impl AccountServices {
         }
     }
 
-    /// A JMAP account, such as Fastmail's: its mail and the addresses it
-    /// sends as, over the one client, with rules kept on this computer.
-    /// `connect_jmap` adds the calendar and contacts its servers offer.
+    /// A JMAP account, such as Fastmail's: its mail, its contacts and the
+    /// addresses it sends as, over the one client, with rules kept on this
+    /// computer. `connect_jmap` adds the CalDAV calendar its app password
+    /// reaches.
     pub fn jmap(db: Db, account_id: AccountId, client: impl Into<AnyJmap>, settings: JmapSettings) -> Self {
         let adapter = JmapMail::new(Arc::new(client.into()), settings);
         AccountServices {
             mail: AnyMail::Jmap(adapter.clone()),
             calendar: None,
-            contacts: None,
+            contacts: Some(AnyContacts::Jmap(adapter.clone())),
             rules: Some(AnyRules::Local(LocalRules::new(db, account_id))),
             auto_reply: None,
             identities: AnyIdentities::Jmap(adapter),

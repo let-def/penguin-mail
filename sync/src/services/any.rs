@@ -39,6 +39,19 @@ macro_rules! forward_dav {
     };
 }
 
+/// As `forward_dav!`, for the address book, which a JMAP account keeps
+/// over JMAP too.
+macro_rules! forward_contacts {
+    ($self:ident, $method:ident($($arg:expr),*)) => {
+        match $self {
+            AnyContacts::Google(adapter) => adapter.$method($($arg),*).await,
+            AnyContacts::Microsoft(adapter) => adapter.$method($($arg),*).await,
+            AnyContacts::Dav(adapter) => adapter.$method($($arg),*).await,
+            AnyContacts::Jmap(adapter) => adapter.$method($($arg),*).await,
+        }
+    };
+}
+
 /// As `forward_dav!`, for the rules: Gmail, Graph, ManageSieve, or this
 /// computer.
 macro_rules! forward_rules {
@@ -121,6 +134,7 @@ pub enum AnyContacts {
     Google(GoogleAdapter),
     Microsoft(MicrosoftAdapter),
     Dav(CardDav<AnyDav>),
+    Jmap(JmapAdapter),
 }
 
 /// The rules an account's server runs, or this computer does.
@@ -452,15 +466,15 @@ impl ContactsService for AnyContacts {
         page_token: Option<&str>,
         sync_token: Option<&str>,
     ) -> Result<ConnectionsPage, BackendError> {
-        forward_dav!(AnyContacts, self, connections(page_token, sync_token))
+        forward_contacts!(self, connections(page_token, sync_token))
     }
 
     async fn contact_photo(&self, url: &str) -> Result<Vec<u8>, BackendError> {
-        forward_dav!(AnyContacts, self, contact_photo(url))
+        forward_contacts!(self, contact_photo(url))
     }
 
     async fn create_contact(&self, fields: &ContactFields) -> Result<Person, BackendError> {
-        forward_dav!(AnyContacts, self, create_contact(fields))
+        forward_contacts!(self, create_contact(fields))
     }
 
     async fn update_contact(
@@ -468,7 +482,7 @@ impl ContactsService for AnyContacts {
         resource: &str,
         fields: &ContactFields,
     ) -> Result<Person, BackendError> {
-        forward_dav!(AnyContacts, self, update_contact(resource, fields))
+        forward_contacts!(self, update_contact(resource, fields))
     }
 }
 

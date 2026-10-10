@@ -1,6 +1,7 @@
 //! The JMAP adapter over `FakeJmap`, through the same engine a real
 //! Fastmail account runs.
 
+mod contacts;
 mod mail;
 mod outgoing;
 

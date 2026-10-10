@@ -521,20 +521,60 @@ async fn a_jmap_account_starts_from_its_token_or_needs_to_sign_in() {
         .unwrap()
         .unwrap();
     let account = account(&db, "dana@fastmail.com").await;
-    let tokens = Arc::new(MemoryPasswords::default());
+    let (tokens, passwords) = (Arc::new(MemoryPasswords::default()), Arc::new(MemoryPasswords::default()));
+    let wait = std::time::Duration::from_secs(5);
     let refused =
-        crate::connect::connect_jmap_within(&db, Arc::clone(&tokens), &account, 30, std::time::Duration::from_secs(5)).await;
+        crate::connect::connect_jmap_within(&db, Arc::clone(&tokens), Arc::clone(&passwords), &account, 30, wait).await;
     assert!(matches!(refused, Err(SyncError::Backend(BackendError::NeedsReauth))));
     let state = db.read(move |c| accounts::account(c, id)).await.unwrap().unwrap().state;
     assert_eq!(state, AccountState::NeedsReauth);
 
     tokens.save(id, "tok").unwrap();
-    let services = crate::connect::connect_jmap_within(&db, tokens, &account, 30, std::time::Duration::from_secs(5))
+    let services = crate::connect::connect_jmap_within(&db, Arc::clone(&tokens), Arc::clone(&passwords), &account, 30, wait)
         .await
         .unwrap();
     assert!(matches!(services.mail, crate::AnyMail::Jmap(_)));
     assert_eq!(services.mail.provider_name(), "Fastmail");
-    assert!(services.mail.capabilities().restates);
+    assert!(matches!(services.contacts, Some(crate::AnyContacts::Jmap(_))), "contacts come with the token");
+    assert!(services.calendar.is_none(), "no app password, no calendar");
+}
+
+#[tokio::test]
+async fn a_jmap_account_takes_its_calendar_from_caldav_with_its_app_password() {
+    use mailrs_store::services::{FoundService, ServiceKind};
+    let (db, _dir) = store().await;
+    let url = "https://api.fastmail.com/jmap/session";
+    let id = db
+        .write(move |c| accounts::insert_jmap_account(c, "dana@fastmail.com", "Fastmail", url, 0))
+        .await
+        .unwrap()
+        .unwrap();
+    let found = |kind, url: &str, confirmed| FoundService {
+        kind,
+        url: url.into(),
+        user_name: "dana@fastmail.com".into(),
+        confirmed,
+        source: "table".into(),
+    };
+    let (calendar, contacts) = (
+        found(ServiceKind::CalDav, "https://caldav.fastmail.com/", true),
+        found(ServiceKind::CardDav, "https://carddav.fastmail.com/", true),
+    );
+    db.write(move |c| {
+        mailrs_store::services::save(c, id, &calendar)?;
+        mailrs_store::services::save(c, id, &contacts)
+    })
+    .await
+    .unwrap();
+    let account = account(&db, "dana@fastmail.com").await;
+    let (tokens, passwords) = (Arc::new(MemoryPasswords::default()), Arc::new(MemoryPasswords::default()));
+    tokens.save(id, "tok").unwrap();
+    passwords.save(id, "app-password").unwrap();
+    let services = crate::connect::connect_jmap_within(&db, tokens, passwords, &account, 30, std::time::Duration::from_secs(5))
+        .await
+        .unwrap();
+    assert!(matches!(services.calendar, Some(crate::AnyCalendar::Dav(_))));
+    assert!(matches!(services.contacts, Some(crate::AnyContacts::Jmap(_))), "contacts stay on JMAP");
 }
 
 fn new_pop3(password: &str, remove: RemoveSetting) -> NewPop3 {

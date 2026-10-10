@@ -12,6 +12,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 ### New
 
 - Add a Fastmail account over JMAP with an API token, for faster sync and your Fastmail sending identities; IMAP stays one click away on the sign-in page.
+- See your Fastmail contacts on a JMAP account, and its calendar once you add an app password in Preferences.
 - Choose a language for AI answers, summaries and translations without changing the interface language.
 - Put mail on a named topic from the Topic menu or by dragging it onto a topic, and the list shows nearby mail of each topic together, unread first; on Gmail and on IMAP servers that store keywords, your other devices see the same topics.
 

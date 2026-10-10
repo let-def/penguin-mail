@@ -822,7 +822,8 @@ impl Core {
             .engine
             .current()
             .ok_or_else(|| anyhow!("sync is not running"))?;
-        let (db, tokens) = (self.db.clone(), Arc::clone(&self.secrets.jmap));
+        let (db, tokens, passwords) =
+            (self.db.clone(), Arc::clone(&self.secrets.jmap), Arc::clone(&self.secrets.passwords));
         let window_days = self.config.borrow().engine_config().window_days;
         self.call(async move {
             let address = mailrs_sync::sign_in::check_jmap(&new).await?;
@@ -834,7 +835,7 @@ impl Core {
             }
             let account =
                 mailrs_sync::sign_in::jmap_signed_in(&db, Arc::clone(&tokens), new, &address, now_millis()).await?;
-            let services = mailrs_sync::connect_jmap(&db, tokens, &account, window_days).await?;
+            let services = mailrs_sync::connect_jmap(&db, tokens, passwords, &account, window_days).await?;
             engine.start_account(account.id, services);
             Ok::<_, anyhow::Error>(account)
         })
@@ -902,7 +903,7 @@ impl Core {
         let connector = self.connector();
         let account_id = account.id;
         let found = self.call(async move {
-            let (host, user, password) = incoming_login(&db, &passwords, account.id).await?;
+            let (host, user, password) = incoming_login(&db, &passwords, &account).await?;
             let net = RealNet::new()?;
             let mut found = finding::find_services(
                 &net,
@@ -915,9 +916,16 @@ impl Core {
             )
             .await;
             // POP3 mail never reaches a server's rules, so a ManageSieve
-            // host found beside a POP3 server is not kept.
-            if account.provider == Provider::Pop3 {
-                found.sieve = None;
+            // host found beside a POP3 server is not kept. A JMAP account
+            // keeps its contacts over JMAP and wants a calendar alone.
+            match account.provider {
+                Provider::Pop3 => found.sieve = None,
+                Provider::Jmap => {
+                    found.sieve = None;
+                    found.carddav = None;
+                    found.carddav_missed = None;
+                }
+                _ => {}
             }
             let changed = finding::keep_found(&db, account.id, &found).await?;
             if changed {
@@ -940,6 +948,25 @@ impl Core {
             };
         }
         Ok(found)
+    }
+
+    /// Keeps the app password a JMAP account's calendar logs in with, then
+    /// looks for the calendar with it. Starting the account again puts the
+    /// password to use even where the server was already known.
+    pub async fn set_app_password(&self, account: Account, password: String) -> Result<ServicesFound> {
+        if self.demo {
+            bail!(gettext("Demo mode cannot add real accounts."));
+        }
+        let (passwords, engine) = (Arc::clone(&self.secrets.passwords), self.engine.current());
+        let connector = self.connector();
+        let id = account.id;
+        let kept = account.clone();
+        self.call(async move {
+            tokio::task::spawn_blocking(move || passwords.save(id, &password)).await??;
+            restart_services(&connector, engine, &kept).await
+        })
+        .await?;
+        self.find_services(account).await
     }
 
     /// Why the last search found no server for `missing`, a calendar or
@@ -977,7 +1004,7 @@ impl Core {
         );
         let connector = self.connector();
         self.call(async move {
-            let (_, user, password) = incoming_login(&db, &passwords, account.id).await?;
+            let (_, user, password) = incoming_login(&db, &passwords, &account).await?;
             finding::use_typed(
                 &finding::RealProbe,
                 &db,
@@ -1002,7 +1029,7 @@ impl Core {
         );
         let connector = self.connector();
         self.call(async move {
-            let (_, _, password) = incoming_login(&db, &passwords, account.id).await?;
+            let (_, _, password) = incoming_login(&db, &passwords, &account).await?;
             finding::confirm_found(&finding::RealProbe, &db, account.id, kind, &password)
                 .await?;
             restart_services(&connector, engine, &account).await
@@ -1063,8 +1090,19 @@ pub struct ServicesFound {
 async fn incoming_login(
     db: &Db,
     passwords: &Arc<Passwords>,
-    account_id: AccountId,
+    account: &Account,
 ) -> anyhow::Result<(String, String, String)> {
+    let account_id = account.id;
+    // A JMAP account keeps no servers: its calendar logs in with the
+    // address and the app password kept under its id.
+    if account.provider == Provider::Jmap {
+        let passwords = Arc::clone(passwords);
+        let password = tokio::task::spawn_blocking(move || passwords.load(account_id))
+            .await??
+            .ok_or_else(|| anyhow!(gettext("Add an app password for the calendar first.")))?;
+        let domain = account.email.rsplit_once('@').map(|(_, d)| d.to_string()).unwrap_or_default();
+        return Ok((domain, account.email.clone(), password));
+    }
     let saved = db
         .read(move |c| {
             Ok(match mailrs_store::servers::load(c, account_id)? {

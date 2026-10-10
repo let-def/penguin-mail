@@ -52,7 +52,7 @@ fn servers(app: &Rc<App>, accounts: &[(Account, Offers)]) -> Option<adw::Prefere
     let found_for: Vec<&Account> = accounts
         .iter()
         .map(|(a, _)| a)
-        .filter(|a| matches!(a.provider, Provider::Imap | Provider::Pop3))
+        .filter(|a| matches!(a.provider, Provider::Imap | Provider::Pop3 | Provider::Jmap))
         .collect();
     if found_for.is_empty() {
         return None;
@@ -119,8 +119,34 @@ fn fill_servers(app: &Rc<App>, row: &adw::ExpanderRow, account: &Account, shown:
         let again = gtk::Button::builder().label(gettext("Find Again")).valign(gtk::Align::Center).build();
         let edit = gtk::Button::builder().label(gettext("Edit…")).valign(gtk::Align::Center).build();
         let holder = adw::ActionRow::builder().activatable(false).build();
+        // A JMAP account's calendar logs in with an app password of its
+        // own, which this asks for; its contacts come over JMAP, so there
+        // are no servers to type.
+        if account.provider == Provider::Jmap {
+            let password = gtk::Button::builder()
+                .label(gettext("App Password…"))
+                .valign(gtk::Align::Center)
+                .build();
+            crate::ui::name(
+                &password,
+                &fill(&gettext("App password for {account}'s calendar"), &[("account", &account.email)]),
+            );
+            let (app, weak_row, account, shown) = (Rc::clone(&app), weak_row.clone(), account.clone(), Rc::clone(&shown));
+            password.connect_clicked(move |button| {
+                let (again_app, again_row, again_account, again_shown) =
+                    (Rc::clone(&app), weak_row.clone(), account.clone(), Rc::clone(&shown));
+                ask_app_password(&app, &account, button, move || {
+                    if let Some(row) = again_row.upgrade() {
+                        fill_servers(&again_app, &row, &again_account, &again_shown);
+                    }
+                });
+            });
+            holder.add_suffix(&password);
+        }
         holder.add_suffix(&again);
-        holder.add_suffix(&edit);
+        if account.provider != Provider::Jmap {
+            holder.add_suffix(&edit);
+        }
         row.add_row(&holder);
         shown.borrow_mut().push(holder.downgrade());
         {
@@ -148,6 +174,57 @@ fn fill_servers(app: &Rc<App>, row: &adw::ExpanderRow, account: &Account, shown:
                 }
             });
         });
+    });
+}
+
+/// Asks for the app password `account`'s calendar logs in with, keeps it,
+/// and looks for the calendar with it; `then` runs once that is done,
+/// whatever came of it, so the rows say what was found.
+fn ask_app_password(app: &Rc<App>, account: &Account, parent: &impl IsA<gtk::Widget>, then: impl Fn() + 'static) {
+    let provider = mailrs_discover::resolved_provider_name(account.provider_name());
+    let named = [("provider", provider.as_str())];
+    let entry = adw::PasswordEntryRow::builder().title(gettext("App Password")).build();
+    crate::ui::name(&entry, &gettext("App Password"));
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    list.append(&entry);
+    let content = gtk::Box::new(gtk::Orientation::Vertical, 12);
+    content.append(&list);
+    if let Some(url) = mailrs_discover::provider_named(&provider).and_then(|p| p.app_password_url) {
+        let link = gtk::LinkButton::with_label(&url, &fill(&gettext("Open {provider}'s Settings"), &named));
+        link.set_halign(gtk::Align::Start);
+        content.append(&link);
+    }
+    let dialog = adw::AlertDialog::builder()
+        .heading(gettext("Calendar App Password"))
+        .body(fill(
+            &gettext(
+                "{provider} serves calendars over CalDAV, which takes an app password rather than \
+                 the API token. Make one with access to calendars and paste it here.",
+            ),
+            &named,
+        ))
+        .extra_child(&content)
+        .build();
+    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("save", &gettext("Save"))]);
+    dialog.set_response_appearance("save", adw::ResponseAppearance::Suggested);
+    dialog.set_default_response(Some("save"));
+    dialog.set_close_response("cancel");
+    dialog.set_response_enabled("save", false);
+    let answer = dialog.clone();
+    entry.connect_changed(move |entry| answer.set_response_enabled("save", !entry.text().trim().is_empty()));
+    let (app, account, parent) = (Rc::clone(app), account.clone(), parent.clone().upcast::<gtk::Widget>());
+    glib::spawn_future_local(async move {
+        if dialog.choose_future(Some(&parent)).await != "save" {
+            return;
+        }
+        let password = entry.text().trim().to_string();
+        if let Err(err) = app.core.set_app_password(account.clone(), password).await {
+            tracing::info!(account = %account.email, %err, "the calendar app password did not work");
+        }
+        then();
     });
 }
 
