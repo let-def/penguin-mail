@@ -19,7 +19,7 @@ use crate::passwords::{PasswordError, PasswordStore, Secrets};
 use crate::sign_in::account_client;
 use crate::{
     AccountClient, AccountServices, AnyAutoReply, AnyCalendar, AnyContacts, AnyDav, AnyRules, AnySieve, BackendError,
-    CalDav, CardDav, ImapSettings, LocalRules, MicrosoftSettings, Pop3Settings, SieveRules, SyncError,
+    CalDav, CardDav, ImapSettings, JmapSettings, LocalRules, MicrosoftSettings, Pop3Settings, SieveRules, SyncError,
 };
 
 /// How long starting an account waits on one step, such as a keyring
@@ -146,6 +146,7 @@ impl Connector {
                 };
                 connect_microsoft(db, Arc::clone(&self.secrets.microsoft), client, account, window_days).await
             }
+            Provider::Jmap => connect_jmap(db, Arc::clone(&self.secrets.jmap), account, window_days, STEP_WAIT).await,
         };
         match started {
             Ok(services) => Ok(Connected::Ready(services)),
@@ -209,6 +210,35 @@ pub(crate) async fn connect_account_within(
         address: account.email.clone(),
         client,
     })
+}
+
+/// The services for a JMAP account, from the API token under its id and
+/// the session URL the store keeps. No token means the account needs to
+/// sign in again, which the store records before this answers. Nothing
+/// talks to the server here; the client reads the session when sync
+/// first asks.
+pub(crate) async fn connect_jmap<P: PasswordStore + 'static>(
+    db: &Db,
+    tokens: Arc<P>,
+    account: &Account,
+    window_days: i64,
+    wait: Duration,
+) -> Result<AccountServices, SyncError> {
+    let id = account.id;
+    let Some(token) = read_secret(tokens, id, wait).await? else {
+        let marked = db.write(move |c| accounts::set_state(c, id, AccountState::NeedsReauth));
+        bounded(id, "the mail store", wait, marked).await?;
+        return Err(BackendError::NeedsReauth.into());
+    };
+    let session = bounded(id, "the mail store", wait, db.read(move |c| accounts::jmap_session(c, id))).await?;
+    let url = session.unwrap_or_else(|| mailrs_jmap::FASTMAIL_SESSION.to_string());
+    let client = mailrs_jmap::Jmap::new(&url, &token).map_err(crate::services::jmap::backend)?;
+    let settings = JmapSettings {
+        address: account.email.clone(),
+        provider_name: account.provider_name().to_string(),
+        window_days,
+    };
+    Ok(AccountServices::jmap(db.clone(), id, client, settings))
 }
 
 /// The services for a Microsoft account, from the refresh token under its

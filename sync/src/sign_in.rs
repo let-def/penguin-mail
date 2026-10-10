@@ -3,8 +3,10 @@
 //! just signed in.
 
 mod browser;
+mod jmap;
 
 pub use browser::{Browser, BrowserSignInError, SignedIn, Wanted, in_browser};
+pub use jmap::{JmapSignInError, NewJmap, check_jmap, jmap_signed_in};
 
 use std::sync::Arc;
 

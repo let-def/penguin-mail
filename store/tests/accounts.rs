@@ -7,10 +7,10 @@ fn migrations_run_once_and_record_the_version() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("mail.db");
     let conn = open_connection(&path).unwrap();
-    assert_eq!(schema_version(&conn).unwrap(), 54);
+    assert_eq!(schema_version(&conn).unwrap(), 55);
     drop(conn);
     let conn = open_connection(&path).unwrap();
-    assert_eq!(schema_version(&conn).unwrap(), 54);
+    assert_eq!(schema_version(&conn).unwrap(), 55);
 }
 
 #[test]
@@ -210,4 +210,29 @@ fn a_microsoft_account_keeps_its_provider_and_name() {
     // Another provider's address is left alone.
     accounts::insert_account(&conn, "dana@gmail.com", 0).unwrap();
     assert_eq!(accounts::insert_microsoft_account(&conn, "dana@gmail.com", "Outlook", 0).unwrap(), None);
+}
+
+#[test]
+fn a_jmap_account_keeps_its_session_and_signs_in_again_in_place() {
+    let conn = mailrs_store::open_in_memory().unwrap();
+    let url = "https://api.fastmail.com/jmap/session";
+    let id = accounts::insert_jmap_account(&conn, "dana@fastmail.com", "Fastmail", url, 0)
+        .unwrap()
+        .unwrap();
+    let account = accounts::account(&conn, id).unwrap().unwrap();
+    assert_eq!(account.provider, mailrs_domain::Provider::Jmap);
+    assert_eq!(account.provider_name.as_deref(), Some("Fastmail"));
+    assert_eq!(accounts::jmap_session(&conn, id).unwrap().as_deref(), Some(url));
+    assert_eq!(
+        accounts::insert_jmap_account(&conn, "dana@fastmail.com", "Fastmail", url, 5).unwrap(),
+        Some(id),
+        "signing in again keeps the account"
+    );
+    let imap = accounts::insert_imap_account(&conn, "ann@fastmail.com", "Fastmail", 0).unwrap().unwrap();
+    assert_eq!(
+        accounts::insert_jmap_account(&conn, "ann@fastmail.com", "Fastmail", url, 0).unwrap(),
+        None,
+        "an IMAP account keeps its address"
+    );
+    assert_eq!(accounts::jmap_session(&conn, imap).unwrap(), None);
 }

@@ -10042,28 +10042,44 @@ msgstr ""
 msgid "The rule is read-only."
 msgstr ""
 
-#: sync/src/sign_in.rs:168
+#: sync/src/sign_in.rs:170
 msgid "{address} is already in Penguin Mail as a {provider} account."
 msgstr ""
 
-#: sync/src/sign_in/browser.rs:109
+#: sync/src/sign_in/browser.rs:110
 msgid "You signed in as {account}. Choose {wanted} to reconnect that account."
 msgstr ""
 
-#: sync/src/sign_in/browser.rs:119
+#: sync/src/sign_in/browser.rs:120
 msgid ""
 "Penguin Mail cannot work without access to your mail. Sign in again and "
 "leave the Gmail permission ticked."
 msgstr ""
 
-#: sync/src/sign_in/browser.rs:128
+#: sync/src/sign_in/browser.rs:129
 msgid "Your organization's administrator must approve Penguin Mail."
 msgstr ""
 
-#: sync/src/sign_in/browser.rs:130
+#: sync/src/sign_in/browser.rs:131
 msgid ""
 "Penguin Mail cannot work without access to your mail. Sign in again and "
 "allow it."
+msgstr ""
+
+#. The server did not take the token.
+#: sync/src/sign_in/jmap.rs:29
+msgid "{provider} did not accept the token. Check that you copied all of it."
+msgstr ""
+
+#. The token reaches the account, but not its mail or not sending.
+#: sync/src/sign_in/jmap.rs:32
+msgid ""
+"This token cannot read and send mail. Make a new one in {provider} with "
+"access to email and to sending email."
+msgstr ""
+
+#: sync/src/sign_in/jmap.rs:34
+msgid "Could not reach {provider}: {reason}"
 msgstr ""
 
 #: sync/src/triage.rs:53

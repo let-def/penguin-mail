@@ -863,6 +863,12 @@ CREATE TABLE contact_offers (
     PRIMARY KEY (account_id, email)
 );
 "#,
+    // Where a JMAP account's session resource is, such as Fastmail's
+    // `https://api.fastmail.com/jmap/session`. Every other account leaves
+    // it empty.
+    r#"
+ALTER TABLE accounts ADD COLUMN jmap_session TEXT;
+"#,
 ];
 
 /// How long the copy taken before a migration stays once the store has

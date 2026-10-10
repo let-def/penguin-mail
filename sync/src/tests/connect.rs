@@ -511,6 +511,32 @@ async fn a_microsoft_account_with_no_token_needs_to_sign_in() {
     assert_eq!(state, AccountState::NeedsReauth);
 }
 
+#[tokio::test]
+async fn a_jmap_account_starts_from_its_token_or_needs_to_sign_in() {
+    let (db, _dir) = store().await;
+    let url = "https://api.fastmail.com/jmap/session";
+    let id = db
+        .write(move |c| accounts::insert_jmap_account(c, "dana@fastmail.com", "Fastmail", url, 0))
+        .await
+        .unwrap()
+        .unwrap();
+    let account = account(&db, "dana@fastmail.com").await;
+    let tokens = Arc::new(MemoryPasswords::default());
+    let refused =
+        crate::connect::connect_jmap(&db, Arc::clone(&tokens), &account, 30, std::time::Duration::from_secs(5)).await;
+    assert!(matches!(refused, Err(SyncError::Backend(BackendError::NeedsReauth))));
+    let state = db.read(move |c| accounts::account(c, id)).await.unwrap().unwrap().state;
+    assert_eq!(state, AccountState::NeedsReauth);
+
+    tokens.save(id, "tok").unwrap();
+    let services = crate::connect::connect_jmap(&db, tokens, &account, 30, std::time::Duration::from_secs(5))
+        .await
+        .unwrap();
+    assert!(matches!(services.mail, crate::AnyMail::Jmap(_)));
+    assert_eq!(services.mail.provider_name(), "Fastmail");
+    assert!(services.mail.capabilities().restates);
+}
+
 fn new_pop3(password: &str, remove: RemoveSetting) -> NewPop3 {
     let saved = |host: &str, port| Saved {
         host: host.into(),

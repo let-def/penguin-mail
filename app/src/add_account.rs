@@ -1223,7 +1223,7 @@ pub fn shows_folder(provider: Provider, role: mailrs_domain::Role) -> bool {
     match provider {
         Provider::Gmail => role != mailrs_domain::Role::Archive,
         Provider::Pop3 => role == mailrs_domain::Role::Inbox,
-        Provider::Imap | Provider::Microsoft => true,
+        Provider::Imap | Provider::Microsoft | Provider::Jmap => true,
     }
 }
 

@@ -24,11 +24,14 @@ pub enum Provider {
     /// The store holds the account's only copy of its mail; who runs the
     /// server is the account's provider name.
     Pop3,
+    /// A server that speaks JMAP, signed in with an API token. Who runs
+    /// it, such as Fastmail, is the account's provider name.
+    Jmap,
 }
 
 impl Provider {
-    pub const ALL: [Provider; 4] =
-        [Provider::Gmail, Provider::Imap, Provider::Microsoft, Provider::Pop3];
+    pub const ALL: [Provider; 5] =
+        [Provider::Gmail, Provider::Imap, Provider::Microsoft, Provider::Pop3, Provider::Jmap];
 
     /// The stored form, in `accounts.provider`.
     pub fn as_str(self) -> &'static str {
@@ -37,6 +40,7 @@ impl Provider {
             Provider::Imap => "imap",
             Provider::Microsoft => "microsoft",
             Provider::Pop3 => "pop3",
+            Provider::Jmap => "jmap",
         }
     }
 
@@ -49,6 +53,7 @@ impl Provider {
             Provider::Imap => "IMAP",
             Provider::Microsoft => "Microsoft",
             Provider::Pop3 => "POP3",
+            Provider::Jmap => "JMAP",
         }
     }
 }

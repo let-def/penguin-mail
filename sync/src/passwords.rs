@@ -60,6 +60,16 @@ impl KeyringPasswords {
         }
     }
 
+    /// JMAP accounts' API tokens, apart from every other kind of secret,
+    /// keyed by account id like the passwords.
+    pub const JMAP_SERVICE: &'static str = "penguin-mail-jmap";
+
+    pub fn jmap() -> Self {
+        KeyringPasswords {
+            service: Self::JMAP_SERVICE.to_string(),
+        }
+    }
+
     #[cfg(not(feature = "packaging-flatpak"))]
     fn entry(&self, account_id: AccountId) -> Result<keyring::Entry, PasswordError> {
         keyring::Entry::new(&self.service, &user(account_id)).map_err(keyring_error)
@@ -190,6 +200,7 @@ pub struct Secrets {
     pub google: Arc<dyn TokenStore>,
     pub passwords: Arc<Passwords>,
     pub microsoft: Arc<Passwords>,
+    pub jmap: Arc<Passwords>,
 }
 
 impl Secrets {
@@ -200,6 +211,7 @@ impl Secrets {
             google: Arc::new(KeyringTokenStore::new()),
             passwords: Arc::new(Passwords::Keyring(KeyringPasswords::new())),
             microsoft: Arc::new(Passwords::Keyring(KeyringPasswords::microsoft())),
+            jmap: Arc::new(Passwords::Keyring(KeyringPasswords::jmap())),
         }
     }
 
@@ -210,6 +222,7 @@ impl Secrets {
             google: Arc::new(MemoryTokenStore::default()),
             passwords: Arc::new(Passwords::Memory(MemoryPasswords::default())),
             microsoft: Arc::new(Passwords::Memory(MemoryPasswords::default())),
+            jmap: Arc::new(Passwords::Memory(MemoryPasswords::default())),
         }
     }
 
@@ -233,6 +246,10 @@ impl Secrets {
             }
             Provider::Microsoft => {
                 let tokens = Arc::clone(&self.microsoft);
+                Box::new(move || tokens.delete(id))
+            }
+            Provider::Jmap => {
+                let tokens = Arc::clone(&self.jmap);
                 Box::new(move || tokens.delete(id))
             }
         };
