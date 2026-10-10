@@ -293,6 +293,38 @@ impl Jmap {
         self.get_many("Email/get", ids, Some(EMAIL_PROPERTIES)).await
     }
 
+    /// The thread of each message `ids` names, and nothing else of it,
+    /// for a listing that wants ids.
+    pub async fn email_threads(&self, ids: &[String]) -> Result<Got<Email>, JmapError> {
+        self.get_many("Email/get", ids, Some(&["id", "threadId"])).await
+    }
+
+    /// The parts of message `id` and the text of its text parts, without
+    /// the files: for a message too large to fetch whole.
+    pub async fn structure(&self, id: &str) -> Result<Value, JmapError> {
+        let answer: Got<Value> = self
+            .mail_call(
+                "Email/get",
+                json!({
+                    "ids": [id],
+                    "properties": ["id", "headers", "bodyStructure", "bodyValues"],
+                    "bodyProperties": ["partId", "blobId", "size", "name", "type", "charset",
+                                       "disposition", "cid", "subParts"],
+                    "fetchAllBodyValues": true,
+                    "maxBodyValueBytes": 4_000_000
+                }),
+            )
+            .await?;
+        answer.list.into_iter().next().ok_or(JmapError::NotFound)
+    }
+
+    /// The bytes of a part of a message, by the part's blob.
+    pub async fn part(&self, blob_id: &str, limit: usize) -> Result<Vec<u8>, JmapError> {
+        let account = self.mail_account().await?;
+        self.download(&account, blob_id, "application/octet-stream", limit)
+            .await
+    }
+
     /// The threads `ids` names.
     pub async fn threads(&self, ids: &[String]) -> Result<Got<Thread>, JmapError> {
         self.get_many("Thread/get", ids, None).await
@@ -335,6 +367,12 @@ impl Jmap {
             }
         }
         Ok(all)
+    }
+
+    /// Where the messages stand now, for a feed that starts here.
+    pub async fn email_state(&self) -> Result<String, JmapError> {
+        let got: Got<Email> = self.mail_call("Email/get", json!({ "ids": [] })).await?;
+        Ok(got.state)
     }
 
     /// What changed among the messages since `since`, at most `most` ids
@@ -459,6 +497,34 @@ impl Jmap {
         refusal(&submitted, "s")?;
         let thread_id = imported.created.as_ref().and_then(|c| c["m"]["threadId"].as_str().map(str::to_string));
         Ok(Submitted { email_id, thread_id })
+    }
+
+    /// Sends the draft `email_id` the server already holds, as
+    /// [`Jmap::send`] does once it filed one.
+    pub async fn submit(
+        &self,
+        email_id: &str,
+        identity_id: &str,
+        drafts: &str,
+        sent: &str,
+    ) -> Result<(), JmapError> {
+        let account = self.mail_account().await?;
+        let answer: SetAnswer = self
+            .call(
+                &[MAIL, SUBMISSION],
+                "EmailSubmission/set",
+                json!({
+                    "accountId": account,
+                    "create": { "s": { "identityId": identity_id, "emailId": email_id } },
+                    "onSuccessUpdateEmail": { "#s": {
+                        format!("mailboxIds/{drafts}"): null,
+                        format!("mailboxIds/{sent}"): true,
+                        "keywords/$draft": null,
+                    }}
+                }),
+            )
+            .await?;
+        refusal(&answer, "s")
     }
 }
 

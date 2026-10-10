@@ -16,11 +16,11 @@ use mailrs_domain::{EpochMillis, Filter, MailSet, RemoteMailbox, Role, Vacation}
 use mailrs_gmail::{ConnectionsPage, ContactFields, LabelColor, Person};
 use mailrs_mime::Parts;
 
-use super::clients::{AnyDav, AnyGmail, AnyGraph, AnyImap, AnyPop3, AnySieve, AnySmtp};
+use super::clients::{AnyDav, AnyGmail, AnyGraph, AnyImap, AnyJmap, AnyPop3, AnySieve, AnySmtp};
 use super::local::LocalRules;
 use super::{
     AutoReplyService, Backfill, CalDav, CalendarService, CardDav, Changes, ContactsService, Found, Google,
-    IdentityService, Imap, KeywordsPage, MailBackend, MailCapabilities, Microsoft, Pop3, RawMessage, Refused,
+    IdentityService, Imap, JmapMail, KeywordsPage, MailBackend, MailCapabilities, Microsoft, Pop3, RawMessage, Refused,
     Relocated, RemoteRef, RulesPlace, RulesService, SearchQuery, SendAsAddress, SieveRules, SyncState, Unapplied,
     Want, Withheld,
 };
@@ -72,6 +72,7 @@ macro_rules! forward_all {
             $enum::Imap(adapter) => adapter.$method($($arg),*).await,
             $enum::Microsoft(adapter) => adapter.$method($($arg),*).await,
             $enum::Pop3(adapter) => adapter.$method($($arg),*).await,
+            $enum::Jmap(adapter) => adapter.$method($($arg),*).await,
         }
     };
 }
@@ -84,6 +85,7 @@ macro_rules! forward_all_now {
             $enum::Imap(adapter) => adapter.$method($($arg),*),
             $enum::Microsoft(adapter) => adapter.$method($($arg),*),
             $enum::Pop3(adapter) => adapter.$method($($arg),*),
+            $enum::Jmap(adapter) => adapter.$method($($arg),*),
         }
     };
 }
@@ -92,6 +94,7 @@ type GoogleAdapter = Google<AnyGmail>;
 type ImapAdapter = Imap<AnyImap, AnySmtp>;
 type MicrosoftAdapter = Microsoft<AnyGraph>;
 type Pop3Adapter = Pop3<AnySmtp, AnyPop3>;
+type JmapAdapter = JmapMail<AnyJmap>;
 
 /// An account's mail.
 #[derive(Clone)]
@@ -100,6 +103,7 @@ pub enum AnyMail {
     Imap(ImapAdapter),
     Microsoft(MicrosoftAdapter),
     Pop3(Pop3Adapter),
+    Jmap(JmapAdapter),
 }
 
 /// An account's calendar.
@@ -143,6 +147,7 @@ pub enum AnyIdentities {
     Imap(ImapAdapter),
     Microsoft(MicrosoftAdapter),
     Pop3(Pop3Adapter),
+    Jmap(JmapAdapter),
 }
 
 impl AnyMail {
@@ -154,7 +159,7 @@ impl AnyMail {
             AnyMail::Google(adapter) => adapter.withheld(),
             AnyMail::Imap(_) => Withheld::NONE,
             AnyMail::Microsoft(adapter) => adapter.withheld(),
-            AnyMail::Pop3(_) => Withheld::NONE,
+            AnyMail::Pop3(_) | AnyMail::Jmap(_) => Withheld::NONE,
         }
     }
 

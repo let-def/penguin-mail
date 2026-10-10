@@ -19,6 +19,7 @@ mod google;
 
 pub use google::withheld as withheld_by_grant;
 pub mod imap;
+pub mod jmap;
 pub mod microsoft;
 pub mod pop3;
 pub(crate) mod local;
@@ -28,10 +29,11 @@ mod sieve;
 pub use caldav::CalDav;
 pub use any::{AnyAutoReply, AnyCalendar, AnyContacts, AnyIdentities, AnyMail, AnyRules};
 pub use carddav::CardDav;
-pub use clients::{AnyDav, AnyGmail, AnyGraph, AnyImap, AnyPop3, AnySieve, AnySmtp};
+pub use clients::{AnyDav, AnyGmail, AnyGraph, AnyImap, AnyJmap, AnyPop3, AnySieve, AnySmtp};
 pub use local::LocalRules;
 pub use google::{Google, ID_PAGE_SIZE, LIST_PAGE_SIZE, is_workspace};
 pub use imap::{Imap, ImapApi, ImapSettings, Submit};
+pub use jmap::{JmapApi, JmapMail, JmapSettings};
 pub use microsoft::{GraphApi, Microsoft, MicrosoftSettings};
 pub use pop3::{Pop3, Pop3Settings};
 pub use pacing::{Priority, background, priority};
@@ -65,7 +67,7 @@ use mailrs_store::threading::Links;
 
 use crate::api::{DraftRef, SavedDraft};
 #[cfg(any(test, feature = "fake"))]
-use crate::fake::{FakeGmail, FakeGraph, FakeImap, FakeSmtp};
+use crate::fake::{FakeGmail, FakeGraph, FakeImap, FakeJmap, FakeSmtp};
 use crate::{BackendError, MailOp};
 
 /// One address an account may send mail as: its own, or an alias whose
@@ -232,8 +234,8 @@ pub enum RemoteChange {
     /// report that names a message's whole flag set. A server that stores
     /// any keyword cannot list the topic keywords a message lacks, so the
     /// engine takes away each one the store holds and this leaves out.
-    /// Only a server that renames what it moves sends it; the engine turns
-    /// it into a `Lost` when it reads the change under store ids.
+    /// The IMAP and JMAP adapters send it; the engine turns it into a
+    /// `Lost` when it reads the changes against the store.
     TopicsCarried { id: String, keywords: Vec<String> },
 }
 
@@ -486,6 +488,33 @@ impl AccountServices {
             auto_reply: None,
             identities: AnyIdentities::Pop3(adapter),
         }
+    }
+
+    /// A JMAP account, such as Fastmail's: its mail and the addresses it
+    /// sends as, over the one client, with rules kept on this computer.
+    /// `connect_jmap` adds the calendar and contacts its servers offer.
+    pub fn jmap(db: Db, account_id: AccountId, client: impl Into<AnyJmap>, settings: JmapSettings) -> Self {
+        let adapter = JmapMail::new(Arc::new(client.into()), settings);
+        AccountServices {
+            mail: AnyMail::Jmap(adapter.clone()),
+            calendar: None,
+            contacts: None,
+            rules: Some(AnyRules::Local(LocalRules::new(db, account_id))),
+            auto_reply: None,
+            identities: AnyIdentities::Jmap(adapter),
+        }
+    }
+
+    /// The in-memory JMAP server, as a Fastmail account, for tests and
+    /// the demo.
+    #[cfg(any(test, feature = "fake"))]
+    pub fn fake_jmap(db: Db, account_id: AccountId, fake: Arc<FakeJmap>, address: &str) -> Self {
+        let settings = JmapSettings {
+            address: address.to_string(),
+            provider_name: "Fastmail".into(),
+            window_days: crate::DEFAULT_WINDOW_DAYS,
+        };
+        AccountServices::jmap(db, account_id, fake, settings)
     }
 
     pub fn capabilities(&self) -> MailCapabilities {

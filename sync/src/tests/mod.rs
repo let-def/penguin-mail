@@ -22,6 +22,7 @@ pub(crate) mod heap;
 mod imap;
 mod imap_services;
 mod incremental;
+mod jmap;
 mod invitations;
 mod labels;
 mod local_rules;

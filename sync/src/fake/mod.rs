@@ -11,6 +11,7 @@
 
 mod graph;
 mod imap;
+mod jmap;
 mod one_click;
 mod pop3;
 mod query;
@@ -23,6 +24,7 @@ pub use graph::{Area, FakeGraph, FakeMail, GraphState, ReplyWrites};
 pub use imap::{
     FakeImap, FakeMailbox, FakeMessage, FakeSmtp, ImapState, SmtpState, Submitted, raw_message,
 };
+pub use jmap::{FakeJmap, JmapState as FakeJmapState};
 pub use one_click::FakeOneClick;
 pub use pop3::{FakePop3, Release, pop3_mail};
 pub use sent::read_sent;

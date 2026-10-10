@@ -97,7 +97,13 @@ impl AccountSync {
         changes: Vec<RemoteChange>,
     ) -> Result<Vec<RemoteChange>, SyncError> {
         if !self.renames() {
-            return Ok(changes);
+            // A restating feed hands over each message's topics whole,
+            // and only the store knows which it lost.
+            let carries = changes.iter().any(|c| matches!(c, RemoteChange::TopicsCarried { .. }));
+            return match carries {
+                true => self.drop_changes_already_held(changes).await,
+                false => Ok(changes),
+            };
         }
         let names = changes
             .iter()
