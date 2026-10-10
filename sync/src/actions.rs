@@ -18,6 +18,7 @@ use crate::{
 };
 
 mod categorize;
+mod grouping;
 mod labelling;
 mod returning;
 
@@ -100,6 +101,10 @@ pub enum MailAction {
     /// again. Only this computer knows about Follow Up, so Gmail hears
     /// nothing of it.
     DismissFollowUp,
+    /// Puts the targets in the mail group of that name and out of any
+    /// other, or with `None` out of every group. A name that matches a
+    /// group the store knows, ignoring case, joins that group.
+    Group(Option<String>),
 }
 
 impl MailAction {
@@ -122,6 +127,8 @@ impl MailAction {
             MailAction::Mute { muted: false } => TriageAction::Unmute.describe(),
             MailAction::Label { .. } => gettext("Change labels"),
             MailAction::DismissFollowUp => gettext("Dismiss Follow-Up"),
+            MailAction::Group(Some(group)) => fill(&gettext("Add to {group}"), &[("group", group)]),
+            MailAction::Group(None) => gettext("Remove from Group"),
         }
     }
 }
@@ -497,7 +504,10 @@ impl<A: Accounts> MailActions<A> {
                     .await?;
                 undo.follow_ups.extend(targets);
             }
-            MailAction::Triage(_) | MailAction::Label { .. } | MailAction::Mute { .. } => {}
+            MailAction::Triage(_)
+            | MailAction::Label { .. }
+            | MailAction::Mute { .. }
+            | MailAction::Group(_) => {}
         }
         Ok(())
     }
@@ -842,6 +852,7 @@ impl<A: Accounts> MailActions<A> {
                 });
             }
             MailAction::DismissFollowUp => return vec![Ok(None); targets.len()],
+            MailAction::Group(name) => return self.resolve_group(targets, name.as_deref()).await,
             MailAction::Label {
                 add,
                 remove,
@@ -861,6 +872,33 @@ impl<A: Accounts> MailActions<A> {
             .iter()
             .map(|t| per_account[&t.account_id].clone())
             .collect()
+    }
+
+    /// The change each target needs to join the group `name`, or with
+    /// `None` to leave every group.
+    async fn resolve_group(
+        &self,
+        targets: &[Target],
+        name: Option<&str>,
+    ) -> Vec<Result<Option<TriageAction>, String>> {
+        let spelled = match name {
+            None => None,
+            Some(name) => match self.group_spelling(targets, name).await {
+                Some(spelled) => Some(spelled),
+                None => {
+                    let error = fill(
+                        &gettext("“{group}” cannot name a group."),
+                        &[("group", name)],
+                    );
+                    return vec![Err(error); targets.len()];
+                }
+            },
+        };
+        let mut resolved = Vec::with_capacity(targets.len());
+        for target in targets {
+            resolved.push(self.regroup(target, spelled.as_deref()).await);
+        }
+        resolved
     }
 
     async fn relabel(

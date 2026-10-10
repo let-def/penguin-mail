@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use mailrs_domain::{Membership, Memberships, MessageMeta};
+use mailrs_domain::{Membership, Memberships, MessageMeta, mail_group};
 use mailrs_store::messages;
 use mailrs_store::remote_refs::{self, Resolved};
 
@@ -149,9 +149,9 @@ impl AccountSync {
         let ids: Vec<String> = changes
             .iter()
             .filter_map(|change| match change {
-                RemoteChange::Gained { id, .. } | RemoteChange::Lost { id, .. } => {
-                    Some(id.clone())
-                }
+                RemoteChange::Gained { id, .. }
+                | RemoteChange::Lost { id, .. }
+                | RemoteChange::GroupsCarried { id, .. } => Some(id.clone()),
                 _ => None,
             })
             .collect();
@@ -187,7 +187,8 @@ fn named_in(change: &RemoteChange) -> Option<&str> {
         RemoteChange::Added { id, .. }
         | RemoteChange::Deleted { id }
         | RemoteChange::Gained { id, .. }
-        | RemoteChange::Lost { id, .. } => Some(id),
+        | RemoteChange::Lost { id, .. }
+        | RemoteChange::GroupsCarried { id, .. } => Some(id),
         RemoteChange::Vanished { .. }
         | RemoteChange::Holds { .. }
         | RemoteChange::StateLost { .. }
@@ -221,6 +222,10 @@ fn change_as_stored(
         RemoteChange::Lost { id, memberships } => RemoteChange::Lost {
             id: stored_id(&id, resolved)?,
             memberships,
+        },
+        RemoteChange::GroupsCarried { id, keywords } => RemoteChange::GroupsCarried {
+            id: stored_id(&id, resolved)?,
+            keywords,
         },
         // These name UIDs or a whole mailbox, which the engine reads
         // against the refs of the mailbox as they stand, so a message that
@@ -264,6 +269,19 @@ fn still_to_apply(
             let memberships: Vec<Membership> = memberships
                 .into_iter()
                 .filter(|m| current.is_some_and(|h| h.has(m)))
+                .collect();
+            (!memberships.is_empty()).then_some(RemoteChange::Lost { id, memberships })
+        }
+        // The group keywords the store holds and the server no longer
+        // gives are the ones lost.
+        RemoteChange::GroupsCarried { id, keywords } => {
+            let memberships: Vec<Membership> = held
+                .get(&id)
+                .map(|h| h.keywords.as_slice())
+                .unwrap_or_default()
+                .iter()
+                .filter(|k| mail_group::name_of_keyword(k).is_some() && !keywords.contains(k))
+                .map(|k| Membership::Keyword(k.clone()))
                 .collect();
             (!memberships.is_empty()).then_some(RemoteChange::Lost { id, memberships })
         }

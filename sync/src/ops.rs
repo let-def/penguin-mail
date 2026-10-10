@@ -7,7 +7,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use mailrs_domain::mailbox::keyword::{FLAGGED, MUTED, SEEN};
-use mailrs_domain::{AccountId, Applied, MailSet, Membership, Memberships, Role};
+use mailrs_domain::{AccountId, Applied, MailSet, Membership, Memberships, Role, mail_group};
 use mailrs_store::messages::Change;
 
 use crate::{BackendError, MailCapabilities, TriageAction};
@@ -419,7 +419,7 @@ pub fn split_keywords(ops: &[MailOp], stored: &[&str]) -> (Vec<MailOp>, Vec<Stri
     let mut kept_here = Vec::new();
     for op in ops {
         match op {
-            MailOp::SetKeyword { keyword, .. } if !stored.contains(&keyword.as_str()) => {
+            MailOp::SetKeyword { keyword, .. } if !mail_group::stored(stored, keyword) => {
                 kept_here.push(keyword.clone());
             }
             other => to_server.push(other.clone()),

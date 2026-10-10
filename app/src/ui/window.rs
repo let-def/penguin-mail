@@ -397,6 +397,10 @@ fn done_message(action: &MailAction, count: usize, threaded: bool) -> Option<Str
         MailAction::Triage(action) => action,
         MailAction::Flag(color) => return color.map(flagged_message),
         MailAction::Label { .. } => return Some(gettext("Labels changed")),
+        MailAction::Group(Some(group)) => {
+            return Some(fill(&gettext("Added to {group}"), &[("group", group)]));
+        }
+        MailAction::Group(None) => return Some(gettext("Removed from group")),
         MailAction::Mute { muted } => {
             return Some(match (*muted, count > 1, threaded) {
                 (true, false, _) => gettext("Muted"),

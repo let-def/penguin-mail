@@ -13,6 +13,7 @@ pub mod category;
 mod folder;
 pub mod mailbox;
 pub mod invitation;
+pub mod mail_group;
 mod location;
 pub mod query;
 pub mod sign_in_page;
@@ -404,6 +405,10 @@ pub struct ThreadSummary {
     /// metadata does not say whether a message has a calendar part.
     #[serde(default)]
     pub invitation: bool,
+    /// The mail groups a message of the thread is in, by name, in no
+    /// particular order.
+    #[serde(default)]
+    pub groups: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -157,7 +157,8 @@ fn moves_mail(action: &MailAction) -> bool {
         | MailAction::CancelReminder
         | MailAction::Mute { .. }
         | MailAction::Label { .. } => true,
-        MailAction::Flag(_) | MailAction::DismissFollowUp => false,
+        // A group is a mark: on Gmail a label, which no folder lists.
+        MailAction::Flag(_) | MailAction::DismissFollowUp | MailAction::Group(_) => false,
     }
 }
 
@@ -173,7 +174,7 @@ pub(super) fn leaves(action: &MailAction, mailbox: &Mailbox) -> bool {
         }
         MailAction::CancelReminder => *mailbox == Mailbox::Reminders,
         MailAction::DismissFollowUp => *mailbox == Mailbox::FollowUp,
-        MailAction::Flag(_) | MailAction::Label { .. } => false,
+        MailAction::Flag(_) | MailAction::Label { .. } | MailAction::Group(_) => false,
     }
 }
 

@@ -2,6 +2,7 @@
 
 mod bodies;
 mod feed;
+mod groups;
 mod mailboxes;
 mod moves;
 mod search;

@@ -2,20 +2,31 @@
 //! keywords the app spells `$seen`, `$flagged`, `$answered` and `$draft`;
 //! any other keyword goes as it is. IMAP compares keywords without case.
 
-use mailrs_domain::Membership;
 use mailrs_domain::mailbox::keyword;
+use mailrs_domain::{Membership, mail_group};
 
 use super::SYSTEM_KEYWORDS;
 use crate::services::RemoteChange;
 
-/// The keywords a mailbox stores when its PERMANENTFLAGS take `\*` or
-/// name `$muted`: the system flags and the app's own.
+/// The keywords a mailbox stores when its PERMANENTFLAGS name `$muted`:
+/// the system flags and the app's own.
 pub(super) const EVERY_KEYWORD: &[&str] = &[
     keyword::SEEN,
     keyword::FLAGGED,
     keyword::ANSWERED,
     keyword::DRAFT,
     keyword::MUTED,
+];
+
+/// The keywords a mailbox stores when its PERMANENTFLAGS take `\*`: the
+/// app's own and every mail group keyword.
+pub(super) const ANY_KEYWORD: &[&str] = &[
+    keyword::SEEN,
+    keyword::FLAGGED,
+    keyword::ANSWERED,
+    keyword::DRAFT,
+    keyword::MUTED,
+    mail_group::FAMILY,
 ];
 
 /// A message's flags as keywords: the system flags in the app's spelling,
@@ -60,10 +71,10 @@ pub(super) fn flag_of(keyword: &str) -> String {
 /// A server that sends none is taken to store the system flags alone, so
 /// `$muted` stays on this computer rather than vanish.
 pub(super) fn stored_keywords(permanent: &[String]) -> &'static [&'static str] {
-    let takes_muted = permanent
-        .iter()
-        .any(|f| f == "\\*" || f.eq_ignore_ascii_case(keyword::MUTED));
-    match takes_muted {
+    if permanent.iter().any(|f| f == "\\*") {
+        return ANY_KEYWORD;
+    }
+    match permanent.iter().any(|f| f.eq_ignore_ascii_case(keyword::MUTED)) {
         true => EVERY_KEYWORD,
         false => SYSTEM_KEYWORDS,
     }
@@ -72,15 +83,23 @@ pub(super) fn stored_keywords(permanent: &[String]) -> &'static [&'static str] {
 /// The changes that bring message `id` to `flags`: a gain of every
 /// keyword it carries, and a loss of every keyword the server stores that
 /// it lacks. A keyword the server cannot store stays as the app left it
-/// on this computer.
+/// on this computer. Where the server stores every group keyword, the
+/// groups it carries go along whole, for the engine to find the losses.
 pub(super) fn flag_changes(id: &str, flags: &[String], stored: &[&str]) -> Vec<RemoteChange> {
     let carried = keywords_of(flags);
     let lost: Vec<Membership> = stored
         .iter()
         .copied()
-        .filter(|k| !carried.iter().any(|c| c.as_str() == *k))
+        .filter(|k| *k != mail_group::FAMILY && !carried.iter().any(|c| c.as_str() == *k))
         .map(|k| Membership::Keyword(k.to_string()))
         .collect();
+    let groups: Option<Vec<String>> = stored.contains(&mail_group::FAMILY).then(|| {
+        carried
+            .iter()
+            .filter(|k| mail_group::name_of_keyword(k).is_some())
+            .cloned()
+            .collect()
+    });
     let gained: Vec<Membership> = carried.into_iter().map(Membership::Keyword).collect();
     let mut changes = Vec::new();
     if !gained.is_empty() {
@@ -96,12 +115,18 @@ pub(super) fn flag_changes(id: &str, flags: &[String], stored: &[&str]) -> Vec<R
             memberships: lost,
         });
     }
+    if let Some(keywords) = groups {
+        changes.push(RemoteChange::GroupsCarried {
+            id: id.to_string(),
+            keywords,
+        });
+    }
     changes
 }
 
 #[cfg(test)]
 mod tests {
-    use mailrs_domain::Membership;
+    use mailrs_domain::{Membership, mail_group};
 
     use super::{flag_changes, flag_of, keywords_of, stored_keywords};
     use crate::services::RemoteChange;
@@ -134,6 +159,34 @@ mod tests {
         assert!(stored_keywords(&open).contains(&"$muted"));
         let named = owned(&["\\Seen", "$Muted"]);
         assert!(stored_keywords(&named).contains(&"$muted"));
+    }
+
+    #[test]
+    fn a_mailbox_that_takes_any_keyword_stores_every_group() {
+        let open = owned(&["\\Seen", "\\*"]);
+        assert!(stored_keywords(&open).contains(&mail_group::FAMILY));
+        let named = owned(&["\\Seen", "$Muted"]);
+        assert!(!stored_keywords(&named).contains(&mail_group::FAMILY));
+    }
+
+    #[test]
+    fn a_flag_report_hands_on_the_groups_a_message_carries_whole() {
+        let group = mail_group::keyword_of("Q3");
+        let changes = flag_changes("INBOX/1/4", &owned(&["\\Seen", &group]), super::ANY_KEYWORD);
+        assert_eq!(
+            changes.last(),
+            Some(&RemoteChange::GroupsCarried {
+                id: "INBOX/1/4".into(),
+                keywords: vec![group.clone()],
+            })
+        );
+        assert!(
+            !changes.iter().any(|c| matches!(c, RemoteChange::Lost { memberships, .. }
+                if memberships.contains(&Membership::Keyword(mail_group::FAMILY.into())))),
+            "the family is no keyword to lose"
+        );
+        let closed = flag_changes("INBOX/1/4", &owned(&["\\Seen", &group]), super::EVERY_KEYWORD);
+        assert!(!closed.iter().any(|c| matches!(c, RemoteChange::GroupsCarried { .. })));
     }
 
     #[test]
