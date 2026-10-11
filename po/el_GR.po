@@ -2535,14 +2535,14 @@ msgstr "Δεν ήταν δυνατή η εκκίνηση του Penguin Mail"
 msgid "Report a Problem"
 msgstr "Αναφορά προβλήματος"
 
-#: app/src/notify.rs:61 app/src/ui/conversation.rs:410
-#: app/src/ui/conversation.rs:566 app/src/ui/conversation.rs:1080
+#: app/src/notify.rs:61 app/src/ui/conversation.rs:413
+#: app/src/ui/conversation.rs:569 app/src/ui/conversation.rs:1090
 #: app/src/ui/window/message_menu.rs:125 app/src/ui/window/shortcuts.rs:396
 msgid "Archive"
 msgstr "Αρχειοθέτηση"
 
-#: app/src/notify.rs:62 app/src/ui/conversation.rs:411
-#: app/src/ui/conversation.rs:1124 app/src/ui/preferences.rs:183
+#: app/src/notify.rs:62 app/src/ui/conversation.rs:414
+#: app/src/ui/conversation.rs:1134 app/src/ui/preferences.rs:183
 #: app/src/ui/rules.rs:432 app/src/ui/window/message_menu.rs:128
 msgid "Mark as Read"
 msgstr "Σήμανση ως αναγνωσμένο"
@@ -2550,14 +2550,14 @@ msgstr "Σήμανση ως αναγνωσμένο"
 #: app/src/notify.rs:63 app/src/ui/calendar/manage.rs:337
 #: app/src/ui/calendar/popover.rs:217 app/src/ui/calendar/popover.rs:219
 #: app/src/ui/calendar/popover.rs:756 app/src/ui/calendar/scope.rs:151
-#: app/src/ui/conversation.rs:552 app/src/ui/hide_my_email.rs:574
+#: app/src/ui/conversation.rs:555 app/src/ui/hide_my_email.rs:574
 #: app/src/ui/hide_my_email.rs:604 app/src/ui/queued.rs:58
 #: app/src/ui/templates.rs:150 app/src/ui/window/arrange.rs:108
 #: app/src/ui/window/organize.rs:217
 msgid "Delete"
 msgstr "Διαγραφή"
 
-#: app/src/notify.rs:64 app/src/ui/conversation.rs:560
+#: app/src/notify.rs:64 app/src/ui/conversation.rs:563
 #: app/src/ui/window/message_menu.rs:122 app/src/ui/window/shortcuts.rs:475
 msgid "Reply"
 msgstr "Απάντηση"
@@ -3801,8 +3801,8 @@ msgstr "Αυτός ο λογαριασμός δεν είναι συνδεδεμ�
 msgid "Could not save: {reason}"
 msgstr "Δεν ήταν δυνατή η αποθήκευση: {reason}"
 
-#: app/src/protection/draft.rs:212 app/src/ui/window.rs:2733
-#: app/src/ui/window.rs:2756
+#: app/src/protection/draft.rs:212 app/src/ui/window.rs:2740
+#: app/src/ui/window.rs:2763
 msgid "Could not open the draft: {reason}"
 msgstr "Δεν ήταν δυνατό το άνοιγμα του πρόχειρου: {reason}"
 
@@ -3852,7 +3852,7 @@ msgstr "Δεν ήταν δυνατή η φόρτωση αυτού του μην�
 msgid "This message could not be displayed"
 msgstr "Δεν ήταν δυνατή η εμφάνιση αυτού του μηνύματος"
 
-#: app/src/render.rs:429 app/src/ui/conversation.rs:593
+#: app/src/render.rs:429 app/src/ui/conversation.rs:598
 msgid "View Source"
 msgstr "Προβολή πηγαίου κώδικα"
 
@@ -4171,8 +4171,8 @@ msgstr "Anthropic API"
 msgid "Claude Subscription"
 msgstr "Συνδρομή Claude"
 
-#: app/src/settings/mod.rs:238 app/src/ui/window.rs:3423
-#: app/src/ui/window.rs:3503
+#: app/src/settings/mod.rs:238 app/src/ui/window.rs:3430
+#: app/src/ui/window.rs:3510
 msgid "Assistant"
 msgstr "Βοηθός"
 
@@ -4564,11 +4564,11 @@ msgstr "Άνοιγμα του Penguin Mail"
 
 #: app/src/tray.rs:249 app/src/ui/composer/mod.rs:369
 #: app/src/ui/composer/mod.rs:672 app/src/ui/composer/mod.rs:1561
-#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:470
+#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:770
 msgid "New Message"
 msgstr "Νέο μήνυμα"
 
-#: app/src/tray.rs:250 app/src/ui/sidebar.rs:1949 app/src/ui/window.rs:3429
+#: app/src/tray.rs:250 app/src/ui/sidebar.rs:1949 app/src/ui/window.rs:3436
 msgid "Check for Mail"
 msgstr "Έλεγχος για αλληλογραφία"
 
@@ -4586,7 +4586,7 @@ msgstr "Τι νέο υπάρχει στην έκδοση {version}"
 msgid "Check for Updates"
 msgstr "Έλεγχος για ενημερώσεις"
 
-#: app/src/tray.rs:266 app/src/ui/window.rs:3442
+#: app/src/tray.rs:266 app/src/ui/window.rs:3449
 #: app/src/ui/window/shortcuts.rs:644
 msgid "Quit"
 msgstr "Έξοδος"
@@ -4609,7 +4609,7 @@ msgstr "Τι νέο υπάρχει"
 msgid "Website"
 msgstr "Ιστότοπος"
 
-#: app/src/ui/about.rs:179 app/src/ui/window.rs:3441
+#: app/src/ui/about.rs:179 app/src/ui/window.rs:3448
 msgid "Donate"
 msgstr "Δωρεά"
 
@@ -4617,7 +4617,7 @@ msgstr "Δωρεά"
 msgid "License"
 msgstr "Άδεια χρήσης"
 
-#: app/src/ui/about.rs:203 app/src/ui/window.rs:3440
+#: app/src/ui/about.rs:203 app/src/ui/window.rs:3447
 msgid "About Penguin Mail"
 msgstr "Σχετικά με το Penguin Mail"
 
@@ -4668,12 +4668,12 @@ msgid "The update to {version} failed"
 msgstr "Η ενημέρωση στην έκδοση {version} απέτυχε"
 
 #: app/src/ui/add_account.rs:419 app/src/ui/sandbox_setup.rs:129
-#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1522
+#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1524
 msgid "Copy Command"
 msgstr "Αντιγραφή εντολής"
 
 #: app/src/ui/add_account.rs:429 app/src/ui/sandbox_setup.rs:143
-#: app/src/ui/window.rs:1527
+#: app/src/ui/window.rs:1529
 msgid "Command copied"
 msgstr "Η εντολή αντιγράφηκε"
 
@@ -4777,16 +4777,16 @@ msgstr "Δοκιμή ξανά"
 #: app/src/ui/sender_prefs.rs:170 app/src/ui/sender_prefs/signature.rs:78
 #: app/src/ui/smart_editor.rs:150 app/src/ui/switch_jmap.rs:174
 #: app/src/ui/switch_jmap.rs:225 app/src/ui/templates.rs:240
-#: app/src/ui/unsubscribe.rs:119 app/src/ui/vacation.rs:45
-#: app/src/ui/when.rs:52 app/src/ui/window/arrange.rs:148
-#: app/src/ui/window/images.rs:101 app/src/ui/window/organize.rs:78
-#: app/src/ui/window/organize.rs:127
+#: app/src/ui/topic_picker.rs:57 app/src/ui/unsubscribe.rs:119
+#: app/src/ui/vacation.rs:45 app/src/ui/when.rs:52
+#: app/src/ui/window/arrange.rs:148 app/src/ui/window/images.rs:101
+#: app/src/ui/window/organize.rs:78 app/src/ui/window/organize.rs:127
 msgid "Cancel"
 msgstr "Ακύρωση"
 
 #: app/src/ui/add_account.rs:984 app/src/ui/add_account.rs:1139
 #: app/src/ui/add_account.rs:2918 app/src/ui/add_account.rs:3008
-#: app/src/ui/add_account.rs:3465 app/src/ui/window.rs:1467
+#: app/src/ui/add_account.rs:3465 app/src/ui/window.rs:1469
 msgid "Sign In"
 msgstr "Σύνδεση"
 
@@ -4911,7 +4911,7 @@ msgstr "Όχι τώρα"
 #: app/src/ui/add_account.rs:1332 app/src/ui/calendar/editor.rs:1681
 #: app/src/ui/calendar/sidebar.rs:1003 app/src/ui/contacts_prefs.rs:442
 #: app/src/ui/invitation.rs:490 app/src/ui/permission.rs:42
-#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1589
+#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1591
 msgid "Grant Access"
 msgstr "Παραχώρηση πρόσβασης"
 
@@ -5124,7 +5124,7 @@ msgstr ""
 "Αυτός ο διακομιστής δεν μπορεί να ξεχωρίσει τα μηνύματά του, οπότε το "
 "Penguin Mail δεν μπορεί να κάνει λήψη από αυτόν με ασφάλεια."
 
-#: app/src/ui/assistant.rs:35 app/src/ui/window.rs:3589
+#: app/src/ui/assistant.rs:35 app/src/ui/window.rs:3596
 msgid "Summarize this conversation"
 msgstr "Σύνοψη αυτής της συζήτησης"
 
@@ -5149,13 +5149,13 @@ msgstr "Σύνταξη πρόχειρης απάντησης στην ανοιχ
 msgid "Choose a Model"
 msgstr "Επιλογή μοντέλου"
 
-#: app/src/ui/assistant.rs:123 app/src/ui/window.rs:3550
-#: app/src/ui/window.rs:3551
+#: app/src/ui/assistant.rs:123 app/src/ui/window.rs:3557
+#: app/src/ui/window.rs:3558
 msgid "Detach"
 msgstr "Αποκόλληση"
 
 #: app/src/ui/assistant.rs:124 app/src/ui/key_import.rs:213
-#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4171
+#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4178
 msgid "Close"
 msgstr "Κλείσιμο"
 
@@ -5364,7 +5364,7 @@ msgstr "Επεξεργασία του {server}"
 
 #: app/src/ui/assistant_mcp_prefs.rs:137 app/src/ui/calendar/editor.rs:1726
 #: app/src/ui/composer/mod.rs:2230 app/src/ui/composer/recipients.rs:318
-#: app/src/ui/sender_prefs.rs:175 app/src/ui/window.rs:3193
+#: app/src/ui/sender_prefs.rs:175 app/src/ui/window.rs:3200
 msgid "Remove"
 msgstr "Αφαίρεση"
 
@@ -5583,7 +5583,7 @@ msgstr "Συνομιλίες βοηθού"
 msgid "Email Translations"
 msgstr "Μεταφράσεις μηνυμάτων"
 
-#: app/src/ui/assistant_prefs.rs:208 app/src/ui/conversation.rs:698
+#: app/src/ui/assistant_prefs.rs:208 app/src/ui/conversation.rs:704
 #: app/src/ui/window/detached.rs:65
 msgid "Conversation"
 msgstr "Συζήτηση"
@@ -6175,8 +6175,8 @@ msgid "Could not attach {file}: {reason}"
 msgstr "Αδυναμία επισύναψης του {file}: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1947 app/src/ui/composer/mod.rs:413
-#: app/src/ui/thread_list.rs:339 app/src/ui/thread_list.rs:345
-#: app/src/ui/thread_list.rs:1094
+#: app/src/ui/thread_list.rs:629 app/src/ui/thread_list.rs:635
+#: app/src/ui/thread_list.rs:1908
 msgid "More"
 msgstr "Περισσότερα"
 
@@ -6579,7 +6579,7 @@ msgstr ""
 "Αφαιρείται από τη λίστα ημερολογίων σας στο Google Calendar σε κάθε συσκευή. "
 "Μπορείτε να εγγραφείτε ξανά αργότερα."
 
-#: app/src/ui/calendar/manage.rs:377 app/src/ui/conversation.rs:399
+#: app/src/ui/calendar/manage.rs:377 app/src/ui/conversation.rs:402
 #: app/src/ui/unsubscribe.rs:120
 msgid "Unsubscribe"
 msgstr "Κατάργηση εγγραφής"
@@ -6679,7 +6679,7 @@ msgid "Show Calendars"
 msgstr "Εμφάνιση ημερολογίων"
 
 #: app/src/ui/calendar/mod.rs:400 app/src/ui/calendar/mod.rs:404
-#: app/src/ui/conversation.rs:540 app/src/ui/conversation.rs:544
+#: app/src/ui/conversation.rs:543 app/src/ui/conversation.rs:547
 msgid "Assistant (Ctrl+J)"
 msgstr "Βοηθός (Ctrl+J)"
 
@@ -7102,7 +7102,7 @@ msgstr "Μετονομασία…"
 msgid "Delete…"
 msgstr "Διαγραφή…"
 
-#: app/src/ui/calendar/sidebar.rs:1490 app/src/ui/conversation.rs:598
+#: app/src/ui/calendar/sidebar.rs:1490 app/src/ui/conversation.rs:603
 msgid "Unsubscribe…"
 msgstr "Κατάργηση εγγραφής…"
 
@@ -7331,7 +7331,7 @@ msgstr "Κρυπτογράφηση"
 msgid "Request Read Receipt"
 msgstr "Αίτηση απόδειξης ανάγνωσης"
 
-#: app/src/ui/composer/mod.rs:378 app/src/ui/conversation.rs:1749
+#: app/src/ui/composer/mod.rs:378 app/src/ui/conversation.rs:1777
 msgid "Choose a Time…"
 msgstr "Επιλογή ώρας…"
 
@@ -7462,7 +7462,7 @@ msgstr ""
 "Επιλέξτε αποστολέα και εισαγάγετε μια επιτρεπόμενη κατάληξη διεύθυνσης."
 
 #: app/src/ui/composer/mod.rs:1763 app/src/ui/queued.rs:65
-#: app/src/ui/window/press.rs:450
+#: app/src/ui/window/press.rs:454
 msgid "Cancel Send"
 msgstr "Ακύρωση αποστολής"
 
@@ -7793,7 +7793,7 @@ msgstr "Χρήση του {host} για {account}"
 msgid "Find Again"
 msgstr "Νέα αναζήτηση"
 
-#: app/src/ui/contacts_prefs.rs:157 app/src/ui/conversation.rs:550
+#: app/src/ui/contacts_prefs.rs:157 app/src/ui/conversation.rs:553
 #: app/src/ui/queued.rs:60 app/src/ui/sidebar.rs:1588
 msgid "Edit…"
 msgstr "Επεξεργασία…"
@@ -7854,224 +7854,240 @@ msgstr "Προσθήκη του {account} στους Διαδικτυακούς 
 msgid "Not allowed when you signed in"
 msgstr "Δεν επιτράπηκε κατά τη σύνδεσή σας"
 
-#: app/src/ui/conversation.rs:387
+#: app/src/ui/conversation.rs:390
 msgid "No Conversation Selected"
 msgstr "Δεν επιλέχθηκε συζήτηση"
 
-#: app/src/ui/conversation.rs:393
+#: app/src/ui/conversation.rs:396
 msgid "Remote images are hidden to protect your privacy"
 msgstr ""
 "Οι απομακρυσμένες εικόνες αποκρύπτονται για την προστασία του απορρήτου σας"
 
-#: app/src/ui/conversation.rs:394
+#: app/src/ui/conversation.rs:397
 msgid "Load Images"
 msgstr "Φόρτωση εικόνων"
 
-#: app/src/ui/conversation.rs:398
+#: app/src/ui/conversation.rs:401
 msgid "This message is from a mailing list"
 msgstr "Αυτό το μήνυμα προέρχεται από λίστα αλληλογραφίας"
 
-#: app/src/ui/conversation.rs:412 app/src/ui/conversation.rs:1131
+#: app/src/ui/conversation.rs:415 app/src/ui/conversation.rs:1141
 #: app/src/ui/window/message_menu.rs:130
 msgid "Flag"
 msgstr "Σήμανση με σημαία"
 
-#: app/src/ui/conversation.rs:413 app/src/ui/conversation.rs:576
-#: app/src/ui/conversation.rs:913 app/src/ui/conversation.rs:1136
+#: app/src/ui/conversation.rs:416 app/src/ui/conversation.rs:579
+#: app/src/ui/conversation.rs:923 app/src/ui/conversation.rs:1146
 msgid "Mute"
 msgstr "Σίγαση"
 
-#: app/src/ui/conversation.rs:415 app/src/ui/conversation.rs:567
-#: app/src/ui/conversation.rs:1068 app/src/ui/window/message_menu.rs:126
+#: app/src/ui/conversation.rs:418 app/src/ui/conversation.rs:570
+#: app/src/ui/conversation.rs:1078 app/src/ui/window/message_menu.rs:126
 msgid "Move to Trash"
 msgstr "Μετακίνηση στον Κάδο"
 
-#: app/src/ui/conversation.rs:442
+#: app/src/ui/conversation.rs:445
 msgid "Several Conversations Selected"
 msgstr "Επιλέχθηκαν πολλές συζητήσεις"
 
-#: app/src/ui/conversation.rs:444
+#: app/src/ui/conversation.rs:447
 msgid "Actions and shortcuts apply to all of them. Esc clears the selection."
 msgstr ""
 "Οι ενέργειες και οι συντομεύσεις ισχύουν για όλες. Το Esc καθαρίζει την "
 "επιλογή."
 
-#: app/src/ui/conversation.rs:490
+#: app/src/ui/conversation.rs:493
 msgid "Archive (E or Ctrl+Alt+A)"
 msgstr "Αρχειοθέτηση (E ή Ctrl+Alt+A)"
 
-#: app/src/ui/conversation.rs:492 app/src/ui/conversation.rs:1051
+#: app/src/ui/conversation.rs:495 app/src/ui/conversation.rs:1061
 msgid "Move to Trash (Delete)"
 msgstr "Μετακίνηση στον Κάδο (Delete)"
 
-#: app/src/ui/conversation.rs:493 app/src/ui/conversation.rs:1061
+#: app/src/ui/conversation.rs:496 app/src/ui/conversation.rs:1071
 msgid "Junk (Ctrl+Shift+J)"
 msgstr "Ανεπιθύμητο (Ctrl+Shift+J)"
 
-#: app/src/ui/conversation.rs:496
+#: app/src/ui/conversation.rs:499
 msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr "Σήμανση ως μη αναγνωσμένο (Ctrl+Shift+U)"
 
-#: app/src/ui/conversation.rs:501 app/src/ui/conversation.rs:505
-#: app/src/ui/conversation.rs:1788
+#: app/src/ui/conversation.rs:504 app/src/ui/conversation.rs:508
+#: app/src/ui/conversation.rs:1816
 msgid "Flag (Ctrl+Shift+L)"
 msgstr "Σήμανση με σημαία (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:502 app/src/ui/conversation.rs:508
+#: app/src/ui/conversation.rs:505 app/src/ui/conversation.rs:511
 msgid "Choose Flag Color"
 msgstr "Επιλογή χρώματος σημαίας"
 
-#: app/src/ui/conversation.rs:509
+#: app/src/ui/conversation.rs:512
 msgid "Flags it in the color you chose last, or takes the flag off"
 msgstr ""
 "Προσθέτει σημαία με το χρώμα που επιλέξατε τελευταία ή αφαιρεί τη σημαία"
 
-#: app/src/ui/conversation.rs:513
+#: app/src/ui/conversation.rs:516
 msgid "Reply (Ctrl+R)"
 msgstr "Απάντηση (Ctrl+R)"
 
-#: app/src/ui/conversation.rs:516
+#: app/src/ui/conversation.rs:519
 msgid "Reply All (Ctrl+Shift+R)"
 msgstr "Απάντηση σε όλους (Ctrl+Shift+R)"
 
-#: app/src/ui/conversation.rs:518
+#: app/src/ui/conversation.rs:521
 msgid "Forward (Ctrl+Shift+F)"
 msgstr "Προώθηση (Ctrl+Shift+F)"
 
-#: app/src/ui/conversation.rs:520
+#: app/src/ui/conversation.rs:523
 msgid "Edit Draft"
 msgstr "Επεξεργασία πρόχειρου"
 
-#: app/src/ui/conversation.rs:527 app/src/ui/conversation.rs:530
+#: app/src/ui/conversation.rs:530 app/src/ui/conversation.rs:533
 msgid "More Actions"
 msgstr "Περισσότερες ενέργειες"
 
-#: app/src/ui/conversation.rs:551 app/src/ui/queued.rs:56
+#: app/src/ui/conversation.rs:554 app/src/ui/queued.rs:56
 msgid "Send Now"
 msgstr "Αποστολή τώρα"
 
-#: app/src/ui/conversation.rs:561 app/src/ui/window/message_menu.rs:123
+#: app/src/ui/conversation.rs:564 app/src/ui/window/message_menu.rs:123
 msgid "Reply All"
 msgstr "Απάντηση σε όλους"
 
-#: app/src/ui/conversation.rs:562 app/src/ui/window/message_menu.rs:124
+#: app/src/ui/conversation.rs:565 app/src/ui/window/message_menu.rs:124
 #: app/src/ui/window/shortcuts.rs:488
 msgid "Forward"
 msgstr "Προώθηση"
 
-#: app/src/ui/conversation.rs:571
+#: app/src/ui/conversation.rs:574
 msgid "Flag or Unflag"
 msgstr "Προσθήκη ή αφαίρεση σημαίας"
 
-#: app/src/ui/conversation.rs:573
+#: app/src/ui/conversation.rs:576
 msgid "Mark Read or Unread"
 msgstr "Σήμανση ως αναγνωσμένο ή μη αναγνωσμένο"
 
-#: app/src/ui/conversation.rs:581 app/src/ui/window/message_menu.rs:135
+#: app/src/ui/conversation.rs:584 app/src/ui/window/message_menu.rs:135
 msgid "Tags…"
 msgstr "Ετικέτες…"
 
-#: app/src/ui/conversation.rs:585 app/src/ui/sidebar.rs:1127
+#: app/src/ui/conversation.rs:588 app/src/ui/sidebar.rs:1127
 #: app/src/ui/window/reminders.rs:25 app/src/ui/window/reminders.rs:30
 msgid "Remind Me"
 msgstr "Υπενθύμιση"
 
-#: app/src/ui/conversation.rs:589
+#: app/src/ui/conversation.rs:594
 msgid "Open in New Window"
 msgstr "Άνοιγμα σε νέο παράθυρο"
 
-#: app/src/ui/conversation.rs:592
+#: app/src/ui/conversation.rs:597
 msgid "Print…"
 msgstr "Εκτύπωση…"
 
-#: app/src/ui/conversation.rs:594 app/src/ui/window/message_menu.rs:136
+#: app/src/ui/conversation.rs:599 app/src/ui/window/message_menu.rs:136
 msgid "Export…"
 msgstr "Εξαγωγή…"
 
-#: app/src/ui/conversation.rs:597 app/src/ui/conversation.rs:880
+#: app/src/ui/conversation.rs:602 app/src/ui/conversation.rs:890
 msgid "Add Sender to VIPs"
 msgstr "Προσθήκη αποστολέα στις επαφές VIP"
 
-#: app/src/ui/conversation.rs:600
+#: app/src/ui/conversation.rs:605
 msgid "Always Load Images…"
 msgstr "Πάντα φόρτωση εικόνων…"
 
 #. Both sender items leave a rule on the server, so an account
 #. without rules turns them off, and the menu leaves them out.
-#: app/src/ui/conversation.rs:605
+#: app/src/ui/conversation.rs:610
 msgid "Block Sender…"
 msgstr "Αποκλεισμός αποστολέα…"
 
-#: app/src/ui/conversation.rs:613 app/src/ui/conversation.rs:900
+#: app/src/ui/conversation.rs:618 app/src/ui/conversation.rs:910
 msgid "Categorize Sender"
 msgstr "Κατηγοριοποίηση αποστολέα"
 
-#: app/src/ui/conversation.rs:641 app/src/ui/conversation.rs:643
+#: app/src/ui/conversation.rs:647 app/src/ui/conversation.rs:649
 msgid "Tags"
 msgstr "Ετικέτες"
 
-#: app/src/ui/conversation.rs:878
+#: app/src/ui/conversation.rs:888
 msgid "Remove Sender from VIPs"
 msgstr "Αφαίρεση αποστολέα από τις επαφές VIP"
 
-#: app/src/ui/conversation.rs:911 app/src/ui/conversation.rs:1134
+#: app/src/ui/conversation.rs:921 app/src/ui/conversation.rs:1144
 msgid "Unmute"
 msgstr "Κατάργηση σίγασης"
 
-#: app/src/ui/conversation.rs:1050
+#: app/src/ui/conversation.rs:1060
 msgid "Delete Forever (Delete)"
 msgstr "Οριστική διαγραφή (Delete)"
 
-#: app/src/ui/conversation.rs:1059
+#: app/src/ui/conversation.rs:1069
 msgid "Not Junk (Ctrl+Shift+J)"
 msgstr "Όχι ανεπιθύμητο (Ctrl+Shift+J)"
 
-#: app/src/ui/conversation.rs:1067 app/src/ui/window/message_menu.rs:127
-#: app/src/ui/window/press.rs:436
+#: app/src/ui/conversation.rs:1077 app/src/ui/window/message_menu.rs:127
+#: app/src/ui/window/press.rs:440
 msgid "Delete Forever"
 msgstr "Οριστική διαγραφή"
 
-#: app/src/ui/conversation.rs:1072
+#: app/src/ui/conversation.rs:1082
 msgid "Not Junk"
 msgstr "Όχι ανεπιθύμητο"
 
-#: app/src/ui/conversation.rs:1126 app/src/ui/window/message_menu.rs:129
+#: app/src/ui/conversation.rs:1136 app/src/ui/window/message_menu.rs:129
 msgid "Mark as Unread"
 msgstr "Σήμανση ως μη αναγνωσμένο"
 
-#: app/src/ui/conversation.rs:1129 app/src/ui/window/message_menu.rs:131
+#: app/src/ui/conversation.rs:1139 app/src/ui/window/message_menu.rs:131
 msgid "Unflag"
 msgstr "Αφαίρεση σημαίας"
 
-#: app/src/ui/conversation.rs:1145
+#: app/src/ui/conversation.rs:1155
 msgid "{count} Conversation Selected"
 msgid_plural "{count} Conversations Selected"
 msgstr[0] "Επιλέχθηκε {count} συζήτηση"
 msgstr[1] "Επιλέχθηκαν {count} συζητήσεις"
 
-#: app/src/ui/conversation.rs:1151
+#: app/src/ui/conversation.rs:1161
 msgid "{count} Message Selected"
 msgid_plural "{count} Messages Selected"
 msgstr[0] "Επιλέχθηκε {count} μήνυμα"
 msgstr[1] "Επιλέχθηκαν {count} μηνύματα"
 
-#: app/src/ui/conversation.rs:1787
+#: app/src/ui/conversation.rs:1753
+msgid "Set Topic…"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1761
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Recent Topics"
+msgstr "Αφαίρεση από τις επαφές VIP"
+
+#: app/src/ui/conversation.rs:1763
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Remove from Topic"
+msgstr "Αφαίρεση από τις επαφές VIP"
+
+#: app/src/ui/conversation.rs:1815
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr "Αφαίρεση σημαίας (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:1800
+#: app/src/ui/conversation.rs:1828
 msgid "Mark as Read (U)"
 msgstr "Σήμανση ως αναγνωσμένο (U)"
 
-#: app/src/ui/conversation.rs:1801
+#: app/src/ui/conversation.rs:1829
 msgid "Mark as Unread (U)"
 msgstr "Σήμανση ως μη αναγνωσμένο (U)"
 
-#: app/src/ui/conversation.rs:2067
+#: app/src/ui/conversation.rs:2095
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr "{color} (Ctrl+Alt+{number})"
 
-#: app/src/ui/conversation.rs:2084 app/src/ui/window/message_menu.rs:258
+#: app/src/ui/conversation.rs:2112 app/src/ui/window/message_menu.rs:258
 msgid "Clear Flag"
 msgstr "Αφαίρεση σημαίας"
 
@@ -8263,7 +8279,7 @@ msgstr ""
 msgid "Allow Hide My Email"
 msgstr "Να επιτραπεί το Hide My Email"
 
-#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3640
+#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3647
 msgid "Add an account first"
 msgstr "Προσθέστε πρώτα έναν λογαριασμό"
 
@@ -8718,7 +8734,7 @@ msgstr ""
 "Αυτός ο σύνδεσμος περιέχει κρυφούς χαρακτήρες ή χαρακτήρες αλλαγής "
 "κατεύθυνσης."
 
-#: app/src/ui/mod.rs:500
+#: app/src/ui/mod.rs:501
 msgid "Gray"
 msgstr "Γκρι"
 
@@ -9346,7 +9362,7 @@ msgstr "Τελευταίος λογαριασμός ημερολογίου πο�
 msgid "Same as New Messages"
 msgstr "Όπως στα νέα μηνύματα"
 
-#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:270
+#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:560
 msgid "All Inboxes"
 msgstr "Όλα τα εισερχόμενα"
 
@@ -9365,7 +9381,7 @@ msgstr "Μετακίνηση του {account} κάτω"
 #: app/src/ui/preferences/dialog.rs:27 app/src/ui/preferences/dialog.rs:33
 #: app/src/ui/preferences/dialog.rs:82 app/src/ui/preferences/dialog.rs:83
 #: app/src/ui/preferences/dialog.rs:353 app/src/ui/preferences/dialog.rs:355
-#: app/src/ui/window.rs:3438 app/src/ui/window/shortcuts.rs:616
+#: app/src/ui/window.rs:3445 app/src/ui/window/shortcuts.rs:616
 msgid "Preferences"
 msgstr "Προτιμήσεις"
 
@@ -9697,7 +9713,7 @@ msgid "Mailboxes"
 msgstr "Αλληλογραφία"
 
 #: app/src/ui/sidebar.rs:388 app/src/ui/sidebar.rs:1508
-#: app/src/ui/thread_list.rs:359
+#: app/src/ui/thread_list.rs:649
 msgid "Mail"
 msgstr "Αλληλογραφία"
 
@@ -9767,7 +9783,7 @@ msgstr "Αυτόματη απάντηση…"
 msgid "Rules…"
 msgstr "Κανόνες…"
 
-#: app/src/ui/sidebar.rs:1860 app/src/ui/window.rs:3432
+#: app/src/ui/sidebar.rs:1860 app/src/ui/window.rs:3439
 msgid "Hide My Email…"
 msgstr "Hide My Email…"
 
@@ -9958,38 +9974,117 @@ msgstr "Κείμενο μηνύματος"
 msgid "New Template"
 msgstr "Νέο πρότυπο"
 
-#: app/src/ui/thread_list.rs:233
+#: app/src/ui/thread_list.rs:523
 msgid "No Mail"
 msgstr "Καμία αλληλογραφία"
 
 #. The two search terms are Gmail's own and stay in English.
-#: app/src/ui/thread_list.rs:251
+#: app/src/ui/thread_list.rs:541
 msgid "Search mail, e.g. from:ann has:attachment"
 msgstr "Αναζήτηση αλληλογραφίας, π.χ. from:ann has:attachment"
 
-#: app/src/ui/thread_list.rs:290 app/src/ui/thread_list.rs:310
+#: app/src/ui/thread_list.rs:580 app/src/ui/thread_list.rs:600
 msgid "Show Mailboxes"
 msgstr "Εμφάνιση γραμματοκιβωτίων"
 
-#: app/src/ui/thread_list.rs:295
+#: app/src/ui/thread_list.rs:585
 msgid "New Message (C)"
 msgstr "Νέο μήνυμα (C)"
 
-#: app/src/ui/thread_list.rs:300
+#: app/src/ui/thread_list.rs:590
 msgid "Search (/)"
 msgstr "Αναζήτηση (/)"
 
 #. The tooltips already say what these do; the spoken name takes
 #. the words and leaves the keys to a property of their own.
-#: app/src/ui/thread_list.rs:309
+#: app/src/ui/thread_list.rs:599
 msgid "Search mail"
 msgstr "Αναζήτηση αλληλογραφίας"
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+#, fuzzy
+#| msgid "Previous Month"
+msgid "Previous in {topic}"
+msgstr "Προηγούμενος μήνας"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Next in {topic}"
+msgstr "Προστέθηκε στο {calendar}"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "{count} ακόμη συμβάν"
+msgstr[1] "{count} ακόμη συμβάντα"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+#, fuzzy
+#| msgid "{count} no"
+#| msgid_plural "{count} no"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} όχι"
+msgstr[1] "{count} όχι"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+#, fuzzy
+#| msgid "{count} conversation"
+#| msgid_plural "{count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "{count} συζήτηση"
+msgstr[1] "{count} συζητήσεις"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+#, fuzzy
+#| msgid "{mailbox}, {count} message"
+#| msgid_plural "{mailbox}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "{mailbox}, {count} μήνυμα"
+msgstr[1] "{mailbox}, {count} μηνύματα"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "{count} ακόμη συμβάν"
+msgstr[1] "{count} ακόμη συμβάντα"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+#, fuzzy
+#| msgid "Moved {count} conversation to Trash"
+#| msgid_plural "Moved {count} conversations to Trash"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "Μετακινήθηκε {count} συζήτηση στον Κάδο απορριμμάτων"
+msgstr[1] "Μετακινήθηκαν {count} συζητήσεις στον Κάδο απορριμμάτων"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+#, fuzzy
+#| msgid "{count} unread message"
+#| msgid_plural "{count} unread messages"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} μη αναγνωσμένο μήνυμα"
+msgstr[1] "{count} μη αναγνωσμένα μηνύματα"
 
 #: app/src/ui/thread_row.rs:102
 msgid "VIP"
 msgstr "VIP"
 
-#: app/src/ui/thread_row.rs:127 app/src/ui/window.rs:408
+#: app/src/ui/thread_row.rs:127 app/src/ui/window.rs:409
 msgid "Muted"
 msgstr "Σε σίγαση"
 
@@ -10012,6 +10107,31 @@ msgstr "{sender}, {subject}, {snippet}"
 #: app/src/ui/thread_row.rs:525
 msgid "On the server, {lines}"
 msgstr "Στον διακομιστή, {lines}"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#, fuzzy
+#| msgid "it names"
+msgid "Topic name"
+msgstr "αναφέρει"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:57
+#, fuzzy
+#| msgid "Sent"
+msgid "Set"
+msgstr "Απεσταλμένα"
 
 #: app/src/ui/translation.rs:60 app/src/ui/translation.rs:123
 #: app/src/ui/translation.rs:165
@@ -10207,211 +10327,211 @@ msgstr ""
 "Επιλέξτε πού βρίσκεται η αλληλογραφία σας. Μπορείτε να προσθέσετε κι άλλους "
 "αργότερα από το κύριο μενού."
 
-#: app/src/ui/window.rs:285
+#: app/src/ui/window.rs:286
 msgid "Deleted forever"
 msgstr "Διαγράφηκε οριστικά"
 
-#: app/src/ui/window.rs:287
+#: app/src/ui/window.rs:288
 msgid "Deleted {count} conversation forever"
 msgid_plural "Deleted {count} conversations forever"
 msgstr[0] "Διαγράφηκε οριστικά {count} συζήτηση"
 msgstr[1] "Διαγράφηκαν οριστικά {count} συζητήσεις"
 
-#: app/src/ui/window.rs:293
+#: app/src/ui/window.rs:294
 msgid "Deleted {count} message forever"
 msgid_plural "Deleted {count} messages forever"
 msgstr[0] "Διαγράφηκε οριστικά {count} μήνυμα"
 msgstr[1] "Διαγράφηκαν οριστικά {count} μηνύματα"
 
-#: app/src/ui/window.rs:306
+#: app/src/ui/window.rs:307
 msgid "{label}, on this mail"
 msgstr "{label}, σε αυτή την αλληλογραφία"
 
-#: app/src/ui/window.rs:335
+#: app/src/ui/window.rs:336
 msgid "Added {person} to VIPs"
 msgstr "Ο/Η {person} προστέθηκε στις επαφές VIP"
 
-#: app/src/ui/window.rs:336
+#: app/src/ui/window.rs:337
 msgid "Removed {person} from VIPs"
 msgstr "Ο/Η {person} αφαιρέθηκε από τις επαφές VIP"
 
-#: app/src/ui/window.rs:342
+#: app/src/ui/window.rs:343
 msgid "Could not load mail: {reason}"
 msgstr "Δεν ήταν δυνατή η φόρτωση της αλληλογραφίας: {reason}"
 
-#: app/src/ui/window.rs:352
+#: app/src/ui/window.rs:353
 msgid "Added {account}. Downloading mail…"
 msgstr "Προστέθηκε ο λογαριασμός {account}. Λήψη αλληλογραφίας…"
 
-#: app/src/ui/window.rs:356 app/src/ui/window.rs:2918
+#: app/src/ui/window.rs:357 app/src/ui/window.rs:2925
 msgid "{account} is signed in again."
 msgstr "Ο λογαριασμός {account} συνδέθηκε ξανά."
 
-#: app/src/ui/window.rs:375
+#: app/src/ui/window.rs:376
 msgid "Made a folder called “{name}” on {provider} for archived mail"
 msgstr ""
 "Δημιουργήθηκε φάκελος με όνομα «{name}» στο {provider} για την "
 "αρχειοθετημένη αλληλογραφία"
 
-#: app/src/ui/window.rs:384
+#: app/src/ui/window.rs:385
 msgid "Flagged red"
 msgstr "Σημαία κόκκινη"
 
-#: app/src/ui/window.rs:385
+#: app/src/ui/window.rs:386
 msgid "Flagged orange"
 msgstr "Σημαία πορτοκαλί"
 
-#: app/src/ui/window.rs:386
+#: app/src/ui/window.rs:387
 msgid "Flagged yellow"
 msgstr "Σημαία κίτρινη"
 
-#: app/src/ui/window.rs:387
+#: app/src/ui/window.rs:388
 msgid "Flagged green"
 msgstr "Σημαία πράσινη"
 
-#: app/src/ui/window.rs:388
+#: app/src/ui/window.rs:389
 msgid "Flagged blue"
 msgstr "Σημαία μπλε"
 
-#: app/src/ui/window.rs:389
+#: app/src/ui/window.rs:390
 msgid "Flagged purple"
 msgstr "Σημαία μωβ"
 
-#: app/src/ui/window.rs:390
+#: app/src/ui/window.rs:391
 msgid "Flagged gray"
 msgstr "Σημαία γκρι"
 
-#: app/src/ui/window.rs:401 app/src/ui/window.rs:503
+#: app/src/ui/window.rs:402 app/src/ui/window.rs:504
 msgid "Labels changed"
 msgstr "Οι ετικέτες άλλαξαν"
 
-#: app/src/ui/window.rs:403
+#: app/src/ui/window.rs:404
 #, fuzzy
 #| msgid "Added to {calendar}"
 msgid "Added to {topic}"
 msgstr "Προστέθηκε στο {calendar}"
 
-#: app/src/ui/window.rs:405
+#: app/src/ui/window.rs:406
 #, fuzzy
 #| msgid "Remove from VIPs"
 msgid "Removed from topic"
 msgstr "Αφαίρεση από τις επαφές VIP"
 
-#: app/src/ui/window.rs:409
+#: app/src/ui/window.rs:410
 msgid "Unmuted"
 msgstr "Η σίγαση καταργήθηκε"
 
-#: app/src/ui/window.rs:411
+#: app/src/ui/window.rs:412
 msgid "Muted {count} conversation"
 msgid_plural "Muted {count} conversations"
 msgstr[0] "Σίγαση {count} συζήτησης"
 msgstr[1] "Σίγαση {count} συζητήσεων"
 
-#: app/src/ui/window.rs:417
+#: app/src/ui/window.rs:418
 msgid "Muted {count} message"
 msgid_plural "Muted {count} messages"
 msgstr[0] "Σίγαση {count} μηνύματος"
 msgstr[1] "Σίγαση {count} μηνυμάτων"
 
-#: app/src/ui/window.rs:423
+#: app/src/ui/window.rs:424
 msgid "Unmuted {count} conversation"
 msgid_plural "Unmuted {count} conversations"
 msgstr[0] "Κατάργηση σίγασης {count} συζήτησης"
 msgstr[1] "Κατάργηση σίγασης {count} συζητήσεων"
 
-#: app/src/ui/window.rs:429
+#: app/src/ui/window.rs:430
 msgid "Unmuted {count} message"
 msgid_plural "Unmuted {count} messages"
 msgstr[0] "Κατάργηση σίγασης {count} μηνύματος"
 msgstr[1] "Κατάργηση σίγασης {count} μηνυμάτων"
 
-#: app/src/ui/window.rs:439
+#: app/src/ui/window.rs:440
 msgid "Dismissed {count} follow-up"
 msgid_plural "Dismissed {count} follow-ups"
 msgstr[0] "Απορρίφθηκε {count} παρακολούθηση"
 msgstr[1] "Απορρίφθηκαν {count} παρακολουθήσεις"
 
-#: app/src/ui/window.rs:448
+#: app/src/ui/window.rs:449
 msgid "Archived"
 msgstr "Αρχειοθετήθηκε"
 
-#: app/src/ui/window.rs:450
+#: app/src/ui/window.rs:451
 msgid "Archived {count} conversation"
 msgid_plural "Archived {count} conversations"
 msgstr[0] "Αρχειοθετήθηκε {count} συζήτηση"
 msgstr[1] "Αρχειοθετήθηκαν {count} συζητήσεις"
 
-#: app/src/ui/window.rs:456
+#: app/src/ui/window.rs:457
 msgid "Archived {count} message"
 msgid_plural "Archived {count} messages"
 msgstr[0] "Αρχειοθετήθηκε {count} μήνυμα"
 msgstr[1] "Αρχειοθετήθηκαν {count} μηνύματα"
 
-#: app/src/ui/window.rs:461
+#: app/src/ui/window.rs:462
 msgid "Moved to Trash"
 msgstr "Μετακινήθηκε στον Κάδο απορριμμάτων"
 
-#: app/src/ui/window.rs:463
+#: app/src/ui/window.rs:464
 msgid "Moved {count} conversation to Trash"
 msgid_plural "Moved {count} conversations to Trash"
 msgstr[0] "Μετακινήθηκε {count} συζήτηση στον Κάδο απορριμμάτων"
 msgstr[1] "Μετακινήθηκαν {count} συζητήσεις στον Κάδο απορριμμάτων"
 
-#: app/src/ui/window.rs:469
+#: app/src/ui/window.rs:470
 msgid "Moved {count} message to Trash"
 msgid_plural "Moved {count} messages to Trash"
 msgstr[0] "Μετακινήθηκε {count} μήνυμα στον Κάδο απορριμμάτων"
 msgstr[1] "Μετακινήθηκαν {count} μηνύματα στον Κάδο απορριμμάτων"
 
-#: app/src/ui/window.rs:474
+#: app/src/ui/window.rs:475
 msgid "Marked as junk"
 msgstr "Σημάνθηκε ως ανεπιθύμητο"
 
-#: app/src/ui/window.rs:476
+#: app/src/ui/window.rs:477
 msgid "Marked {count} conversation as junk"
 msgid_plural "Marked {count} conversations as junk"
 msgstr[0] "Σημάνθηκε {count} συζήτηση ως ανεπιθύμητη"
 msgstr[1] "Σημάνθηκαν {count} συζητήσεις ως ανεπιθύμητες"
 
-#: app/src/ui/window.rs:482
+#: app/src/ui/window.rs:483
 msgid "Marked {count} message as junk"
 msgid_plural "Marked {count} messages as junk"
 msgstr[0] "Σημάνθηκε {count} μήνυμα ως ανεπιθύμητο"
 msgstr[1] "Σημάνθηκαν {count} μηνύματα ως ανεπιθύμητα"
 
-#: app/src/ui/window.rs:487
+#: app/src/ui/window.rs:488
 msgid "Moved to the Inbox"
 msgstr "Μετακινήθηκε στα Εισερχόμενα"
 
-#: app/src/ui/window.rs:489
+#: app/src/ui/window.rs:490
 msgid "Moved {count} conversation to the Inbox"
 msgid_plural "Moved {count} conversations to the Inbox"
 msgstr[0] "Μετακινήθηκε {count} συζήτηση στα Εισερχόμενα"
 msgstr[1] "Μετακινήθηκαν {count} συζητήσεις στα Εισερχόμενα"
 
-#: app/src/ui/window.rs:495
+#: app/src/ui/window.rs:496
 msgid "Moved {count} message to the Inbox"
 msgid_plural "Moved {count} messages to the Inbox"
 msgstr[0] "Μετακινήθηκε {count} μήνυμα στα Εισερχόμενα"
 msgstr[1] "Μετακινήθηκαν {count} μηνύματα στα Εισερχόμενα"
 
-#: app/src/ui/window.rs:933
+#: app/src/ui/window.rs:934
 msgid "Penguin Mail (Demo)"
 msgstr "Penguin Mail (Επίδειξη)"
 
-#: app/src/ui/window.rs:1358
+#: app/src/ui/window.rs:1360
 msgid "Could not read accounts: {reason}"
 msgstr "Δεν ήταν δυνατή η ανάγνωση των λογαριασμών: {reason}"
 
-#: app/src/ui/window.rs:2030
+#: app/src/ui/window.rs:2037
 msgid "Could not delete the mail: {reason}"
 msgstr "Δεν ήταν δυνατή η διαγραφή της αλληλογραφίας: {reason}"
 
-#: app/src/ui/window.rs:2122
+#: app/src/ui/window.rs:2129
 msgid "Turn On the {service}"
 msgstr "Ενεργοποίηση του {service}"
 
-#: app/src/ui/window.rs:2125
+#: app/src/ui/window.rs:2132
 msgid ""
 "The Google Cloud project Penguin Mail signs in with has the {service} "
 "switched off, so Google refuses before it can ask for your permission. Turn "
@@ -10421,62 +10541,62 @@ msgstr ""
 "απενεργοποιημένο το {service}, οπότε η Google αρνείται πριν προλάβει να σας "
 "ζητήσει άδεια. Ενεργοποιήστε το, περιμένετε ένα λεπτό και δοκιμάστε ξανά."
 
-#: app/src/ui/window.rs:2131
+#: app/src/ui/window.rs:2138
 msgid "Open Google Cloud"
 msgstr "Άνοιγμα του Google Cloud"
 
-#: app/src/ui/window.rs:2452
+#: app/src/ui/window.rs:2459
 msgid "Select mail from one account to tag it."
 msgstr "Επιλέξτε αλληλογραφία από έναν λογαριασμό για να της βάλετε ετικέτα."
 
-#: app/src/ui/window.rs:2464
+#: app/src/ui/window.rs:2471
 msgid "This account has no tags yet. Make one in Outlook."
 msgstr ""
 "Αυτός ο λογαριασμός δεν έχει ακόμη ετικέτες. Δημιουργήστε μία στο Outlook."
 
-#: app/src/ui/window.rs:2631
+#: app/src/ui/window.rs:2638
 msgid "Could not include {file}: {reason}"
 msgstr "Δεν ήταν δυνατή η συμπερίληψη του {file}: {reason}"
 
-#: app/src/ui/window.rs:2712
+#: app/src/ui/window.rs:2719
 msgid "The server had already sent this message."
 msgstr "Ο διακομιστής είχε ήδη στείλει αυτό το μήνυμα."
 
-#: app/src/ui/window.rs:2717
+#: app/src/ui/window.rs:2724
 msgid "This message was canceled in another app and is no longer in Drafts."
 msgstr ""
 "Η αποστολή αυτού του μηνύματος ακυρώθηκε σε άλλη εφαρμογή και δεν βρίσκεται "
 "πια στα Πρόχειρα."
 
-#: app/src/ui/window.rs:2831
+#: app/src/ui/window.rs:2838
 msgid "Downloading {file}…"
 msgstr "Λήψη του {file}…"
 
-#: app/src/ui/window.rs:2852 app/src/ui/window/attachments.rs:231
+#: app/src/ui/window.rs:2859 app/src/ui/window/attachments.rs:231
 msgid "Saved {file} to Downloads"
 msgstr "Το {file} αποθηκεύτηκε στις Λήψεις"
 
-#: app/src/ui/window.rs:2855
+#: app/src/ui/window.rs:2862
 msgid "Open"
 msgstr "Άνοιγμα"
 
-#: app/src/ui/window.rs:2870 app/src/ui/window/attachments.rs:236
+#: app/src/ui/window.rs:2877 app/src/ui/window/attachments.rs:236
 msgid "Could not save {file}: {reason}"
 msgstr "Δεν ήταν δυνατή η αποθήκευση του {file}: {reason}"
 
-#: app/src/ui/window.rs:3049
+#: app/src/ui/window.rs:3056
 msgid "Continue in your browser"
 msgstr "Συνεχίστε στο πρόγραμμα περιήγησης"
 
-#: app/src/ui/window.rs:3079
+#: app/src/ui/window.rs:3086
 msgid "This copy of Penguin Mail was built without Google sign-in."
 msgstr "Αυτό το αντίγραφο του Penguin Mail δημιουργήθηκε χωρίς σύνδεση Google."
 
-#: app/src/ui/window.rs:3087
+#: app/src/ui/window.rs:3094
 msgid "Get a Release"
 msgstr "Λήψη έκδοσης"
 
-#: app/src/ui/window.rs:3179
+#: app/src/ui/window.rs:3186
 msgid ""
 "Could not check for messages the server holds to send later, so {account} "
 "stays: {reason}"
@@ -10484,75 +10604,75 @@ msgstr ""
 "Δεν ήταν δυνατός ο έλεγχος για μηνύματα που κρατά ο διακομιστής για αποστολή "
 "αργότερα, οπότε ο λογαριασμός {account} παραμένει: {reason}"
 
-#: app/src/ui/window.rs:3190
+#: app/src/ui/window.rs:3197
 msgid "Remove {account}?"
 msgstr "Αφαίρεση του {account};"
 
-#: app/src/ui/window.rs:3209
+#: app/src/ui/window.rs:3216
 msgid "Remove Anyway"
 msgstr "Αφαίρεση παρ' όλα αυτά"
 
-#: app/src/ui/window.rs:3222
+#: app/src/ui/window.rs:3229
 msgid "Removed {account}"
 msgstr "Αφαιρέθηκε ο λογαριασμός {account}"
 
-#: app/src/ui/window.rs:3224
+#: app/src/ui/window.rs:3231
 msgid "Could not remove {account}: {reason}"
 msgstr "Δεν ήταν δυνατή η αφαίρεση του {account}: {reason}"
 
-#: app/src/ui/window.rs:3410
+#: app/src/ui/window.rs:3417
 msgid "Refresh"
 msgstr "Ανανέωση"
 
-#: app/src/ui/window.rs:3414
+#: app/src/ui/window.rs:3421
 msgid "Show Declined Events"
 msgstr "Εμφάνιση απορριφθέντων συμβάντων"
 
-#: app/src/ui/window.rs:3430
+#: app/src/ui/window.rs:3437
 msgid "Add Account…"
 msgstr "Προσθήκη λογαριασμού…"
 
-#: app/src/ui/window.rs:3431
+#: app/src/ui/window.rs:3438
 msgid "New Smart Mailbox…"
 msgstr "Νέο έξυπνο γραμματοκιβώτιο…"
 
-#: app/src/ui/window.rs:3439
+#: app/src/ui/window.rs:3446
 msgid "Keyboard Shortcuts"
 msgstr "Συντομεύσεις πληκτρολογίου"
 
-#: app/src/ui/window.rs:3448 app/src/ui/window.rs:3450
+#: app/src/ui/window.rs:3455 app/src/ui/window.rs:3457
 msgid "Main Menu"
 msgstr "Κύριο μενού"
 
-#: app/src/ui/window.rs:3515 app/src/ui/window.rs:3516
+#: app/src/ui/window.rs:3522 app/src/ui/window.rs:3523
 msgid "Dock"
 msgstr "Προσάρτηση"
 
-#: app/src/ui/window.rs:3641
+#: app/src/ui/window.rs:3648
 msgid "Add a mail account first"
 msgstr "Προσθέστε πρώτα έναν λογαριασμό αλληλογραφίας"
 
-#: app/src/ui/window.rs:3962
+#: app/src/ui/window.rs:3969
 msgid "Open a message from the person first"
 msgstr "Ανοίξτε πρώτα ένα μήνυμα από το άτομο"
 
-#: app/src/ui/window.rs:4054
+#: app/src/ui/window.rs:4061
 msgid "Penguin Mail shows the new language after a restart"
 msgstr "Το Penguin Mail θα εμφανίσει τη νέα γλώσσα μετά από επανεκκίνηση"
 
-#: app/src/ui/window.rs:4056 app/src/update/mod.rs:130
+#: app/src/ui/window.rs:4063 app/src/update/mod.rs:130
 msgid "Restart"
 msgstr "Επανεκκίνηση"
 
-#: app/src/ui/window.rs:4120
+#: app/src/ui/window.rs:4127
 msgid "Show Rules"
 msgstr "Εμφάνιση κανόνων"
 
-#: app/src/ui/window.rs:4146
+#: app/src/ui/window.rs:4153
 msgid "Messages That Will Not Download"
 msgstr "Μηνύματα που δεν γίνεται λήψη τους"
 
-#: app/src/ui/window.rs:4148
+#: app/src/ui/window.rs:4155
 msgid ""
 "Penguin Mail could not download these from {address}'s server. It tries "
 "again at each check, except for a message too large to download."
@@ -10928,58 +11048,58 @@ msgstr "Διαγράφηκε. Δεν θα σταλεί."
 msgid "Deleted. They will not be sent."
 msgstr "Διαγράφηκαν. Δεν θα σταλούν."
 
-#: app/src/ui/window/press.rs:287
+#: app/src/ui/window/press.rs:290
 msgid "Back in the Inbox"
 msgstr "Ξανά στα Εισερχόμενα"
 
-#: app/src/ui/window/press.rs:306
+#: app/src/ui/window/press.rs:309
 msgid "Will remind you {when}"
 msgstr "Θα σας υπενθυμίσει {when}"
 
-#: app/src/ui/window/press.rs:337
+#: app/src/ui/window/press.rs:341
 msgid "Drop mail on its own account's mailboxes"
 msgstr "Αφήστε την αλληλογραφία στα γραμματοκιβώτια του δικού της λογαριασμού"
 
-#: app/src/ui/window/press.rs:378
+#: app/src/ui/window/press.rs:382
 msgid "Moved to {mailbox}"
 msgstr "Μετακινήθηκε στο {mailbox}"
 
-#: app/src/ui/window/press.rs:391
+#: app/src/ui/window/press.rs:395
 msgid "Delete This Conversation Forever?"
 msgstr "Οριστική διαγραφή αυτής της συζήτησης;"
 
-#: app/src/ui/window/press.rs:393
+#: app/src/ui/window/press.rs:397
 msgid "Delete {count} Conversation Forever?"
 msgid_plural "Delete {count} Conversations Forever?"
 msgstr[0] "Οριστική διαγραφή {count} συζήτησης;"
 msgstr[1] "Οριστική διαγραφή {count} συζητήσεων;"
 
-#: app/src/ui/window/press.rs:398
+#: app/src/ui/window/press.rs:402
 msgid "Delete This Message Forever?"
 msgstr "Οριστική διαγραφή αυτού του μηνύματος;"
 
-#: app/src/ui/window/press.rs:400
+#: app/src/ui/window/press.rs:404
 msgid "Delete {count} Message Forever?"
 msgid_plural "Delete {count} Messages Forever?"
 msgstr[0] "Οριστική διαγραφή {count} μηνύματος;"
 msgstr[1] "Οριστική διαγραφή {count} μηνυμάτων;"
 
-#: app/src/ui/window/press.rs:408
+#: app/src/ui/window/press.rs:412
 msgid "{provider} deletes it from every device and cannot bring it back."
 msgstr ""
 "Το {provider} το διαγράφει από κάθε συσκευή και δεν μπορεί να το επαναφέρει."
 
-#: app/src/ui/window/press.rs:412
+#: app/src/ui/window/press.rs:416
 msgid "{provider} deletes them from every device and cannot bring them back."
 msgstr ""
 "Το {provider} τα διαγράφει από κάθε συσκευή και δεν μπορεί να τα επαναφέρει."
 
-#: app/src/ui/window/press.rs:415
+#: app/src/ui/window/press.rs:419
 msgid "The server deletes it from every device and cannot bring it back."
 msgstr ""
 "Ο διακομιστής το διαγράφει από κάθε συσκευή και δεν μπορεί να το επαναφέρει."
 
-#: app/src/ui/window/press.rs:417
+#: app/src/ui/window/press.rs:421
 msgid ""
 "Each account's server deletes them from every device and cannot bring them "
 "back."
@@ -10987,7 +11107,7 @@ msgstr ""
 "Ο διακομιστής κάθε λογαριασμού τα διαγράφει από κάθε συσκευή και δεν μπορεί "
 "να τα επαναφέρει."
 
-#: app/src/ui/window/press.rs:425
+#: app/src/ui/window/press.rs:429
 msgid ""
 "Mail in {accounts} stays in the Trash, since its server cannot delete mail "
 "for good."
@@ -11001,31 +11121,31 @@ msgstr[1] ""
 "Η αλληλογραφία στα {accounts} παραμένει στον Κάδο απορριμμάτων, καθώς οι "
 "διακομιστές τους δεν μπορούν να διαγράψουν οριστικά αλληλογραφία."
 
-#: app/src/ui/window/press.rs:450
+#: app/src/ui/window/press.rs:454
 msgid "Cancel Send (Delete)"
 msgstr "Ακύρωση αποστολής (Delete)"
 
-#: app/src/ui/window/press.rs:452
+#: app/src/ui/window/press.rs:456
 msgid "Delete from Outbox"
 msgstr "Διαγραφή από τα Εξερχόμενα"
 
-#: app/src/ui/window/press.rs:453
+#: app/src/ui/window/press.rs:457
 msgid "Delete from Outbox (Delete)"
 msgstr "Διαγραφή από τα Εξερχόμενα (Delete)"
 
-#: app/src/ui/window/press.rs:456
+#: app/src/ui/window/press.rs:460
 msgid "Cancel Reminder"
 msgstr "Ακύρωση υπενθύμισης"
 
-#: app/src/ui/window/press.rs:457
+#: app/src/ui/window/press.rs:461
 msgid "Cancel Reminder (Delete)"
 msgstr "Ακύρωση υπενθύμισης (Delete)"
 
-#: app/src/ui/window/press.rs:460
+#: app/src/ui/window/press.rs:464
 msgid "Dismiss Follow-Up"
 msgstr "Απόρριψη παρακολούθησης"
 
-#: app/src/ui/window/press.rs:461
+#: app/src/ui/window/press.rs:465
 msgid "Dismiss Follow-Up (Delete)"
 msgstr "Απόρριψη παρακολούθησης (Delete)"
 
@@ -11375,7 +11495,7 @@ msgstr "Εμφάνιση ή απόκρυψη του βοηθού"
 msgid "Close window"
 msgstr "Κλείσιμο παραθύρου"
 
-#: app/src/ui/window/shortcuts.rs:817
+#: app/src/ui/window/shortcuts.rs:820
 msgid "Checking for mail"
 msgstr "Έλεγχος για νέα αλληλογραφία"
 
@@ -11880,12 +12000,6 @@ msgstr "Αλλαγή ετικετών"
 #| msgid "Added to {calendar}"
 msgid "Add to {topic}"
 msgstr "Προστέθηκε στο {calendar}"
-
-#: sync/src/actions.rs:133
-#, fuzzy
-#| msgid "Remove from VIPs"
-msgid "Remove from Topic"
-msgstr "Αφαίρεση από τις επαφές VIP"
 
 #: sync/src/actions.rs:410
 msgid "Delete Forever failed: {reason}"

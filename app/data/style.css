@@ -396,6 +396,70 @@ flowboxchild:focus-visible > .recipient-chip {
   box-shadow: inset 0 0 0 2px var(--accent-bg-color);
 }
 
+/* Bundles: a topic's rows drawn together in the thread list. The
+   header sits on the row pitch with the topic's colour as a dot; the
+   trailer and the summary line up with the rows' text at 80 px. Text
+   keeps the row inks, so the dim rules above hold their contrast. */
+/* A bundle's band: from its header through its rows to its last line,
+   the rows that make it up carry a faint tint of the topic's colour and
+   a thin bar of it at their leading edge, and drop the gap between them
+   so the band reads as one piece. The band's first and last rows keep
+   the card's corners and the space around it. The topic colours are the
+   account colours, by `bundles::color_of`. A selected row inside keeps
+   the accent tint every selected row has. */
+.thread-list > row.topic-0 { --topic: #3584e4; } .thread-list > row.topic-1 { --topic: #2190a4; } .thread-list > row.topic-2 { --topic: #3a944a; }
+ .thread-list > row.topic-3 { --topic: #c88800; } .thread-list > row.topic-4 { --topic: #ed5b00; } .thread-list > row.topic-5 { --topic: #e62d42; }
+ .thread-list > row.topic-6 { --topic: #d56199; } .thread-list > row.topic-7 { --topic: #9141ac; } .thread-list > row.topic-8 { --topic: #6f8396; }
+.thread-list > row.bundled {
+  margin-top: 0; margin-bottom: 0; border-radius: 0;
+  background-color: alpha(var(--topic), 0.03);
+  box-shadow: inset 3px 0 alpha(var(--topic), 0.7);
+}
+.app-dark .thread-list > row.bundled { background-color: alpha(var(--topic), 0.05); }
+.thread-list > row.bundled.bundle-start {
+  margin-top: 6px; border-top-left-radius: 12px; border-top-right-radius: 12px;
+}
+.thread-list > row.bundled.bundle-end {
+  margin-bottom: 6px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+}
+/* Where dragged mail lands: the whole bundle under the pointer, in its
+   own colour, or one row outside every bundle, which takes the mail off
+   its topic. */
+.thread-list > row.bundled.drop-here { background-color: alpha(var(--topic), 0.24); }
+/* The highlight above says where the drop lands, so GTK's own outline
+   around the one item under the pointer stays off. */
+.list-slot:drop(active) { box-shadow: none; outline: none; }
+.thread-list > row.drop-here:not(.bundled) {
+  background-color: alpha(var(--accent-bg-color), 0.12);
+  box-shadow: inset 0 0 0 2px alpha(var(--accent-bg-color), 0.6);
+}
+.thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.08); }
+.app-dark .thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.10); }
+.thread-list > row.bundled:selected { background-color: alpha(var(--accent-bg-color), 0.16); }
+.app-dark .thread-list > row.bundled:selected { background-color: alpha(var(--accent-bg-color), 0.26); }
+.bundle-header { padding: 10px 8px 4px 18px; }
+.bundle-header .bundle-dot { min-width: 10px; min-height: 10px; }
+.bundle-header .bundle-title { font-weight: 700; }
+.bundle-header .count {
+  font-size: 0.78em; font-weight: 700; padding: 0 6px; border-radius: 999px;
+  background: alpha(currentColor, 0.1); opacity: 0.8;
+}
+.bundle-header .bundle-jump { min-width: 28px; min-height: 28px; padding: 0; }
+.bundle-trailer { padding: 4px 16px 8px 80px; font-size: 0.89em; opacity: 0.75; }
+.app-dark .bundle-trailer { opacity: 0.64; }
+.bundle-summary { padding: 9px 12px 2px 26px; }
+.bundle-summary .from { font-weight: 600; }
+.bundle-summary .date { opacity: 0.75; font-size: 0.86em; font-feature-settings: "tnum"; }
+.bundle-summary .snippet { opacity: 0.75; font-size: 0.93em; }
+.app-dark .bundle-summary .date,
+.app-dark .bundle-summary .snippet { opacity: 0.6; }
+.bundle-faces { min-width: 46px; }
+.bundle-faces .bundle-face:not(:first-child) { margin-left: -12px; }
+.thread-list > row:drop(active) {
+  background: alpha(var(--accent-bg-color), 0.25);
+  box-shadow: inset 0 0 0 2px var(--accent-bg-color);
+}
+
 /* Flag colours, after Apple Mail. Symbolic icons take the text colour. */
 .flag-red { color: #e62d42; }
 .flag-orange { color: #ed5b00; }

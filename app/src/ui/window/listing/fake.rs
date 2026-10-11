@@ -251,7 +251,7 @@ impl Pane for Fake {
         });
     }
 
-    fn append(&self, rows: Vec<ThreadSummary>) {
+    fn append(&self, rows: Vec<ThreadSummary>, _more: bool) {
         self.call(Call::Append);
         self.with(|s| s.rows.extend(rows));
     }

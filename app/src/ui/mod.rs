@@ -21,6 +21,7 @@ pub mod copied;
 pub mod dav_edit;
 pub mod disclosure;
 pub mod find;
+pub mod topic_picker;
 pub mod hide_my_email;
 pub mod ics_file;
 pub mod invitation;
