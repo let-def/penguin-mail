@@ -12,6 +12,7 @@ pub mod calendar;
 pub mod category;
 mod folder;
 pub mod invitation;
+pub mod topic;
 mod location;
 pub mod mailbox;
 pub mod query;
@@ -433,6 +434,10 @@ pub struct ThreadSummary {
     /// pay one pointer for it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub recipient: Option<Box<Address>>,
+    /// The topics a message of the thread is in, by name, in no
+    /// particular order.
+    #[serde(default)]
+    pub topics: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

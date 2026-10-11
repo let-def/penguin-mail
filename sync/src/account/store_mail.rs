@@ -19,6 +19,7 @@ use std::time::Duration;
 
 use mailrs_domain::{
     AccountId, EpochMillis, MailSet, Membership, Memberships, MessageMeta, RemoteMailbox, Role,
+    topic,
 };
 use mailrs_gmail::LabelColor;
 use mailrs_mime::Parts;
@@ -620,7 +621,9 @@ impl Moves<'_> {
         let ids: Vec<String> = changes
             .iter()
             .filter_map(|change| match change {
-                RemoteChange::Gained { id, .. } | RemoteChange::Lost { id, .. } => Some(id.clone()),
+                RemoteChange::Gained { id, .. }
+                | RemoteChange::Lost { id, .. }
+                | RemoteChange::TopicsCarried { id, .. } => Some(id.clone()),
                 _ => None,
             })
             .collect();
@@ -657,7 +660,8 @@ fn named_in(change: &RemoteChange) -> Option<&str> {
         RemoteChange::Added { id, .. }
         | RemoteChange::Deleted { id }
         | RemoteChange::Gained { id, .. }
-        | RemoteChange::Lost { id, .. } => Some(id),
+        | RemoteChange::Lost { id, .. }
+        | RemoteChange::TopicsCarried { id, .. } => Some(id),
         RemoteChange::Vanished { .. }
         | RemoteChange::Holds { .. }
         | RemoteChange::StateLost { .. }
@@ -691,6 +695,10 @@ fn change_as_stored(
         RemoteChange::Lost { id, memberships } => RemoteChange::Lost {
             id: stored_id(&id, resolved)?,
             memberships,
+        },
+        RemoteChange::TopicsCarried { id, keywords } => RemoteChange::TopicsCarried {
+            id: stored_id(&id, resolved)?,
+            keywords,
         },
         // These name UIDs or a whole mailbox, which the engine reads
         // against the refs of the mailbox as they stand, so a message that
@@ -734,6 +742,19 @@ fn still_to_apply(
             let memberships: Vec<Membership> = memberships
                 .into_iter()
                 .filter(|m| current.is_some_and(|h| h.has(m)))
+                .collect();
+            (!memberships.is_empty()).then_some(RemoteChange::Lost { id, memberships })
+        }
+        // The topic keywords the store holds and the server no longer
+        // gives are the ones lost.
+        RemoteChange::TopicsCarried { id, keywords } => {
+            let memberships: Vec<Membership> = held
+                .get(&id)
+                .map(|h| h.keywords.as_slice())
+                .unwrap_or_default()
+                .iter()
+                .filter(|k| topic::name_of_keyword(k).is_some() && !keywords.contains(k))
+                .map(|k| Membership::Keyword(k.clone()))
                 .collect();
             (!memberships.is_empty()).then_some(RemoteChange::Lost { id, memberships })
         }

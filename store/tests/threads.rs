@@ -427,3 +427,55 @@ fn a_cancelled_invitation_leaves_no_mark() {
             .all(|t| !t.invitation)
     );
 }
+
+#[test]
+fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
+    use mailrs_domain::topic;
+    use mailrs_domain::mailbox::{MailboxKind, RemoteMailbox};
+    let (conn, a, b) = two_accounts();
+    let topic_label = RemoteMailbox {
+        id: "Label_7".into(),
+        name: topic::label_of("Q3 Launch"),
+        kind: MailboxKind::Label,
+        role: None,
+        color: None,
+        hidden: false,
+    };
+    mailrs_store::mailboxes::upsert(&conn, b, &topic_label).unwrap();
+    store(&conn, &[meta(a, "a3", "ta2", 250, &["INBOX"])]);
+    let keyword = |id: &str, name: &str| Change::SetKeyword {
+        message_id: id.into(),
+        keyword: topic::keyword_of(name),
+        on: true,
+    };
+    // Two messages of one thread in the same topic, one in another.
+    messages::apply(
+        &conn,
+        a,
+        &[keyword("a2", "Q3 launch"), keyword("a3", "Q3 Launch"), keyword("a3", "Café")],
+    )
+    .unwrap();
+    messages::apply(
+        &conn,
+        b,
+        &[Change::AddToMailbox { message_id: "b1".into(), mailbox: "Label_7".into() }],
+    )
+    .unwrap();
+
+    let rows = threads::list_threads(&conn, &ThreadFilter::unified(set("INBOX")), 0, 10).unwrap();
+    let topics = |id: &str| {
+        let mut names = rows.iter().find(|r| r.id == id).unwrap().topics.clone();
+        names.sort();
+        names
+    };
+    assert_eq!(topics("ta2").len(), 2, "{:?}", topics("ta2"));
+    assert!(topics("ta2").iter().any(|n| n == "Café"));
+    assert_eq!(topics("tb1"), ["Q3 Launch"]);
+    assert!(topics("ta1").is_empty());
+
+    let one = threads::list_messages(&conn, &ThreadFilter::account(a, set("INBOX")), 0, 10).unwrap();
+    let a3 = one.iter().find(|r| r.message_id.as_deref() == Some("a3")).unwrap();
+    assert_eq!(a3.topics.len(), 2);
+
+    assert_eq!(threads::topic_names(&conn, &[a, b]).unwrap(), ["Café", "Q3 launch"]);
+}
