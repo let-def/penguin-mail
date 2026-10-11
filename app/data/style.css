@@ -364,10 +364,10 @@ flowboxchild:focus-visible > .recipient-chip {
  .thread-list > row.topic-6 { --topic: #d56199; } .thread-list > row.topic-7 { --topic: #9141ac; } .thread-list > row.topic-8 { --topic: #6f8396; }
 .thread-list > row.bundled {
   margin-top: 0; margin-bottom: 0; border-radius: 0;
-  background-color: alpha(var(--topic), 0.06);
+  background-color: alpha(var(--topic), 0.03);
   box-shadow: inset 3px 0 alpha(var(--topic), 0.7);
 }
-.app-dark .thread-list > row.bundled { background-color: alpha(var(--topic), 0.10); }
+.app-dark .thread-list > row.bundled { background-color: alpha(var(--topic), 0.05); }
 .thread-list > row.bundled.bundle-start {
   margin-top: 6px; border-top-left-radius: 12px; border-top-right-radius: 12px;
 }
@@ -385,8 +385,8 @@ flowboxchild:focus-visible > .recipient-chip {
   background-color: alpha(var(--accent-bg-color), 0.12);
   box-shadow: inset 0 0 0 2px alpha(var(--accent-bg-color), 0.6);
 }
-.thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.12); }
-.app-dark .thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.16); }
+.thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.08); }
+.app-dark .thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.10); }
 .thread-list > row.bundled:selected { background-color: alpha(var(--accent-bg-color), 0.16); }
 .app-dark .thread-list > row.bundled:selected { background-color: alpha(var(--accent-bg-color), 0.26); }
 .bundle-header { padding: 10px 8px 4px 18px; }
