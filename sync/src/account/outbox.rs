@@ -458,7 +458,7 @@ pub(crate) fn message_id_header(raw: &[u8]) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{RAW_BATCH_BYTES, raw_batches, message_id_header};
+    use super::{RAW_BATCH_BYTES, message_id_header, raw_batches};
 
     #[test]
     fn an_export_asks_for_small_messages_together_and_large_ones_alone() {

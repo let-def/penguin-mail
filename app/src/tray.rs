@@ -380,7 +380,9 @@ mod tests {
         ] {
             let svg = std::fs::read_to_string(apps.join(format!("{name}.svg"))).unwrap();
             assert!(
-                svg.contains(r#"<style id="current-color-scheme" type="text/css">.ColorScheme-Text{"#),
+                svg.contains(
+                    r#"<style id="current-color-scheme" type="text/css">.ColorScheme-Text{"#
+                ),
                 "{name} names KDE's color scheme"
             );
             let shapes = ["<path", "<rect", "<circle"]

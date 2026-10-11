@@ -10,6 +10,7 @@ mod moves;
 mod previews;
 mod search;
 mod sending;
+mod topics;
 mod uidvalidity;
 mod watch;
 mod window;

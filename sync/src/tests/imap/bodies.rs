@@ -77,11 +77,10 @@ async fn a_threads_small_bodies_come_in_one_fetch_in_the_order_asked() {
     assert!(!calls.iter().any(|c| c.starts_with("body ")), "{calls:?}");
     let account_id = h.account_id;
     for id in ids {
-        let kept = h
-            .db
-            .read(move |c| bodies::peek_body(c, account_id, &id))
-            .await
-            .unwrap();
+        let kept =
+            h.db.read(move |c| bodies::peek_body(c, account_id, &id))
+                .await
+                .unwrap();
         assert!(kept.is_some());
     }
 }
