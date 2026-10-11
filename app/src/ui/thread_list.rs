@@ -56,11 +56,68 @@ const RECENT_TOPICS: usize = 5;
 /// up on finding one.
 const JUMP_PAGES: u8 = 10;
 
-/// One item of the list model: a row, or a line a bundle adds.
+/// One item of the list model: a row, with its place in a bundle when it
+/// sits in one, or a line a bundle adds.
 #[derive(Debug, Clone, PartialEq)]
 enum Item {
-    Row(Row),
-    Line(Kind, bundle_line::Shown),
+    Row(Row, Option<Band>),
+    Line(Kind, bundle_line::Shown, Band),
+}
+
+/// Where an item sits in its bundle, for the band of colour that marks a
+/// bundle from its header to its last line.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Band {
+    /// Which of the topic colours, `topic-N` in the stylesheet.
+    color: usize,
+    /// The bundle's header, where the band starts.
+    start: bool,
+    /// The bundle's last line, where the band ends.
+    end: bool,
+}
+
+/// The CSS classes a band puts on the row GTK wraps an item in.
+const BAND_CLASSES: [&str; 3] = ["bundled", "bundle-start", "bundle-end"];
+
+/// Marks the row GTK wraps `slot` in with `band` once the bind is over.
+/// The row is GTK's own and still being put together while a bind runs:
+/// so much as holding it then leaves GTK with widgets it no longer knows.
+/// By the time the mark goes on, the row may show another item, which
+/// then keeps the mark its own bind gives it.
+fn band_later(item: &gtk::ListItem, slot: &gtk::Widget, object: &glib::BoxedAnyObject, band: Option<Band>) {
+    let (item, slot, object) = (item.downgrade(), slot.downgrade(), object.downgrade());
+    glib::idle_add_local_once(move || {
+        let (Some(item), Some(slot), Some(object)) = (item.upgrade(), slot.upgrade(), object.upgrade()) else {
+            return;
+        };
+        let current = item.item().and_downcast::<glib::BoxedAnyObject>();
+        if current.as_ref() != Some(&object) {
+            return;
+        }
+        if let Some(wrapper) = slot.parent() {
+            mark_band(&wrapper, band);
+        }
+    });
+}
+
+/// Puts `band`'s classes on `wrapper`, the row GTK wraps an item in, and
+/// takes off what an earlier item bound to it left there.
+fn mark_band(wrapper: &gtk::Widget, band: Option<Band>) {
+    for class in BAND_CLASSES {
+        wrapper.remove_css_class(class);
+    }
+    for color in 0..bundles::COLORS {
+        wrapper.remove_css_class(&format!("topic-{color}"));
+    }
+    let Some(band) = band else { return };
+    wrapper.add_css_class("bundled");
+    wrapper.add_css_class(&format!("topic-{}", band.color));
+    if band.start {
+        wrapper.add_css_class("bundle-start");
+    }
+    if band.end {
+        wrapper.add_css_class("bundle-end");
+    }
 }
 
 /// What the list shows: the rows in list order, laid out in bundles, and
@@ -123,11 +180,25 @@ fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<It
             threaded,
         }
     };
+    let bundle_of = |entry: &Entry| match entry {
+        Entry::Row { bundle, .. } => *bundle,
+        Entry::Header(b) | Entry::Trailer(b) | Entry::Summary(b) => Some(*b),
+    };
+    let band = |at: usize| {
+        let bundle = bundle_of(&layout.entries[at])?;
+        let next = layout.entries.get(at + 1).and_then(bundle_of);
+        Some(Band {
+            color: bundles::color_of(&layout.bundles[bundle].topic),
+            start: matches!(layout.entries[at], Entry::Header(_)),
+            end: next != Some(bundle),
+        })
+    };
     layout
         .entries
         .iter()
-        .map(|entry| match entry {
-            Entry::Row { row, .. } => Item::Row(Rc::clone(&rows[*row])),
+        .enumerate()
+        .map(|(at, entry)| match entry {
+            Entry::Row { row, .. } => Item::Row(Rc::clone(&rows[*row]), band(at)),
             // The header draws neither whether the bundle is open nor how
             // many rows it hides, so those stay out of its item: opening
             // or closing then leaves the header's item as it was, and GTK
@@ -139,15 +210,18 @@ fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<It
                     hidden: 0,
                     ..shown(*b)
                 },
+                band(at).expect("a header sits in its bundle"),
             ),
-            Entry::Trailer(b) => Item::Line(Kind::Trailer, shown(*b)),
+            Entry::Trailer(b) => {
+                Item::Line(Kind::Trailer, shown(*b), band(at).expect("a trailer sits in its bundle"))
+            }
             Entry::Summary(b) => {
                 let hidden = layout.bundles[*b]
                     .members
                     .iter()
                     .map(|m| Rc::clone(&rows[*m]))
                     .collect();
-                Item::Line(Kind::Summary(hidden), shown(*b))
+                Item::Line(Kind::Summary(hidden), shown(*b), band(at).expect("a summary sits in its bundle"))
             }
         })
         .collect()
@@ -331,9 +405,14 @@ impl ThreadList {
             ) else {
                 return;
             };
+            let band = match &*object.borrow::<Item>() {
+                Item::Row(_, band) => *band,
+                Item::Line(_, _, band) => Some(*band),
+            };
+            band_later(item, &slot, &object, band);
             let thread = match &*object.borrow::<Item>() {
-                Item::Row(thread) => Rc::clone(thread),
-                Item::Line(kind, shown) => {
+                Item::Row(thread, _) => Rc::clone(thread),
+                Item::Line(kind, shown, _) => {
                     row.set_visible(false);
                     line.set_visible(true);
                     item.set_selectable(false);
@@ -1396,7 +1475,7 @@ fn positions_of(shown: &Shown, keys: &HashSet<Key>) -> Vec<u32> {
         .iter()
         .enumerate()
         .filter(|(_, item)| match item {
-            Item::Row(row) => {
+            Item::Row(row, _) => {
                 wanted.contains(&(row.account_id, row.id.as_str(), row.message_id.as_deref()))
             }
             Item::Line(..) => false,
@@ -1479,8 +1558,8 @@ mod tests {
         let shown = shown(rows, false);
         // Header, a, the trailer counting c, then b.
         assert_eq!(shown.items.len(), 4);
-        assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s) if s.count == 2));
-        assert!(matches!(&shown.items[2], Item::Line(Kind::Trailer, s) if s.hidden == 1));
+        assert!(matches!(&shown.items[0], Item::Line(Kind::Header, s, _) if s.count == 2));
+        assert!(matches!(&shown.items[2], Item::Line(Kind::Trailer, s, _) if s.hidden == 1));
         assert_eq!(shown.row_at(1).map(|r| r.id.as_str()), Some("a"));
         assert!(shown.row_at(2).is_none(), "the trailer");
         assert_eq!(shown.bundle_at(2).map(|b| b.topic.as_str()), Some("Q3"));
@@ -1491,7 +1570,7 @@ mod tests {
     fn the_down_arrow_stays_on_while_more_rows_may_hold_the_topic() {
         let rows = vec![in_topic("a", "Q3", true), in_topic("b", "Q3", true)];
         let later = |shown: &Shown| match &shown.items[0] {
-            Item::Line(Kind::Header, s) => s.later,
+            Item::Line(Kind::Header, s, _) => s.later,
             other => panic!("{other:?}"),
         };
         assert!(!later(&shown(rows.clone(), false)));
