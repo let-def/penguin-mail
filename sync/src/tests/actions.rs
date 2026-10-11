@@ -1303,3 +1303,39 @@ async fn empty_trash_continues_with_the_next_account_after_permission_is_refused
     assert!(in_gmail(&h, "mine"));
     assert!(other_fake.with(|s| s.messages.is_empty()));
 }
+
+/// A Gmail account keeps a topic as a label named after it, which
+/// the row then names, and a second topic takes the first one's place.
+#[tokio::test]
+async fn a_gmail_topic_is_a_label_named_after_it() {
+    let h = harness().await;
+    h.fake.seed(meta("a", "t1", now_millis(), &["INBOX"]));
+    h.bootstrap_all().await;
+    let actions = actions(&h);
+    let target = Target::thread(h.account_id, "t1");
+    let topics = || async {
+        let account_id = h.account_id;
+        h.db.read(move |c| mailrs_store::threads::get_thread(c, account_id, "t1"))
+            .await
+            .unwrap()
+            .unwrap()
+            .topics
+    };
+
+    let join = MailAction::Topic(Some("Q3 Launch".into()));
+    let outcome = actions.run(std::slice::from_ref(&target), join, History::Record).await;
+    assert!(outcome.failed.is_empty(), "{:?}", outcome.failed);
+    assert_eq!(topics().await, ["Q3 Launch"]);
+    assert_eq!(
+        h.fake.with(|s| s.labels.iter().filter(|l| l.name == "topic:Q3 Launch").count()),
+        1
+    );
+
+    let other = MailAction::Topic(Some("Invoices".into()));
+    actions.run(std::slice::from_ref(&target), other, History::Record).await;
+    assert_eq!(topics().await, ["Invoices"]);
+
+    actions.run(std::slice::from_ref(&target), MailAction::Topic(None), History::Record).await;
+    assert!(topics().await.is_empty());
+    assert_eq!(h.threads(MailSet::Role(Role::Inbox)).await, ["t1"], "the mail stays put");
+}
