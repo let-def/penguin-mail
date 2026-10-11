@@ -25,6 +25,7 @@ pub mod file_window;
 pub mod find;
 pub mod gmail_password_page;
 pub mod goa_page;
+pub mod topic_picker;
 pub mod hide_my_email;
 pub mod ics_file;
 pub mod invitation;

@@ -108,6 +108,7 @@ impl Pane for ListPane {
         }
         win.list
             .show_more(listing.more && (listing.replace || listing.next.is_some()));
+        win.list.set_more(listing.more);
         let rows = win
             .in_flight
             .keep_out(listing.rows)
@@ -125,6 +126,7 @@ impl Pane for ListPane {
         if let Some(win) = self.window() {
             win.list
                 .show_more(listing.more && (listing.replace || listing.next.is_some()));
+            win.list.set_more(listing.more);
             let rows = win.in_flight.keep_out(listing.rows);
             win.list.append(rows.into_iter().map(Rc::new).collect());
         }

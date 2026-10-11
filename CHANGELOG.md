@@ -23,6 +23,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 
 ### New
 
+- Put mail on a named topic from its right-click menu or by dragging it onto a topic, and drag it out of one to take it off; the list shows nearby mail of each topic together, unread first, and on Gmail and on IMAP servers that store keywords your other devices see the same topics.
 - Notifications can show a message preview with a choice of length, and macOS can show the subject in bold, when enabled in Preferences.
 
 - Smart mailboxes can hide unread counts, count downloaded messages, or count matching messages on supported servers in the background.
