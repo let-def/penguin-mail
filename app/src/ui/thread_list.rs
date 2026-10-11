@@ -807,6 +807,7 @@ impl ThreadList {
         };
         self.muted.set(true);
         if let Some(change) = splice(&old, &new) {
+            self.hold_view_outside(change.position as usize, change.removed as usize);
             let added: Vec<glib::BoxedAnyObject> = new[change.added]
                 .iter()
                 .map(|item| glib::BoxedAnyObject::new(item.clone()))
@@ -824,47 +825,56 @@ impl ThreadList {
         }
     }
 
-    /// Opens or closes the bundle whose line is at `position`, leaving the
-    /// view where it was. GTK holds the view on the item that has the
-    /// focus, and when a change takes that item away it holds the same
-    /// place in the list instead, which by then belongs to another item:
-    /// folding from the trailer, which the fold removes, would make the
-    /// list jump by the rows it hid. The focus goes to the header first,
-    /// whose item no toggle changes, so the view stays on it.
+    /// Opens or closes the bundle whose line is at `position`. Its
+    /// header's item stays as it was, so the view stays on it.
     fn toggle_at(&self, position: usize) {
-        let header = {
+        {
             let mut shown = self.shown.borrow_mut();
             let Some(bundle) = shown.bundle_at(position) else {
                 return;
             };
-            let (topic, members, at) = (bundle.topic.clone(), bundle.members.clone(), bundle.at);
+            let (topic, members) = (bundle.topic.clone(), bundle.members.clone());
             let Shown { opened, rows, kept, .. } = &mut *shown;
             opened.toggle(&topic, rows, &members, kept);
-            at
-        };
-        if let Some(item) = self.item_widget(header) {
-            item.grab_focus();
         }
         self.relayout();
+    }
+
+    /// Keeps the view where it is across a splice of the `removed` items
+    /// from `start`. GTK holds the view on the item that has the focus,
+    /// and when a splice takes that item away it holds the same place in
+    /// the list instead, which by then belongs to another item: folding
+    /// from a bundle's trailer, or dropping a row on a bundle above it,
+    /// would make the list jump by the rows that moved. So a focus inside
+    /// the spliced items moves first to the item on screen just above
+    /// them, which the splice leaves where it is. A focus elsewhere in the
+    /// window stays where it is.
+    fn hold_view_outside(&self, start: usize, removed: usize) {
+        let in_list = self
+            .view
+            .root()
+            .and_then(|root| root.focus())
+            .is_some_and(|focus| focus.is_ancestor(&self.view));
+        let Some(focused) = self.focused_position().filter(|_| in_list) else {
+            return;
+        };
+        if focused < start || focused >= start + removed {
+            return;
+        }
+        if let Some(above) = start.checked_sub(1).and_then(|p| self.item_widget(p)) {
+            above.grab_focus();
+        }
+    }
+
+    /// The position of the item the list's focus is on.
+    fn focused_position(&self) -> Option<usize> {
+        self.view.focus_child().and_then(|item| position_in(&item))
     }
 
     /// The widget GTK shows the item at `position` in, while it is on
     /// screen.
     fn item_widget(&self, position: usize) -> Option<gtk::Widget> {
-        let mut child = self.view.first_child();
-        while let Some(widget) = child {
-            let slot = widget.first_child();
-            let line = slot.as_ref().and_then(|s| s.last_child()).and_downcast::<BundleLine>();
-            let row = slot.as_ref().and_then(|s| s.first_child()).and_downcast::<ThreadRow>();
-            let at = line
-                .and_then(|l| l.position())
-                .or_else(|| row.and_then(|r| r.position()));
-            if at == Some(position as u32) {
-                return Some(widget);
-            }
-            child = widget.next_sibling();
-        }
-        None
+        item_at(&self.view, position)
     }
 
     /// Goes from the bundle whose line is at `position` to the place its
@@ -1332,6 +1342,31 @@ fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection) {
         });
     });
     view.add_controller(focus);
+}
+
+/// The widget `view` shows the item at `position` in, while it is on
+/// screen.
+fn item_at(view: &gtk::ListView, position: usize) -> Option<gtk::Widget> {
+    let mut child = view.first_child();
+    while let Some(widget) = child {
+        if position_in(&widget) == Some(position) {
+            return Some(widget);
+        }
+        child = widget.next_sibling();
+    }
+    None
+}
+
+/// The position of the item shown in `wrapper`, the widget GTK wraps a
+/// list item in: its slot holds the row first and the bundle's line last.
+fn position_in(wrapper: &gtk::Widget) -> Option<usize> {
+    let slot = wrapper.first_child()?;
+    let line = slot.last_child().and_downcast::<BundleLine>();
+    let row = slot.first_child().and_downcast::<ThreadRow>();
+    line.filter(|l| l.is_visible())
+        .and_then(|l| l.position())
+        .or_else(|| row.and_then(|r| r.position()))
+        .map(|p| p as usize)
 }
 
 /// The row inside the widget GTK wraps a list item in, when the item
