@@ -95,6 +95,7 @@ impl Pane for ListPane {
         for notice in &listing.notices {
             win.toast(notice);
         }
+        win.list.set_more(listing.more);
         let rows = win
             .in_flight
             .keep_out(listing.rows)
@@ -108,8 +109,9 @@ impl Pane for ListPane {
         win.list.set_title(&listing.title, &listing.subtitle);
     }
 
-    fn append(&self, rows: Vec<ThreadSummary>) {
+    fn append(&self, rows: Vec<ThreadSummary>, more: bool) {
         if let Some(win) = self.window() {
+            win.list.set_more(more);
             let rows = win.in_flight.keep_out(rows);
             win.list.append(rows.into_iter().map(Rc::new).collect());
         }

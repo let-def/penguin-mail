@@ -66,8 +66,9 @@ pub(super) trait Pane {
     fn refreshing(&self, refresh: &Refresh);
     /// Puts a first page on screen in place of the rows there.
     fn set_rows(&self, listing: Listing);
-    /// Adds a page of older rows at the end.
-    fn append(&self, rows: Vec<ThreadSummary>);
+    /// Adds a page of older rows at the end, and says whether more
+    /// follow them.
+    fn append(&self, rows: Vec<ThreadSummary>, more: bool);
     /// Puts `rows` in place of the rows of the `changed` threads, and
     /// `title` and `subtitle` over the list.
     fn replace(&self, changed: &[Named], rows: Vec<ThreadSummary>, title: &str, subtitle: &str);
@@ -285,7 +286,7 @@ impl ListingRun {
                 return;
             }
             match loaded {
-                Ok(listing) => this.pane.append(listing.rows),
+                Ok(listing) => this.pane.append(listing.rows, listing.more),
                 Err(err) => this.pane.failed(&err),
             }
         }));
