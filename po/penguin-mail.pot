@@ -5892,7 +5892,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: app/src/ui/composer/mod.rs:287 app/src/ui/conversation.rs:1696
+#: app/src/ui/composer/mod.rs:287 app/src/ui/conversation.rs:1697
 msgid "Choose a Time…"
 msgstr ""
 
@@ -6446,7 +6446,7 @@ msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr ""
 
 #: app/src/ui/conversation.rs:478 app/src/ui/conversation.rs:482
-#: app/src/ui/conversation.rs:1736
+#: app/src/ui/conversation.rs:1737
 msgid "Flag (Ctrl+Shift+L)"
 msgstr ""
 
@@ -6506,10 +6506,6 @@ msgstr ""
 #: app/src/ui/conversation.rs:562 app/src/ui/sidebar.rs:1030
 #: app/src/ui/window/reminders.rs:25 app/src/ui/window/reminders.rs:30
 msgid "Remind Me"
-msgstr ""
-
-#: app/src/ui/conversation.rs:564
-msgid "Topic"
 msgstr ""
 
 #: app/src/ui/conversation.rs:568
@@ -6595,31 +6591,35 @@ msgid_plural "{count} Messages Selected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/src/ui/conversation.rs:1680
-msgid "Choose Topic…"
+#: app/src/ui/conversation.rs:1673
+msgid "Set Topic…"
 msgstr ""
 
 #: app/src/ui/conversation.rs:1681
+msgid "Recent Topics"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1683
 msgid "Remove from Topic"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1735
+#: app/src/ui/conversation.rs:1736
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1748
+#: app/src/ui/conversation.rs:1749
 msgid "Mark as Read (U)"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1749
+#: app/src/ui/conversation.rs:1750
 msgid "Mark as Unread (U)"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1972
+#: app/src/ui/conversation.rs:1973
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1989 app/src/ui/window/message_menu.rs:258
+#: app/src/ui/conversation.rs:1990 app/src/ui/window/message_menu.rs:258
 msgid "Clear Flag"
 msgstr ""
 

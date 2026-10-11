@@ -6227,7 +6227,7 @@ msgstr ""
 msgid "Description"
 msgstr "Descrição"
 
-#: app/src/ui/composer/mod.rs:287 app/src/ui/conversation.rs:1696
+#: app/src/ui/composer/mod.rs:287 app/src/ui/conversation.rs:1697
 msgid "Choose a Time…"
 msgstr "Escolher uma hora…"
 
@@ -6799,7 +6799,7 @@ msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr "Marcar como não lida (Ctrl+Shift+U)"
 
 #: app/src/ui/conversation.rs:478 app/src/ui/conversation.rs:482
-#: app/src/ui/conversation.rs:1736
+#: app/src/ui/conversation.rs:1737
 msgid "Flag (Ctrl+Shift+L)"
 msgstr "Marcar (Ctrl+Shift+L)"
 
@@ -6860,10 +6860,6 @@ msgstr "Marcadores…"
 #: app/src/ui/window/reminders.rs:25 app/src/ui/window/reminders.rs:30
 msgid "Remind Me"
 msgstr "Lembrar-me"
-
-#: app/src/ui/conversation.rs:564
-msgid "Topic"
-msgstr "Tópico"
 
 #: app/src/ui/conversation.rs:568
 msgid "Open in New Window"
@@ -6948,31 +6944,35 @@ msgid_plural "{count} Messages Selected"
 msgstr[0] "{count} mensagem selecionada"
 msgstr[1] "{count} mensagens selecionadas"
 
-#: app/src/ui/conversation.rs:1680
-msgid "Choose Topic…"
-msgstr "Escolher Tópico…"
+#: app/src/ui/conversation.rs:1673
+msgid "Set Topic…"
+msgstr "Definir Tópico…"
 
 #: app/src/ui/conversation.rs:1681
+msgid "Recent Topics"
+msgstr "Tópicos Recentes"
+
+#: app/src/ui/conversation.rs:1683
 msgid "Remove from Topic"
 msgstr "Remover do Tópico"
 
-#: app/src/ui/conversation.rs:1735
+#: app/src/ui/conversation.rs:1736
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr "Desmarcar (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:1748
+#: app/src/ui/conversation.rs:1749
 msgid "Mark as Read (U)"
 msgstr "Marcar como lida (U)"
 
-#: app/src/ui/conversation.rs:1749
+#: app/src/ui/conversation.rs:1750
 msgid "Mark as Unread (U)"
 msgstr "Marcar como não lida (U)"
 
-#: app/src/ui/conversation.rs:1972
+#: app/src/ui/conversation.rs:1973
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr "{color} (Ctrl+Alt+{number})"
 
-#: app/src/ui/conversation.rs:1989 app/src/ui/window/message_menu.rs:258
+#: app/src/ui/conversation.rs:1990 app/src/ui/window/message_menu.rs:258
 msgid "Clear Flag"
 msgstr "Retirar a marca"
 
@@ -10708,6 +10708,9 @@ msgstr "Marcar como não sendo spam"
 #: sync/src/triage.rs:70
 msgid "Move to {folder}"
 msgstr "Mover para {folder}"
+
+#~ msgid "Topic"
+#~ msgstr "Tópico"
 
 #~ msgid "Group"
 #~ msgstr "Grupo"

@@ -297,8 +297,8 @@ pub struct ConversationView {
     thread_menu: gio::Menu,
     /// Remind Me times, recomputed whenever a conversation opens.
     remind: gio::Menu,
-    /// The Topic submenu: the topics the list names, then Choose Topic and
-    /// Remove from Topic.
+    /// The section of the topic items: Set Topic, Recent Topics while the
+    /// list names any, and Remove from Topic.
     topics: gio::Menu,
     buttons: Buttons,
     /// One linked box per capsule of the header bar, in the order of
@@ -560,9 +560,9 @@ impl ConversationView {
         marks.append_item(&tags_item);
         let remind_menu = gio::Menu::new();
         marks.append_submenu(Some(&gettext("Remind Me")), &remind_menu);
-        let topic_menu = gio::Menu::new();
-        marks.append_submenu(Some(&gettext("Topic")), &topic_menu);
         more.append_section(None, &marks);
+        let topic_menu = gio::Menu::new();
+        more.append_section(None, &topic_menu);
         let views = gio::Menu::new();
         views.append(
             Some(&gettext("Open in New Window")),
@@ -1665,21 +1665,22 @@ impl ConversationView {
         }
     }
 
-    /// Fills the Topic submenu: a quick item for each of `recent`, newest
-    /// first, then Choose Topic and Remove from Topic.
+    /// Fills the topic items: Set Topic, which asks for one; Recent
+    /// Topics, a submenu of `recent`, newest first, left out while the
+    /// list names none; and Remove from Topic.
     pub fn set_recent_topics(&self, recent: &[String]) {
         self.topics.remove_all();
-        let named = gio::Menu::new();
-        for topic in recent {
-            let item = gio::MenuItem::new(Some(topic), None);
-            item.set_action_and_target_value(Some("win.join-topic"), Some(&topic.to_variant()));
-            named.append_item(&item);
+        self.topics.append(Some(&gettext("Set Topic…")), Some("win.choose-topic"));
+        if !recent.is_empty() {
+            let named = gio::Menu::new();
+            for topic in recent {
+                let item = gio::MenuItem::new(Some(topic), None);
+                item.set_action_and_target_value(Some("win.join-topic"), Some(&topic.to_variant()));
+                named.append_item(&item);
+            }
+            self.topics.append_submenu(Some(&gettext("Recent Topics")), &named);
         }
-        self.topics.append_section(None, &named);
-        let other = gio::Menu::new();
-        other.append(Some(&gettext("Choose Topic…")), Some("win.choose-topic"));
-        other.append(Some(&gettext("Remove from Topic")), Some("win.leave-topic"));
-        self.topics.append_section(None, &other);
+        self.topics.append(Some(&gettext("Remove from Topic")), Some("win.leave-topic"));
     }
 
     /// Fills Remind Me with times that make sense now.
