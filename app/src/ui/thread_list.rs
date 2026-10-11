@@ -22,7 +22,7 @@ use mailrs_domain::{AccountId, ThreadSummary};
 
 use super::sidebar::DRAG_MAIL;
 use super::thread_row::{Avatar, OpenMenu, ThreadRow};
-use crate::diff::splice;
+use crate::diff::edits;
 use bundle_line::{BundleLine, Handlers, Kind};
 use bundles::{Entry, Layout, Opened};
 use mailrs_domain::translate::gettext;
@@ -885,8 +885,14 @@ impl ThreadList {
             (old, items)
         };
         self.muted.set(true);
-        if let Some(change) = splice(&old, &new) {
-            self.hold_view_outside(change.position as usize, change.removed as usize);
+        // Only what changed is spliced, last first, so the items between
+        // two changes stay the same objects and GTK keeps the view on them.
+        let changes = edits(&old, &new);
+        // The edits come last first, so the topmost change is the last.
+        let held = changes
+            .last()
+            .and_then(|top| self.hold_view_above(top.position as usize, &changes));
+        for change in changes {
             let added: Vec<glib::BoxedAnyObject> = new[change.added]
                 .iter()
                 .map(|item| glib::BoxedAnyObject::new(item.clone()))
@@ -895,6 +901,9 @@ impl ThreadList {
         }
         self.reselect(&keys);
         self.muted.set(false);
+        if let Some((position, was)) = held {
+            self.put_back(position, was);
+        }
         let topics = bundles::recent(&self.shown.borrow().rows, RECENT_TOPICS);
         if *self.topics.borrow() != topics {
             self.topics.replace(topics.clone());
@@ -921,30 +930,67 @@ impl ThreadList {
         self.relayout();
     }
 
-    /// Keeps the view where it is across a splice of the `removed` items
-    /// from `start`. GTK holds the view on the item that has the focus,
-    /// and when a splice takes that item away it holds the same place in
-    /// the list instead, which by then belongs to another item: folding
-    /// from a bundle's trailer, or dropping a row on a bundle above it,
-    /// would make the list jump by the rows that moved. So a focus inside
-    /// the spliced items moves first to the item on screen just above
-    /// them, which the splice leaves where it is. A focus elsewhere in the
-    /// window stays where it is.
-    fn hold_view_outside(&self, start: usize, removed: usize) {
+    /// Keeps the view where it is across `changes`, whose topmost one
+    /// starts at `top`, and answers the item on screen just above it and
+    /// where it sits, for [`ThreadList::put_back`] to hold it there.
+    ///
+    /// GTK holds the view on the item that has the list's focus, whether
+    /// or not the keyboard is in the list. When a change takes that item
+    /// away, GTK holds the same place in the list instead, which by then
+    /// belongs to another item; and an item below a change stays still
+    /// while the rows above it grow or shrink. Either way the rows the
+    /// person was looking at move. So a keyboard focus in the list goes
+    /// first to the item just above the topmost change, which no change
+    /// moves; a focus elsewhere in the window stays where it is, and the
+    /// measured item is put back where it was once GTK has laid the list
+    /// out again.
+    fn hold_view_above(&self, top: usize, changes: &[crate::diff::Splice]) -> Option<(usize, f32)> {
+        let above = top.checked_sub(1)?;
+        let widget = self.item_widget(above)?;
+        let was = self.top_of(&widget)?;
         let in_list = self
             .view
             .root()
             .and_then(|root| root.focus())
             .is_some_and(|focus| focus.is_ancestor(&self.view));
-        let Some(focused) = self.focused_position().filter(|_| in_list) else {
-            return;
-        };
-        if focused < start || focused >= start + removed {
-            return;
+        let focused = self.focused_position();
+        let touched = focused.is_some_and(|f| {
+            f >= top
+                || changes
+                    .iter()
+                    .any(|c| f >= c.position as usize && f < (c.position + c.removed) as usize)
+        });
+        if in_list && touched {
+            widget.grab_focus();
         }
-        if let Some(above) = start.checked_sub(1).and_then(|p| self.item_widget(p)) {
-            above.grab_focus();
-        }
+        Some((above, was))
+    }
+
+    /// Scrolls so the item at `position` sits at `was` again once GTK has
+    /// laid the list out after a change.
+    fn put_back(&self, position: usize, was: f32) {
+        let (list, scroller) = (self.view.downgrade(), self.scroller.downgrade());
+        self.view.add_tick_callback(move |_, _| {
+            let (Some(list), Some(scroller)) = (list.upgrade(), scroller.upgrade()) else {
+                return glib::ControlFlow::Break;
+            };
+            let now = item_at(&list, position).and_then(|w| w.compute_point(&scroller, &graphene::Point::zero()));
+            if let Some(now) = now {
+                let moved = f64::from(now.y() - was);
+                if moved.abs() >= 1.0 {
+                    let adjustment = scroller.vadjustment();
+                    adjustment.set_value(adjustment.value() + moved);
+                }
+            }
+            glib::ControlFlow::Break
+        });
+    }
+
+    /// Where `widget` sits in the scrolled window, from its top.
+    fn top_of(&self, widget: &gtk::Widget) -> Option<f32> {
+        widget
+            .compute_point(&self.scroller, &graphene::Point::zero())
+            .map(|p| p.y())
     }
 
     /// The position of the item the list's focus is on.
