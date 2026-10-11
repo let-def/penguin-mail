@@ -830,7 +830,9 @@ impl ThreadList {
     fn toggle_at(&self, position: usize) {
         {
             let mut shown = self.shown.borrow_mut();
-            let Some(bundle) = shown.bundle_at(position) else {
+            // A bundle of one always shows its row; there is nothing to
+            // open or fold.
+            let Some(bundle) = shown.bundle_at(position).filter(|b| b.members.len() > 1) else {
                 return;
             };
             let (topic, members) = (bundle.topic.clone(), bundle.members.clone());

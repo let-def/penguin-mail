@@ -113,6 +113,7 @@ const ACCOUNTS: [SampleAccount; 3] = [
             // sidebar leaves out.
             ("Label_weekend", "topic:Weekend plans", None),
             ("Label_home", "topic:Home admin", None),
+            ("Label_family", "topic:Family", None),
         ],
         aliases: &[],
         personal: true,
@@ -415,7 +416,7 @@ fn samples() -> Vec<Sample> {
             to: &[ME],
             subject: "The recipe you asked for",
             minutes_ago: 4 * DAY + 5 * HOUR,
-            labels: &["INBOX"],
+            labels: &["INBOX", "Label_family"],
             text: "Here it is, exactly how your grandmother wrote it down:\n\nArroz con pollo\n- 1 whole chicken, in pieces\n- 2 cups rice\n- 1 onion, 1 pepper, 3 cloves garlic\n- a pinch of saffron (don't skip it)\n\nBrown the chicken first. Be patient with it.\n\nCall me on Sunday!\nMamá",
             ..PLAIN
         },

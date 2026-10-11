@@ -7,7 +7,10 @@
 //! [`WINDOW`] rows of the last one gathered, so a long run of the topic
 //! keeps growing. A bundle sits where its newest row was; the rows it
 //! pulled up leave their places, and the rows between keep their order. A
-//! row of a topic with no other row of it near is an ordinary row.
+//! row of a topic with no other row of it near is a bundle of its own, so
+//! its header shows which topic it is on and takes the rows dropped on
+//! it. A bundle of one always shows its row: folding it would only hide
+//! it.
 //!
 //! A bundle shows only its unread rows until it is opened, with a trailer
 //! counting the rest. One whose rows are all read shows a summary of its
@@ -142,10 +145,15 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
             continue;
         }
         placed[start] = true;
-        let gathered = topics[start].iter().find_map(|topic| {
-            let members = gather(&topics, &placed, start, topic, window);
-            (members.len() > 1).then_some((topic, members))
-        });
+        // The first topic that gathers other rows, or else the row's
+        // first topic alone.
+        let gathered = topics[start]
+            .iter()
+            .find_map(|topic| {
+                let members = gather(&topics, &placed, start, topic, window);
+                (members.len() > 1).then_some((topic, members))
+            })
+            .or_else(|| topics[start].first().map(|topic| (topic, vec![start])));
         let Some((topic, members)) = gathered else {
             layout.entries.push(Entry::Row {
                 row: start,
@@ -156,11 +164,12 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
         for member in &members {
             placed[*member] = true;
         }
-        let open = opened.holds(topic, rows, &members);
+        let alone = members.len() == 1;
+        let open = opened.holds(topic, rows, &members) && !alone;
         let index = layout.bundles.len();
         let at = layout.entries.len();
         layout.entries.push(Entry::Header(index));
-        let shows = |m: &usize| open || rows[*m].unread || kept.contains(&key(&rows[*m]));
+        let shows = |m: &usize| alone || open || rows[*m].unread || kept.contains(&key(&rows[*m]));
         let shown: Vec<usize> = members.iter().copied().filter(shows).collect();
         let hidden = members.len() - shown.len();
         if shown.is_empty() {
@@ -226,17 +235,18 @@ fn gather(
 }
 
 /// Fills in where each bundle's arrows go: the nearest entry above and
-/// below where its topic shows again, outside the bundle. A row of the
-/// topic hidden inside another bundle shows through that bundle's header.
+/// below where its topic shows again, outside the bundle: the header of
+/// the bundle that holds the next row of the topic.
 fn link_occurrences(rows: &[Row], layout: &mut Layout) {
+    // A row in a bundle shows through its header; every row on a topic
+    // sits in one.
     let place_of_row = |row: usize| -> Option<usize> {
-        layout.entry_of_row(row).or_else(|| {
-            layout
-                .bundles
-                .iter()
-                .find(|b| b.members.contains(&row))
-                .map(|b| b.at)
-        })
+        layout
+            .bundles
+            .iter()
+            .find(|b| b.members.contains(&row))
+            .map(|b| b.at)
+            .or_else(|| layout.entry_of_row(row))
     };
     let mut links = Vec::with_capacity(layout.bundles.len());
     for bundle in &layout.bundles {
@@ -346,15 +356,28 @@ mod tests {
     }
 
     #[test]
-    fn a_row_too_far_from_the_rest_of_its_topic_stands_alone() {
+    fn a_row_too_far_from_the_rest_of_its_topic_gets_a_header_of_its_own() {
         let list = rows(&[
             ("a", &["Q3"], true),
             ("b", &[], true),
             ("c", &[], true),
             ("d", &["Q3"], true),
         ]);
-        assert_eq!(plain(&list, 2), ["a", "b", "c", "d"]);
+        assert_eq!(plain(&list, 2), ["[Q3 1]", "a", "b", "c", "[Q3 1]", "d"]);
         assert_eq!(plain(&list, 3), ["[Q3 2]", "a", "d", "b", "c"]);
+    }
+
+    #[test]
+    fn a_bundle_of_one_shows_its_row_read_or_not_and_never_folds() {
+        let list = rows(&[("a", &["Q3"], false), ("b", &[], true)]);
+        assert_eq!(plain(&list, WINDOW), ["[Q3 1]", "a", "b"]);
+        let mut opened = Opened::default();
+        opened.toggle("Q3", &list, &[0], &mut HashSet::new());
+        assert_eq!(
+            words(&list, &lay_out(&list, WINDOW, &opened, &HashSet::new())),
+            ["[Q3 1]", "a", "b"],
+            "no trailer to fold it with"
+        );
     }
 
     #[test]
@@ -451,7 +474,7 @@ mod tests {
             ("b", &["Zed"], true),
             ("c", &["Alpha"], true),
         ]);
-        assert_eq!(plain(&list, WINDOW), ["[Alpha 2]", "a", "c", "b"]);
+        assert_eq!(plain(&list, WINDOW), ["[Alpha 2]", "a", "c", "[Zed 1]", "b"]);
         let alone = rows(&[("a", &["Zed", "Alpha"], true), ("b", &["Zed"], true)]);
         assert_eq!(plain(&alone, WINDOW), ["[Zed 2]", "a", "b"]);
     }
@@ -472,11 +495,12 @@ mod tests {
         let layout = lay_out(&list, 1, &Opened::default(), &HashSet::new());
         assert_eq!(
             words(&list, &layout),
-            ["[Q3 2]", "a", "b", "c", "d", "e", "f", "g", "[Q3 2]", "h", "i"]
+            ["[Q3 2]", "a", "b", "c", "d", "[Q3 1]", "e", "f", "g", "[Q3 2]", "h", "i"]
         );
-        let (first, last) = (&layout.bundles[0], &layout.bundles[1]);
-        assert_eq!((first.earlier, first.later), (None, Some(5)), "the lone row");
+        let (first, last) = (&layout.bundles[0], &layout.bundles[2]);
+        assert_eq!((first.earlier, first.later), (None, Some(5)), "the lone row's header");
         assert_eq!((last.earlier, last.later), (Some(5), None));
+        assert_eq!((layout.bundles[1].earlier, layout.bundles[1].later), (Some(0), Some(9)));
     }
 
     #[test]
