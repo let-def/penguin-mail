@@ -41,6 +41,11 @@ So a topic with steady traffic shows as one bundle, and a topic you come
 back to after a quiet month shows as two: the recent mail near the top,
 the older mail where it happened.
 
+<img src="screenshots/topics-bundles.png" width="364" alt="The message list with two bundles: Weekend plans, closed, shows one unread conversation and a line saying 1 more in Weekend plans; further down, Home admin, all read, shows a summary of its two senders and subjects.">
+
+*Two bundles in the inbox. "Weekend plans" is closed and shows its
+unread mail; "Home admin" is all read and shows a summary.*
+
 The arrows on a bundle's header jump to the topic's previous and next
 bundles. The down arrow loads more mail if it has to, up to ten pages,
 and stops there if it finds none.
@@ -64,6 +69,8 @@ Click the header, the trailer or the summary, or press Enter on one, to
 **open** the bundle. An open bundle shows every conversation in it, in
 the same order as the list. Click again to close it.
 
+<img src="screenshots/topics-open.png" width="364" alt="The Weekend plans bundle opened, showing both of its conversations and a line saying 2 in Weekend plans.">
+
 A conversation you are reading stays visible when the bundle closes, so
 reading a message does not make it disappear from under you once it
 counts as read.
@@ -71,6 +78,8 @@ counts as read.
 A topic with only one conversation nearby still gets a header. It never
 folds, since folding would only hide that conversation, but the header
 shows which topic it is on and is a place to drop more mail.
+
+<img src="screenshots/topics-one.png" width="364" alt="A Family bundle holding one conversation, with its header above it.">
 
 Search results are never bundled. They stay in the order the search
 ranks them.
@@ -91,6 +100,10 @@ header bar. The menu has three topic items:
   shows no topics.
 - **Remove from Topic** takes the mail off its topic.
 
+<img src="screenshots/topics-menu.png" width="280" alt="The topic items of the conversation menu: Set Topic, Recent Topics with an arrow, and Remove from Topic."> <img src="screenshots/topics-recent.png" width="480" alt="The Recent Topics submenu listing Weekend plans, Home admin and Family.">
+
+<img src="screenshots/topics-dialog.png" width="376" alt="The Set Topic dialog: a Topic name field with its list open, offering Family, Home admin and Weekend plans.">
+
 The menu works on everything selected, so you can select several
 conversations first and put them all on one topic.
 
@@ -103,6 +116,8 @@ Drag conversations from the list:
   color while you hover over it.
 - **onto a conversation outside every bundle**, to take them off their
   topic. That conversation lights up in the accent color.
+
+<img src="screenshots/topics-drag-in.png" width="364" alt="A conversation dragged over the Weekend plans bundle, which is tinted in its color from header to trailer."> <img src="screenshots/topics-drag-out.png" width="364" alt="A conversation dragged over a row outside every bundle, which is outlined in the accent color.">
 
 Dragging does not move the list. The list stays where it was while you
 drag and after you drop.
