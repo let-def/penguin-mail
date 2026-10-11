@@ -121,6 +121,15 @@ fn mark_band(wrapper: &gtk::Widget, band: Option<Band>) {
     }
 }
 
+/// Where the list's focus goes once a change it is told of has landed.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Landing {
+    /// On the row with this key.
+    Row(Key),
+    /// On the header of the bundle of this topic that holds this row.
+    Bundle(String, Key),
+}
+
 /// What the list shows: the rows in list order, laid out in bundles, and
 /// the items the model holds for that layout.
 #[derive(Default)]
@@ -136,6 +145,9 @@ struct Shown {
     bundling: bool,
     /// The mailbox has rows past the last one loaded.
     more: bool,
+    /// Where the focus goes after the next change, set before a change
+    /// whose effect on the rows only the list can tell.
+    landing: Option<Landing>,
     /// A jump down to a topic's next place waiting for more rows: the
     /// topic, the first row of the bundle it left, and the pages it may
     /// still load.
@@ -278,6 +290,9 @@ pub struct ThreadList {
     view: gtk::ListView,
     scroller: gtk::ScrolledWindow,
     shown: Rc<RefCell<Shown>>,
+    /// Tells the focus handler that brings Tab to the open conversation's
+    /// row that the list moved the focus itself, which stays where it is.
+    steered: Rc<Cell<bool>>,
     /// Asks the window for the next page, as scrolling to the end does.
     more: RefCell<Option<Rc<dyn Fn()>>>,
     /// Hands the window the topics the rows name, newest first, for the
@@ -463,7 +478,10 @@ impl ThreadList {
             .tab_behavior(gtk::ListTabBehavior::Item)
             .build();
         view.add_controller(menu_keys());
-        land_on_selection(&view, &selection);
+        // Set by a click in the list, or by the list moving the focus
+        // itself, so the focus that arrives is left where it lands.
+        let steered = Rc::new(Cell::new(false));
+        land_on_selection(&view, &selection, Rc::clone(&steered));
         let scroller = gtk::ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Never)
             .vexpand(true)
@@ -611,6 +629,7 @@ impl ThreadList {
             view,
             scroller,
             shown: state,
+            steered,
             more: RefCell::new(None),
             on_topics: RefCell::new(None),
             topics: RefCell::new(Vec::new()),
@@ -920,6 +939,10 @@ impl ThreadList {
         if let Some((position, was)) = held {
             self.put_back(position, was);
         }
+        let landing = self.shown.borrow_mut().landing.take();
+        if let Some(landing) = landing {
+            self.land_focus(&landing);
+        }
         let topics = bundles::recent(&self.shown.borrow().rows, RECENT_TOPICS);
         if *self.topics.borrow() != topics {
             self.topics.replace(topics.clone());
@@ -946,6 +969,54 @@ impl ThreadList {
         self.relayout();
     }
 
+    /// Readies the focus for `rows` leaving their topic. The row that was
+    /// its bundle's newest stays where it is, since the bundle sat at its
+    /// place, so the focus stays on it; any other row goes back to its own
+    /// place in the list, likely off screen, so the focus stays on the
+    /// bundle it left, whose header the view keeps.
+    pub fn leaving_topic(&self, rows: &[ThreadSummary]) {
+        let mut shown = self.shown.borrow_mut();
+        let Some(first) = rows.first() else { return };
+        let wanted = key(first);
+        let Some(index) = shown.rows.iter().position(|r| key(r) == wanted) else {
+            return;
+        };
+        let landing = shown
+            .layout
+            .bundles
+            .iter()
+            .find(|b| b.members.contains(&index))
+            .map(|bundle| match bundle.members.first() == Some(&index) {
+                true => Landing::Row(wanted.clone()),
+                false => Landing::Bundle(bundle.topic.clone(), key(&shown.rows[bundle.members[0]])),
+            });
+        shown.landing = landing;
+    }
+
+    /// Puts the focus where `landing` says, when the keyboard is in the
+    /// list and the item is on screen; nothing scrolls.
+    fn land_focus(&self, landing: &Landing) {
+        let in_list = self.focus_in_list();
+        if !in_list {
+            return;
+        }
+        let position = {
+            let shown = self.shown.borrow();
+            match landing {
+                Landing::Row(wanted) => shown
+                    .rows
+                    .iter()
+                    .position(|r| key(r) == *wanted)
+                    .and_then(|row| shown.layout.entry_of_row(row)),
+                Landing::Bundle(topic, member) => shown.bundle_holding(topic, member).map(|b| b.at),
+            }
+        };
+        if let Some(widget) = position.and_then(|p| self.item_widget(p)) {
+            self.steered.set(true);
+            widget.grab_focus();
+        }
+    }
+
     /// Keeps the view where it is across `changes`, whose topmost one
     /// starts at `top`, and answers the item on screen just above it and
     /// where it sits, for [`ThreadList::put_back`] to hold it there.
@@ -964,11 +1035,7 @@ impl ThreadList {
         let above = top.checked_sub(1)?;
         let widget = self.item_widget(above)?;
         let was = self.top_of(&widget)?;
-        let in_list = self
-            .view
-            .root()
-            .and_then(|root| root.focus())
-            .is_some_and(|focus| focus.is_ancestor(&self.view));
+        let in_list = self.focus_in_list();
         let focused = self.focused_position();
         let touched = focused.is_some_and(|f| {
             f >= top
@@ -977,6 +1044,7 @@ impl ThreadList {
                     .any(|c| f >= c.position as usize && f < (c.position + c.removed) as usize)
         });
         if in_list && touched {
+            self.steered.set(true);
             widget.grab_focus();
         }
         Some((above, was))
@@ -1007,6 +1075,17 @@ impl ThreadList {
         widget
             .compute_point(&self.scroller, &graphene::Point::zero())
             .map(|p| p.y())
+    }
+
+    /// Whether the keyboard focus is in the list: on a row, or on the
+    /// scrolled window around it, where it goes back to when the row menu,
+    /// which belongs to that window, closes.
+    fn focus_in_list(&self) -> bool {
+        let scroller = self.scroller.upcast_ref::<gtk::Widget>();
+        self.view
+            .root()
+            .and_then(|root| root.focus())
+            .is_some_and(|focus| &focus == scroller || focus.is_ancestor(scroller))
     }
 
     /// The position of the item the list's focus is on.
@@ -1504,8 +1583,7 @@ fn menu_keys() -> gtk::ShortcutController {
 /// selection made elsewhere can leave somewhere else. A press in the list
 /// brings the focus in to the row under the pointer, so that way in is
 /// left alone.
-fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection) {
-    let pressed = Rc::new(Cell::new(false));
+fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection, pressed: Rc<Cell<bool>>) {
     let press = gtk::GestureClick::builder().button(0).build();
     press.set_propagation_phase(gtk::PropagationPhase::Capture);
     let held = Rc::clone(&pressed);

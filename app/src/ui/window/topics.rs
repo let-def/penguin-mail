@@ -43,6 +43,9 @@ impl MainWindow {
     /// Puts what the conversation reaches in the topic `name`, or with
     /// `None` takes it out of every topic.
     pub(super) fn topic(self: &Rc<Self>, name: Option<String>) {
+        if name.is_none() {
+            self.list.leaving_topic(&self.list.selected_rows());
+        }
         let view = Rc::clone(&self.conversation);
         self.press(&view, Press::Topic(name));
     }
@@ -74,6 +77,9 @@ impl MainWindow {
         let rows = self.list.dragged();
         if rows.is_empty() {
             return false;
+        }
+        if topic.is_none() {
+            self.list.leaving_topic(&rows);
         }
         let targets: Vec<Target> = rows.iter().map(Target::from_row).collect();
         let open = self.conversation.read(|o| o.among(&targets)) == Some(true);
