@@ -54,8 +54,6 @@ pub struct Handlers {
     pub toggle: Rc<dyn Fn(u32)>,
     /// Goes to the topic's place above (`-1`) or below (`1`).
     pub jump: Rc<dyn Fn(u32, i32)>,
-    /// Mail dropped on the line, to put in its topic; true when taken.
-    pub dropped: Rc<dyn Fn(u32) -> bool>,
 }
 
 mod imp {
@@ -225,13 +223,6 @@ impl BundleLine {
                 }
             });
         }
-        let target = gtk::DropTarget::new(glib::Type::STRING, gtk::gdk::DragAction::MOVE);
-        let (dropped, at) = (Rc::clone(&handlers.dropped), position);
-        target.connect_drop(move |_, value, _, _| {
-            value.get::<String>().is_ok_and(|v| v == crate::ui::sidebar::DRAG_MAIL)
-                && at().is_some_and(|at| dropped(at))
-        });
-        line.add_controller(target);
 
         imp.header.set(header).ok();
         imp.dot.set(dot).ok();

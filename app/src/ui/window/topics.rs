@@ -67,9 +67,10 @@ impl MainWindow {
         });
     }
 
-    /// Puts the rows dragged onto a bundle in its topic. True when the
-    /// drop was taken.
-    fn drop_on_topic(self: &Rc<Self>, topic: String) -> bool {
+    /// Puts the dragged rows on `topic`, from a drop on its bundle, or
+    /// with `None` takes them off their topics, from a drop outside every
+    /// bundle. True when the drop was taken.
+    fn drop_on_topic(self: &Rc<Self>, topic: Option<String>) -> bool {
         let rows = self.list.dragged();
         if rows.is_empty() {
             return false;
@@ -83,6 +84,6 @@ impl MainWindow {
             mailbox: self.shown(),
         };
         let view = Rc::clone(&self.conversation);
-        self.press_on(&view, reach, Scope::Carried { open }, Press::Topic(Some(topic)))
+        self.press_on(&view, reach, Scope::Carried { open }, Press::Topic(topic))
     }
 }

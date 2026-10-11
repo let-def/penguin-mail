@@ -46,8 +46,9 @@ pub type Row = Rc<ThreadSummary>;
 /// Hands over the topics the rows name, newest first.
 type ShowTopics = dyn Fn(Vec<String>);
 
-/// Puts the dragged rows in a topic; true when it took them.
-type PutInTopic = dyn Fn(String) -> bool;
+/// Puts the dragged rows on a topic, or with `None` takes them off theirs;
+/// true when it took them.
+type PutInTopic = dyn Fn(Option<String>) -> bool;
 
 /// How many topics the Topic menu offers by name.
 const RECENT_TOPICS: usize = 5;
@@ -152,6 +153,20 @@ impl Shown {
             Entry::Header(b) | Entry::Trailer(b) | Entry::Summary(b) => self.layout.bundles.get(*b),
             Entry::Row { .. } => None,
         }
+    }
+
+    /// The index of the bundle the item at `position` belongs to: its
+    /// header, a line or a row of it.
+    fn bundle_index(&self, position: usize) -> Option<usize> {
+        match self.layout.entries.get(position)? {
+            Entry::Row { bundle, .. } => *bundle,
+            Entry::Header(b) | Entry::Trailer(b) | Entry::Summary(b) => Some(*b),
+        }
+    }
+
+    /// The bundle the item at `position` belongs to.
+    fn bundle_of(&self, position: usize) -> Option<&bundles::Bundle> {
+        self.bundle_index(position).and_then(|b| self.layout.bundles.get(b))
     }
 
     /// The bundle of `topic` whose rows include `row`.
@@ -269,7 +284,8 @@ pub struct ThreadList {
     /// Topic menu, whenever they change.
     on_topics: RefCell<Option<Box<ShowTopics>>>,
     topics: RefCell<Vec<String>>,
-    /// Puts the dragged rows in a topic, from a drop on a bundle.
+    /// Puts the dragged rows on a bundle's topic, from a drop on any line
+    /// of it, or takes them off theirs, from a drop outside every bundle.
     on_topic_drop: RefCell<Option<Box<PutInTopic>>>,
     /// The rows of the drag in progress.
     dragged: Rc<RefCell<Vec<ThreadSummary>>>,
@@ -304,7 +320,7 @@ impl ThreadList {
         // filled in once the list exists.
         let me: Rc<RefCell<std::rc::Weak<ThreadList>>> = Rc::default();
         let handlers = {
-            let (toggle, jump, dropped) = (Rc::clone(&me), Rc::clone(&me), Rc::clone(&me));
+            let (toggle, jump) = (Rc::clone(&me), Rc::clone(&me));
             Handlers {
                 toggle: Rc::new(move |at| {
                     if let Some(list) = toggle.borrow().upgrade() {
@@ -316,12 +332,6 @@ impl ThreadList {
                         list.jump_from(at as usize, way);
                     }
                 }),
-                dropped: Rc::new(move |at| {
-                    dropped
-                        .borrow()
-                        .upgrade()
-                        .is_some_and(|list| list.dropped_on(at as usize))
-                }),
             }
         };
         let row_popover = gtk::PopoverMenu::from_model(None::<&gio::MenuModel>);
@@ -332,13 +342,18 @@ impl ThreadList {
         let factory = gtk::SignalListItemFactory::new();
         let (all, drag_rows, picked) = (Rc::clone(&state), Rc::clone(&dragged), selection.clone());
         let menu = row_popover.clone();
+        let me_for_drops = Rc::clone(&me);
         factory.connect_setup(move |_, item| {
+            let me = &me_for_drops;
             let item = item
                 .downcast_ref::<gtk::ListItem>()
                 .expect("list items are ListItems");
             // A slot holds a row and a bundle's line, and shows the one
             // its item calls for.
-            let slot = gtk::Box::new(gtk::Orientation::Vertical, 0);
+            let slot = gtk::Box::builder()
+                .orientation(gtk::Orientation::Vertical)
+                .css_classes(["list-slot"])
+                .build();
             let row = ThreadRow::default();
             row.set_item(item);
             context_menu(&row, item, &picked, &menu);
@@ -383,6 +398,7 @@ impl ThreadList {
             row.add_controller(source);
             slot.append(&row);
             slot.append(&BundleLine::new(item, handlers.clone()));
+            slot.add_controller(drop_target(item, me));
             item.set_child(Some(&slot));
         });
         let shown = Rc::clone(&show_accounts);
@@ -824,7 +840,7 @@ impl ThreadList {
 
     /// Runs `put` with a bundle's topic when rows are dropped on it; it
     /// says whether it took them.
-    pub fn connect_topic_drop(&self, put: impl Fn(String) -> bool + 'static) {
+    pub fn connect_topic_drop(&self, put: impl Fn(Option<String>) -> bool + 'static) {
         *self.on_topic_drop.borrow_mut() = Some(Box::new(put));
     }
 
@@ -1065,17 +1081,66 @@ impl ThreadList {
             .scroll_to(position as u32, gtk::ListScrollFlags::FOCUS, None);
     }
 
-    /// Hands the dragged rows to the topic of the bundle whose line is at
-    /// `position`.
+    /// What a drop at `position` does with the dragged rows: puts them on
+    /// the topic of the bundle there, any line of it, or takes them off
+    /// their topics on a row outside every bundle. `None` refuses the
+    /// drop: rows already on that topic, or rows on no topic dropped
+    /// outside a bundle.
+    fn drop_choice(&self, position: usize) -> Option<Option<String>> {
+        let shown = self.shown.borrow();
+        let dragged = self.dragged.borrow();
+        if dragged.is_empty() {
+            return None;
+        }
+        match shown.bundle_of(position) {
+            Some(bundle) => {
+                let topic = &bundle.topic;
+                let all_there = dragged
+                    .iter()
+                    .all(|row| row.topics.iter().any(|t| mailrs_domain::topic::same(t, topic)));
+                (!all_there).then(|| Some(topic.clone()))
+            }
+            None => dragged.iter().any(|row| !row.topics.is_empty()).then_some(None),
+        }
+    }
+
+    /// Lights up where a drop at `position` lands: the whole bundle there,
+    /// or the one row outside every bundle.
+    fn show_drop(&self, position: usize) {
+        self.clear_drop();
+        let positions: Vec<usize> = {
+            let shown = self.shown.borrow();
+            match shown.bundle_index(position) {
+                Some(bundle) => (0..shown.layout.entries.len())
+                    .filter(|p| shown.bundle_index(*p) == Some(bundle))
+                    .collect(),
+                None => vec![position],
+            }
+        };
+        for position in positions {
+            if let Some(widget) = self.item_widget(position) {
+                widget.add_css_class("drop-here");
+            }
+        }
+    }
+
+    fn clear_drop(&self) {
+        let mut child = self.view.first_child();
+        while let Some(widget) = child {
+            widget.remove_css_class("drop-here");
+            child = widget.next_sibling();
+        }
+    }
+
+    /// Hands the dragged rows to what a drop at `position` does.
     fn dropped_on(&self, position: usize) -> bool {
-        let topic = self
-            .shown
-            .borrow()
-            .bundle_at(position)
-            .map(|b| b.topic.clone());
-        match (topic, self.on_topic_drop.borrow().as_ref()) {
-            (Some(topic), Some(put)) => put(topic),
-            _ => false,
+        self.clear_drop();
+        let Some(choice) = self.drop_choice(position) else {
+            return false;
+        };
+        match self.on_topic_drop.borrow().as_ref() {
+            Some(put) => put(choice),
+            None => false,
         }
     }
 
@@ -1469,6 +1534,57 @@ fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection) {
         });
     });
     view.add_controller(focus);
+}
+
+/// The drop target on one item of the list, which asks the list what a
+/// drop there does: put the dragged mail on the topic of the bundle the
+/// item belongs to, take it off its topic on a row outside every bundle,
+/// or nothing, which GTK then shows by refusing the drop.
+fn drop_target(item: &gtk::ListItem, me: &Rc<RefCell<std::rc::Weak<ThreadList>>>) -> gtk::DropTarget {
+    let target = gtk::DropTarget::new(glib::Type::STRING, gdk::DragAction::MOVE);
+    let at = {
+        let item = item.downgrade();
+        move || {
+            item.upgrade()
+                .map(|i| i.position())
+                .filter(|p| *p != gtk::INVALID_LIST_POSITION)
+                .map(|p| p as usize)
+        }
+    };
+    let list = {
+        let me = Rc::clone(me);
+        move || me.borrow().upgrade()
+    };
+    let (hover_at, hover_list) = (at.clone(), list.clone());
+    let hover = move |_: &gtk::DropTarget, _: f64, _: f64| {
+        let (Some(position), Some(list)) = (hover_at(), hover_list()) else {
+            return gdk::DragAction::empty();
+        };
+        match list.drop_choice(position) {
+            Some(_) => {
+                list.show_drop(position);
+                gdk::DragAction::MOVE
+            }
+            None => {
+                list.clear_drop();
+                gdk::DragAction::empty()
+            }
+        }
+    };
+    let hover_too = hover.clone();
+    target.connect_enter(move |t, x, y| hover(t, x, y));
+    target.connect_motion(move |t, x, y| hover_too(t, x, y));
+    let leave_list = list.clone();
+    target.connect_leave(move |_| {
+        if let Some(list) = leave_list() {
+            list.clear_drop();
+        }
+    });
+    target.connect_drop(move |_, value, _, _| {
+        value.get::<String>().is_ok_and(|v| v == DRAG_MAIL)
+            && at().zip(list()).is_some_and(|(position, list)| list.dropped_on(position))
+    });
+    target
 }
 
 /// The widget `view` shows the item at `position` in, while it is on

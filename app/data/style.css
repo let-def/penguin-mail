@@ -374,6 +374,17 @@ flowboxchild:focus-visible > .recipient-chip {
 .thread-list > row.bundled.bundle-end {
   margin-bottom: 6px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
 }
+/* Where dragged mail lands: the whole bundle under the pointer, in its
+   own colour, or one row outside every bundle, which takes the mail off
+   its topic. */
+.thread-list > row.bundled.drop-here { background-color: alpha(var(--topic), 0.24); }
+/* The highlight above says where the drop lands, so GTK's own outline
+   around the one item under the pointer stays off. */
+.list-slot:drop(active) { box-shadow: none; outline: none; }
+.thread-list > row.drop-here:not(.bundled) {
+  background-color: alpha(var(--accent-bg-color), 0.12);
+  box-shadow: inset 0 0 0 2px alpha(var(--accent-bg-color), 0.6);
+}
 .thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.12); }
 .app-dark .thread-list > row.bundled:hover { background-color: alpha(var(--topic), 0.16); }
 .thread-list > row.bundled:selected { background-color: alpha(var(--accent-bg-color), 0.16); }
