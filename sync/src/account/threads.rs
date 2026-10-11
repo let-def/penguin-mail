@@ -8,8 +8,8 @@ use mailrs_store::messages::Change;
 use mailrs_store::{accounts, bodies, messages};
 
 use super::AccountSync;
-use super::outbox::raw_batches;
 use super::fetch::{Fetched, overtaken};
+use super::outbox::raw_batches;
 use crate::{BackendError, RAW_LIMIT, SyncError, Want, now_millis};
 
 /// Fetches of one thread before an answer history keeps overtaking is

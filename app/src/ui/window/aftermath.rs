@@ -159,7 +159,8 @@ fn moves_mail(action: &MailAction) -> bool {
         | MailAction::Label { .. }
         // A carry to another account is the fullest move there is.
         | MailAction::MoveTo { .. } => true,
-        MailAction::Flag(_) | MailAction::DismissFollowUp => false,
+        // A topic is a mark: on Gmail a label, which no folder lists.
+        MailAction::Flag(_) | MailAction::DismissFollowUp | MailAction::Topic(_) => false,
     }
 }
 
@@ -183,7 +184,7 @@ pub(super) fn leaves(action: &MailAction, mailbox: &Mailbox) -> bool {
         // well stay in view; pruning them early is a small cost paid to
         // knowing the action, not each row, before the run.
         MailAction::MoveTo { .. } => true,
-        MailAction::Flag(_) | MailAction::Label { .. } => false,
+        MailAction::Flag(_) | MailAction::Label { .. } | MailAction::Topic(_) => false,
     }
 }
 
