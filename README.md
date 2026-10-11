@@ -116,6 +116,10 @@ and an IMAP account its rules over ManageSieve.
   answer for three days. **Mute** keeps a noisy thread out of the inbox.
 - **Labels** from the toolbar or with `l`, nested as a tree under their
   account. Drag mail onto any mailbox or label to move it there.
+- **Topics** gather mail about one piece of work into a bundle in the
+  list, without moving it out of the inbox. Set one from the right-click
+  menu or by dragging mail onto a bundle; they sync through Gmail labels
+  and IMAP keywords. See [docs/topics.md](docs/topics.md).
 - **Export** a conversation or a selection as mbox, or one message as `.eml`.
 
 ### Gmail settings
