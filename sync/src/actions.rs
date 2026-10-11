@@ -20,6 +20,7 @@ use crate::{
 };
 
 mod categorize;
+mod topics;
 mod labelling;
 mod returning;
 
@@ -102,6 +103,10 @@ pub enum MailAction {
     /// again. Only this computer knows about Follow Up, so Gmail hears
     /// nothing of it.
     DismissFollowUp,
+    /// Puts the targets in the topic of that name and out of any
+    /// other, or with `None` out of every topic. A name that matches a
+    /// topic the store knows, ignoring case, joins that topic.
+    Topic(Option<String>),
 }
 
 impl MailAction {
@@ -124,6 +129,8 @@ impl MailAction {
             MailAction::Mute { muted: false } => TriageAction::Unmute.describe(),
             MailAction::Label { .. } => gettext("Change labels"),
             MailAction::DismissFollowUp => gettext("Dismiss Follow-Up"),
+            MailAction::Topic(Some(topic)) => fill(&gettext("Add to {topic}"), &[("topic", topic)]),
+            MailAction::Topic(None) => gettext("Remove from Topic"),
         }
     }
 }
@@ -575,7 +582,10 @@ impl<A: Accounts> MailActions<A> {
                     .await?;
                 undo.follow_ups.extend(targets);
             }
-            MailAction::Triage(_) | MailAction::Label { .. } | MailAction::Mute { .. } => {}
+            MailAction::Triage(_)
+            | MailAction::Label { .. }
+            | MailAction::Mute { .. }
+            | MailAction::Topic(_) => {}
         }
         Ok(())
     }
@@ -1064,6 +1074,7 @@ impl<A: Accounts> MailActions<A> {
                 });
             }
             MailAction::DismissFollowUp => return vec![Ok(None); targets.len()],
+            MailAction::Topic(name) => return self.resolve_topic(targets, name.as_deref()).await,
             MailAction::Label {
                 add,
                 remove,
@@ -1083,6 +1094,33 @@ impl<A: Accounts> MailActions<A> {
             .iter()
             .map(|t| per_account[&t.account_id].clone())
             .collect()
+    }
+
+    /// The change each target needs to join the topic `name`, or with
+    /// `None` to leave every topic.
+    async fn resolve_topic(
+        &self,
+        targets: &[Target],
+        name: Option<&str>,
+    ) -> Vec<Result<Option<TriageAction>, String>> {
+        let spelled = match name {
+            None => None,
+            Some(name) => match self.topic_spelling(targets, name).await {
+                Some(spelled) => Some(spelled),
+                None => {
+                    let error = fill(
+                        &gettext("“{topic}” cannot name a topic."),
+                        &[("topic", name)],
+                    );
+                    return vec![Err(error); targets.len()];
+                }
+            },
+        };
+        let mut resolved = Vec::with_capacity(targets.len());
+        for target in targets {
+            resolved.push(self.topic_change(target, spelled.as_deref()).await);
+        }
+        resolved
     }
 
     async fn relabel(

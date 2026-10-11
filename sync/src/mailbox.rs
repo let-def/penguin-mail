@@ -1995,6 +1995,14 @@ fn row_of(hit: &MessageMeta, alone: bool) -> ThreadSummary {
         scheduled: false,
         held: false,
         recipient: None,
+        // Search results are never bundled, so the topics a label names
+        // can wait for the stored row; a keyword's name is at hand.
+        topics: hit
+            .held
+            .keywords
+            .iter()
+            .filter_map(|k| mailrs_domain::topic::name_of_keyword(k))
+            .collect(),
     }
 }
 

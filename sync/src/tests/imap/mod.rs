@@ -4,6 +4,7 @@ mod bodies;
 mod browse;
 mod feed;
 mod follow;
+mod topics;
 mod mailboxes;
 mod moves;
 mod previews;
