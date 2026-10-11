@@ -98,6 +98,7 @@ app/src/ui/link_preview.rs
 app/src/ui/find.rs
 app/src/ui/gmail_password_page.rs
 app/src/ui/goa_page.rs
+app/src/ui/topic_picker.rs
 app/src/ui/hide_my_email.rs
 app/src/ui/ics_file.rs
 app/src/ui/invitation.rs
@@ -124,6 +125,7 @@ app/src/ui/smart_editor.rs
 app/src/ui/switch_jmap.rs
 app/src/ui/templates.rs
 app/src/ui/thread_list.rs
+app/src/ui/thread_list/bundle_line.rs
 app/src/ui/thread_row.rs
 app/src/ui/translation.rs
 app/src/ui/unsubscribe.rs

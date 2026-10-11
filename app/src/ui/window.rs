@@ -85,6 +85,7 @@ mod shortcuts;
 mod spaces;
 mod storage;
 mod thread;
+mod topics;
 mod translation;
 mod trash;
 mod triage;
@@ -1162,6 +1163,7 @@ impl MainWindow {
         });
         window.install_actions();
         window.install_arrange_actions();
+        window.install_topics();
         // The assistant's tool calls, one at a time, on this thread.
         let weak = Rc::downgrade(&window);
         glib::spawn_future_local(async move {
@@ -1763,6 +1765,7 @@ impl MainWindow {
             self.list.set_title(title, subtitle);
         }
         if redraw.leave {
+            self.list.forget_bundles();
             self.list.unselect();
             self.conversation.leave();
             self.nav.set_show_content(false);
@@ -1774,6 +1777,10 @@ impl MainWindow {
             let mailbox = self.shown();
             self.list
                 .set_show_accounts(mailbox.account().is_none() && self.mail_accounts().len() > 1);
+            // Search hits come in the order the search ranks them, which
+            // bundles would scramble.
+            self.list
+                .set_bundling(!matches!(mailbox, Mailbox::Search { .. }));
             let accounts = self.accounts_of(&mailbox);
             self.word_buttons(&self.conversation, &mailbox, accounts);
             self.follow_outbox();
