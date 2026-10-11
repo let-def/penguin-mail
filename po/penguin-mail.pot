@@ -3649,7 +3649,7 @@ msgstr ""
 #: app/src/ui/confirm.rs:29 app/src/ui/contacts_prefs.rs:211
 #: app/src/ui/rules.rs:445 app/src/ui/rules.rs:625
 #: app/src/ui/smart_editor.rs:150 app/src/ui/templates.rs:239
-#: app/src/ui/topic_picker.rs:71 app/src/ui/unsubscribe.rs:119
+#: app/src/ui/topic_picker.rs:57 app/src/ui/unsubscribe.rs:119
 #: app/src/ui/vacation.rs:45 app/src/ui/when.rs:52
 #: app/src/ui/window/arrange.rs:146 app/src/ui/window/images.rs:101
 #: app/src/ui/window/organize.rs:73 app/src/ui/window/organize.rs:122
@@ -8133,25 +8133,25 @@ msgstr ""
 msgid "{sender}, {subject}, {snippet}"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:34 app/src/ui/topic_picker.rs:38
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
 msgid "Topic name"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:53 app/src/ui/topic_picker.rs:54
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
 msgid "Known topics"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:65
-msgid "Choose Topic"
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:67
+#: app/src/ui/topic_picker.rs:53
 msgid ""
 "Mail on one topic is shown together in the list. A new name starts a topic."
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:71
-msgid "Choose"
+#: app/src/ui/topic_picker.rs:57
+msgid "Set"
 msgstr ""
 
 #: app/src/ui/translation.rs:60 app/src/ui/translation.rs:123

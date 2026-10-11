@@ -1,33 +1,38 @@
-//! The Choose Topic dialog: a name typed in an entry that completes the
-//! topics the store knows as the person types, or one picked from a list
-//! of them. A new name starts a topic.
+//! The Set Topic dialog: one field that takes a topic's name, with a list
+//! under it of the topics the store knows. Typing narrows the list to the
+//! topics that match, and the button at the field's end shows them all,
+//! as an editable combo box does. A new name starts a topic.
 
 use std::cell::Cell;
 use std::rc::Rc;
 
 use adw::prelude::*;
-use gtk::glib;
+use gtk::{gdk, glib};
 use mailrs_domain::topic;
 use mailrs_domain::translate::gettext;
 
-/// The rest of the first known topic whose name starts with `typed`,
-/// ignoring case, for the entry to offer after what the person typed.
-/// Nothing while `typed` is empty or already a whole name.
-pub fn completion<'a>(typed: &str, known: &'a [String]) -> Option<&'a str> {
-    if typed.is_empty() {
-        return None;
+/// The most topics the list shows at once; past it, typing narrows it.
+const SHOWN: usize = 8;
+
+/// The known topics that match `typed`, ignoring case: those whose name
+/// starts with it first, then those that hold it elsewhere, each in the
+/// order `known` gives. Every known topic while `typed` is empty, and
+/// none once `typed` is a whole name, which needs no list.
+pub fn matching<'a>(typed: &str, known: &'a [String]) -> Vec<&'a str> {
+    let wanted = typed.trim().to_lowercase();
+    if known.iter().any(|k| k.to_lowercase() == wanted) {
+        return Vec::new();
     }
-    let lower = typed.to_lowercase();
-    if known.iter().any(|k| k.to_lowercase() == lower) {
-        return None;
-    }
-    known.iter().find_map(|name| {
-        let start = name.char_indices().nth(typed.chars().count()).map(|(i, _)| i)?;
-        (name[..start].to_lowercase() == lower).then(|| &name[start..])
-    })
+    let lower: Vec<String> = known.iter().map(|k| k.to_lowercase()).collect();
+    let starts = known.iter().zip(&lower).filter(|(_, l)| l.starts_with(&wanted));
+    let holds = known
+        .iter()
+        .zip(&lower)
+        .filter(|(_, l)| !l.starts_with(&wanted) && l.contains(&wanted));
+    starts.chain(holds).map(|(k, _)| k.as_str()).take(SHOWN).collect()
 }
 
-/// Asks which topic to put mail in, from `known` or a new name, and
+/// Asks which topic to put mail on, from `known` or a new name, and
 /// answers with the name, or nothing when the person cancels.
 pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<String> {
     let entry = gtk::Entry::builder()
@@ -36,43 +41,24 @@ pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<
         .max_length(topic::MAX_LEN as i32)
         .build();
     super::name(&entry, &gettext("Topic name"));
-    complete_as_typed(&entry, Rc::new(known.clone()));
-    let content = gtk::Box::new(gtk::Orientation::Vertical, 12);
-    content.append(&entry);
     if !known.is_empty() {
-        let names: Vec<&str> = known.iter().map(String::as_str).collect();
-        let list = gtk::DropDown::from_strings(&names);
-        list.set_selected(gtk::INVALID_LIST_POSITION);
-        list.set_enable_search(true);
-        list.set_search_match_mode(gtk::StringFilterMatchMode::Substring);
-        list.set_expression(Some(gtk::PropertyExpression::new(
-            gtk::StringObject::static_type(),
-            None::<&gtk::Expression>,
-            "string",
-        )));
-        super::name(&list, &gettext("Known topics"));
-        list.set_tooltip_text(Some(&gettext("Known topics")));
-        let typed = entry.clone();
-        list.connect_selected_item_notify(move |list| {
-            if let Some(name) = list.selected_item().and_downcast::<gtk::StringObject>() {
-                typed.set_text(&name.string());
-                typed.set_position(-1);
-            }
-        });
-        content.append(&list);
+        entry.set_secondary_icon_name(Some("pan-down-symbolic"));
+        entry.set_secondary_icon_tooltip_text(Some(&gettext("Known topics")));
+        entry.set_secondary_icon_activatable(true);
+        offer_known(&entry, Rc::new(known));
     }
     let dialog = adw::AlertDialog::builder()
-        .heading(gettext("Choose Topic"))
+        .heading(gettext("Set Topic"))
         .body(gettext(
             "Mail on one topic is shown together in the list. A new name starts a topic.",
         ))
-        .extra_child(&content)
+        .extra_child(&entry)
         .build();
-    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("topic", &gettext("Choose"))]);
+    dialog.add_responses(&[("cancel", &gettext("Cancel")), ("topic", &gettext("Set"))]);
     dialog.set_response_appearance("topic", adw::ResponseAppearance::Suggested);
     dialog.set_default_response(Some("topic"));
     dialog.set_close_response("cancel");
-    // The button stays off until the entry holds a name a topic can carry.
+    // The button stays off until the field holds a name a topic can carry.
     dialog.set_response_enabled("topic", false);
     let answer = dialog.clone();
     entry.connect_changed(move |entry| {
@@ -88,64 +74,149 @@ pub async fn pick(parent: &impl IsA<gtk::Widget>, known: Vec<String>) -> Option<
     topic::clean(&entry.text())
 }
 
-/// Fills in the rest of a known topic's name after the cursor as the
-/// person types at the end of the entry, selected, so typing on replaces
-/// it and Enter takes it.
-fn complete_as_typed(entry: &gtk::Entry, known: Rc<Vec<String>>) {
+/// The list under `entry`: the topics that match what is typed, shown as
+/// the person types and by the button at the field's end, which shows
+/// them all. Down goes into the list, Enter or a click takes a topic, and
+/// Escape closes the list while the dialog stays.
+fn offer_known(entry: &gtk::Entry, known: Rc<Vec<String>>) {
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .css_classes(["navigation-sidebar"])
+        .build();
+    super::name(&list, &gettext("Known topics"));
+    let scroller = gtk::ScrolledWindow::builder()
+        .hscrollbar_policy(gtk::PolicyType::Never)
+        .propagate_natural_height(true)
+        .max_content_height(280)
+        .min_content_width(260)
+        .child(&list)
+        .build();
+    let popover = gtk::Popover::builder()
+        .autohide(false)
+        .has_arrow(false)
+        .position(gtk::PositionType::Bottom)
+        .halign(gtk::Align::Start)
+        .child(&scroller)
+        .build();
+    popover.set_parent(entry);
+    let unparent = popover.clone();
+    entry.connect_destroy(move |_| unparent.unparent());
+
+    // Set while a pick fills the field, so the change it makes does not
+    // open the list again.
     let filling = Rc::new(Cell::new(false));
-    let typed_len = Rc::new(Cell::new(0usize));
-    entry.connect_changed(move |entry| {
-        if filling.get() {
-            return;
-        }
-        let text = entry.text().to_string();
-        let length = text.chars().count();
-        // Only a keystroke that added to the end completes; a deletion
-        // leaves the person's own text alone.
-        let grew = length > typed_len.replace(length);
-        if !grew || entry.position() != length as i32 {
-            return;
-        }
-        let Some(rest) = completion(&text, &known) else {
-            return;
-        };
-        let rest = rest.to_string();
-        filling.set(true);
-        let (entry, filling) = (entry.clone(), Rc::clone(&filling));
-        // Changing the text from inside its own change signal confuses
-        // the entry's cursor, so the fill waits for the change to finish.
-        glib::idle_add_local_once(move || {
-            if entry.text() == text {
-                entry.set_text(&format!("{text}{rest}"));
-                entry.select_region(length as i32, -1);
+    let show = {
+        let (list, popover, entry) = (list.clone(), popover.clone(), entry.clone());
+        move |names: Vec<&str>| {
+            // As wide as the field, as a combo box's list is.
+            popover.set_size_request(entry.width(), -1);
+            while let Some(row) = list.first_child() {
+                list.remove(&row);
             }
-            filling.set(false);
+            for name in &names {
+                let label = gtk::Label::builder()
+                    .label(*name)
+                    .xalign(0.0)
+                    .ellipsize(gtk::pango::EllipsizeMode::End)
+                    .build();
+                let row = gtk::ListBoxRow::builder().child(&label).build();
+                row.set_widget_name(name);
+                list.append(&row);
+            }
+            match names.is_empty() {
+                true => popover.popdown(),
+                false => popover.popup(),
+            }
+        }
+    };
+
+    {
+        let (known, filling, show) = (Rc::clone(&known), Rc::clone(&filling), show.clone());
+        entry.connect_changed(move |entry| {
+            if filling.get() {
+                return;
+            }
+            let text = entry.text();
+            match text.trim().is_empty() {
+                true => show(Vec::new()),
+                false => show(matching(&text, &known)),
+            }
         });
-    });
+    }
+    {
+        let (known, show) = (Rc::clone(&known), show.clone());
+        entry.connect_icon_press(move |_, icon| {
+            if icon == gtk::EntryIconPosition::Secondary {
+                show(matching("", &known));
+            }
+        });
+    }
+    {
+        let (entry, popover, filling) = (entry.clone(), popover.clone(), Rc::clone(&filling));
+        list.connect_row_activated(move |_, row| {
+            filling.set(true);
+            entry.set_text(row.widget_name().as_str());
+            filling.set(false);
+            popover.popdown();
+            entry.grab_focus_without_selecting();
+            entry.set_position(-1);
+        });
+    }
+    // Down from the field goes into the list; Escape closes the list and
+    // keeps the dialog, from the field or from the list.
+    let keys = gtk::EventControllerKey::new();
+    {
+        let (list, popover) = (list.clone(), popover.clone());
+        keys.connect_key_pressed(move |_, key, _, _| match key {
+            gdk::Key::Down if popover.is_visible() => {
+                if let Some(first) = list.row_at_index(0) {
+                    first.grab_focus();
+                }
+                glib::Propagation::Stop
+            }
+            gdk::Key::Escape if popover.is_visible() => {
+                popover.popdown();
+                glib::Propagation::Stop
+            }
+            _ => glib::Propagation::Proceed,
+        });
+    }
+    entry.add_controller(keys);
+    let list_keys = gtk::EventControllerKey::new();
+    {
+        let (entry, popover) = (entry.clone(), popover.clone());
+        list_keys.connect_key_pressed(move |_, key, _, _| match key {
+            gdk::Key::Escape => {
+                popover.popdown();
+                entry.grab_focus_without_selecting();
+                glib::Propagation::Stop
+            }
+            _ => glib::Propagation::Proceed,
+        });
+    }
+    list.add_controller(list_keys);
 }
 
 #[cfg(test)]
 mod tests {
-    use super::completion;
+    use super::matching;
 
     fn known() -> Vec<String> {
-        ["Q3 Launch", "Invoices", "Café trip"]
+        ["Q3 Launch", "Invoices", "Café trip", "Launch party"]
             .map(String::from)
             .to_vec()
     }
 
     #[test]
-    fn typing_the_start_of_a_topic_offers_the_rest() {
-        assert_eq!(completion("q3", &known()), Some(" Launch"));
-        assert_eq!(completion("Inv", &known()), Some("oices"));
-        assert_eq!(completion("caf", &known()), Some("é trip"));
+    fn topics_that_start_with_the_text_come_before_those_that_hold_it() {
+        assert_eq!(matching("launch", &known()), ["Launch party", "Q3 Launch"]);
+        assert_eq!(matching("CAF", &known()), ["Café trip"]);
+        assert!(matching("Taxes", &known()).is_empty());
     }
 
     #[test]
-    fn nothing_is_offered_for_no_match_an_empty_entry_or_a_whole_name() {
-        assert_eq!(completion("Taxes", &known()), None);
-        assert_eq!(completion("", &known()), None);
-        assert_eq!(completion("invoices", &known()), None);
-        assert_eq!(completion("Q3 Launch and more", &known()), None);
+    fn an_empty_field_lists_every_topic_and_a_whole_name_none() {
+        assert_eq!(matching("", &known()).len(), 4);
+        assert!(matching("invoices", &known()).is_empty());
     }
 }
