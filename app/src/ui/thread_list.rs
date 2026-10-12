@@ -941,6 +941,16 @@ impl ThreadList {
             (old, items)
         };
         self.muted.set(true);
+        // The row the keyboard is on, which holding the view still may move
+        // the focus off for the change, and which takes it back after.
+        let focused = self
+            .focus_in_list()
+            .then(|| self.focused_position())
+            .flatten()
+            .and_then(|at| match old.get(at)? {
+                Item::Row(row, _) => Some(key(row)),
+                Item::Line(..) => None,
+            });
         // Only what changed is spliced, last first, so the items between
         // two changes stay the same objects and GTK keeps the view on them.
         let changes = edits(&old, &new);
@@ -957,6 +967,9 @@ impl ThreadList {
         }
         self.reselect(&keys);
         self.muted.set(false);
+        if let Some(wanted) = focused {
+            self.refocus(&new, &wanted);
+        }
         if let Some((position, was)) = held {
             self.put_back(position, was);
         }
@@ -1005,6 +1018,34 @@ impl ThreadList {
                 false => Landing::Bundle(bundle.topic.clone(), key(&shown.rows[bundle.members[0]])),
             });
         shown.landing = landing;
+    }
+
+    /// Gives the keyboard focus back to the row `wanted`, wherever `items`
+    /// now put it. Holding the view still across a change moves the focus
+    /// off a row below the change, and GTK may hold the focus to a place
+    /// in the list rather than to the row there, so after a row above it
+    /// leaves, as when mail is deleted and the list moves on, the focus
+    /// would sit on another row than the one open. A row that left keeps
+    /// the focus where the change put it.
+    fn refocus(&self, items: &[Item], wanted: &Key) {
+        let Some(at) = items
+            .iter()
+            .position(|item| matches!(item, Item::Row(row, _) if key(row) == *wanted))
+        else {
+            return;
+        };
+        if self.focused_position() == Some(at) {
+            return;
+        }
+        match self.item_widget(at) {
+            Some(widget) => {
+                self.steered.set(true);
+                widget.grab_focus();
+            }
+            None => self
+                .view
+                .scroll_to(at as u32, gtk::ListScrollFlags::FOCUS, None),
+        }
     }
 
     /// Puts the focus where `landing` says, when the keyboard is in the
@@ -1290,12 +1331,18 @@ impl ThreadList {
         self.set_rows(rows, &title, &icon);
     }
 
-    /// The keys of the selected rows.
+    /// The keys of the selected rows, read off the items the model holds
+    /// now. The rows may already be the next ones, as when `set_rows` has
+    /// stored them and the layout has not caught up, and a position read
+    /// through them would name whatever row took that place.
     fn selected_keys(&self) -> HashSet<Key> {
         let shown = self.shown.borrow();
         self.positions()
             .into_iter()
-            .filter_map(|p| shown.row_at(p).map(|row| key(row)))
+            .filter_map(|p| match shown.items.get(p)? {
+                Item::Row(row, _) => Some(key(row)),
+                Item::Line(..) => None,
+            })
             .collect()
     }
 
