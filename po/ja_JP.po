@@ -5899,7 +5899,7 @@ msgstr "{file} を添付できませんでした: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1947 app/src/ui/composer/mod.rs:413
 #: app/src/ui/thread_list.rs:619 app/src/ui/thread_list.rs:625
-#: app/src/ui/thread_list.rs:1882
+#: app/src/ui/thread_list.rs:1929
 msgid "More"
 msgstr "その他"
 
