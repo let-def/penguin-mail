@@ -17,12 +17,7 @@ impl MainWindow {
     /// Hooks the list's topics to the Topic menu and its bundles to drops,
     /// and adds the one topic action that takes a name.
     pub(super) fn install_topics(self: &Rc<Self>) {
-        let weak = Rc::downgrade(self);
-        self.list.connect_topics(move |recent| {
-            if let Some(win) = weak.upgrade() {
-                win.conversation.set_recent_topics(&recent);
-            }
-        });
+        self.refresh_recent_topics();
         let weak = Rc::downgrade(self);
         self.list.connect_topic_drop(move |topic| {
             weak.upgrade().is_some_and(|win| win.drop_on_topic(topic))
@@ -43,8 +38,9 @@ impl MainWindow {
     /// Puts what the conversation reaches in the topic `name`, or with
     /// `None` takes it out of every topic.
     pub(super) fn topic(self: &Rc<Self>, name: Option<String>) {
-        if name.is_none() {
-            self.list.leaving_topic(&self.list.selected_rows());
+        match &name {
+            Some(name) => self.used_topic(name),
+            None => self.list.leaving_topic(&self.list.selected_rows()),
         }
         let view = Rc::clone(&self.conversation);
         self.press(&view, Press::Topic(name));
@@ -78,8 +74,9 @@ impl MainWindow {
         if rows.is_empty() {
             return false;
         }
-        if topic.is_none() {
-            self.list.leaving_topic(&rows);
+        match &topic {
+            Some(topic) => self.used_topic(topic),
+            None => self.list.leaving_topic(&rows),
         }
         let targets: Vec<Target> = rows.iter().map(|row| Target::from_row(row)).collect();
         let open = self.conversation.read(|o| o.among(&targets)) == Some(true);
@@ -91,5 +88,85 @@ impl MainWindow {
         };
         let view = Rc::clone(&self.conversation);
         self.press_on(&view, reach, Scope::Carried { open }, Press::Topic(topic))
+    }
+
+    /// Puts `topic` first among the topics used in this run, and offers it
+    /// at once.
+    fn used_topic(self: &Rc<Self>, topic: &str) {
+        {
+            let mut used = self.topics_used.borrow_mut();
+            used.retain(|known| !mailrs_domain::topic::same(known, topic));
+            used.insert(0, topic.to_string());
+            used.truncate(RECENT_TOPICS);
+        }
+        self.refresh_recent_topics();
+    }
+
+    /// Fills Recent Topics again from the store: the topics used in this
+    /// run first, then those on the newest mail of any account, on screen
+    /// or not. Changes that arrive together read the store once.
+    pub(super) fn refresh_recent_topics(self: &Rc<Self>) {
+        if self.topics_asked.replace(true) {
+            return;
+        }
+        let this = Rc::clone(self);
+        glib::spawn_future_local(async move {
+            // A change from here on asks for a read of its own.
+            this.topics_asked.set(false);
+            let read = this.topics_read.get() + 1;
+            this.topics_read.set(read);
+            let accounts: Vec<AccountId> = this.accounts().iter().map(|a| a.id).collect();
+            let stored = this
+                .core
+                .read(move |c| threads::recent_topics(c, &accounts, RECENT_TOPICS))
+                .await
+                .unwrap_or_else(|err| {
+                    tracing::warn!(error = %err, "could not read the recent topics");
+                    Vec::new()
+                });
+            if this.topics_read.get() != read {
+                return;
+            }
+            let recent = recent_topics(&this.topics_used.borrow(), stored, RECENT_TOPICS);
+            this.conversation.set_recent_topics(&recent);
+        });
+    }
+}
+
+/// How many topics Recent Topics offers by name.
+const RECENT_TOPICS: usize = 5;
+
+/// The topics Recent Topics offers: those `used` in this run first, then
+/// the `stored` ones newest first, each once whatever its case, at most
+/// `most`.
+fn recent_topics(used: &[String], stored: Vec<String>, most: usize) -> Vec<String> {
+    let mut recent: Vec<String> = used.to_vec();
+    for topic in stored {
+        if !recent.iter().any(|known| mailrs_domain::topic::same(known, &topic)) {
+            recent.push(topic);
+        }
+    }
+    recent.truncate(most);
+    recent
+}
+
+#[cfg(test)]
+mod tests {
+    use super::recent_topics;
+
+    fn names(list: &[&str]) -> Vec<String> {
+        list.iter().map(|n| n.to_string()).collect()
+    }
+
+    #[test]
+    fn topics_used_in_this_run_come_before_the_stores_each_once() {
+        let used = names(&["Taxes", "q3 launch"]);
+        let stored = names(&["Q3 Launch", "Invoices", "Taxes", "Trip"]);
+        assert_eq!(
+            recent_topics(&used, stored.clone(), 5),
+            ["Taxes", "q3 launch", "Invoices", "Trip"]
+        );
+        assert_eq!(recent_topics(&used, stored.clone(), 3), ["Taxes", "q3 launch", "Invoices"]);
+        assert_eq!(recent_topics(&[], stored, 2), ["Q3 Launch", "Invoices"]);
     }
 }
