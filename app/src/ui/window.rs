@@ -211,6 +211,15 @@ pub struct MainWindow {
     next_up: RefCell<Option<crate::ui::calendar::next::NextUp>>,
     /// The next-event card's reads; only the newest writes the card.
     next_card: Rc<crate::ui::calendar::run::NextCard>,
+    /// The topics the person put mail on in this run, latest first, which
+    /// Recent Topics offers ahead of the store's.
+    topics_used: RefCell<Vec<String>>,
+    /// A read of the recent topics is asked for and has not started, so
+    /// a burst of changes reads once.
+    topics_asked: Cell<bool>,
+    /// Counts the reads of the recent topics; only the newest fills the
+    /// menu.
+    topics_read: Cell<u64>,
 }
 
 /// The class that marks a toplevel window dark. `@media
@@ -1043,6 +1052,9 @@ impl MainWindow {
                 undo_sends: RefCell::new(scheduled::UndoSends::default()),
                 next_up: RefCell::new(None),
                 next_card: across::next_card(weak.clone()),
+                topics_used: RefCell::new(Vec::new()),
+                topics_asked: Cell::new(false),
+                topics_read: Cell::new(0),
             }
         });
         if window.core.demo {
@@ -1322,6 +1334,9 @@ impl MainWindow {
             } => {
                 let changed = thread_ids.iter().map(|id| (*account_id, id.clone()));
                 self.listing.changed(changed.collect());
+                // Mail may have joined or left a topic anywhere, on screen
+                // or not.
+                self.refresh_recent_topics();
             }
             ChangeEvent::NewMail { .. } => self.listing.everything(),
             ChangeEvent::WriteFailed { message, .. } => self.toast(message),
@@ -1413,6 +1428,9 @@ impl MainWindow {
             })
             .collect();
         self.listing.mailboxes_live(&mailboxes);
+        // Recent Topics reads every account's mail, and the accounts may
+        // have changed.
+        self.refresh_recent_topics();
         // A label deleted elsewhere, by the assistant or in the browser,
         // leaves the window on a mailbox that is no longer there, so the
         // inbox takes over as it does for a signed-out account.

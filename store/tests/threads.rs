@@ -478,4 +478,9 @@ fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
     assert_eq!(a3.topics.len(), 2);
 
     assert_eq!(threads::topic_names(&conn, &[a, b]).unwrap(), ["Café", "Q3 launch"]);
+    // Newest mail first: Q3 Launch's label on b1 at 300 beats Café's
+    // keyword on a3 at 250, and takes b1's spelling.
+    assert_eq!(threads::recent_topics(&conn, &[a, b], 5).unwrap(), ["Q3 Launch", "Café"]);
+    assert_eq!(threads::recent_topics(&conn, &[a, b], 1).unwrap(), ["Q3 Launch"]);
+    assert_eq!(threads::recent_topics(&conn, &[a], 5).unwrap(), ["Café", "Q3 Launch"]);
 }
