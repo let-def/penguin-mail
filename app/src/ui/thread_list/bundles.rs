@@ -271,23 +271,6 @@ fn link_occurrences(rows: &[Row], layout: &mut Layout) {
     }
 }
 
-/// The topics the rows name, newest first and each once: what a menu
-/// offers as the topics in use.
-pub fn recent(rows: &[Row], most: usize) -> Vec<String> {
-    let mut names: Vec<String> = Vec::new();
-    for row in rows {
-        for topic in sorted_topics(row) {
-            if names.len() == most {
-                return names;
-            }
-            if !names.iter().any(|n| topic::same(n, topic)) {
-                names.push(topic.clone());
-            }
-        }
-    }
-    names
-}
-
 /// Which of the [`COLORS`] a topic takes: the same on every device, since
 /// it comes from the name alone.
 pub fn color_of(topic: &str) -> usize {
@@ -520,17 +503,6 @@ mod tests {
         assert_eq!(layout.bundles[1].earlier, Some(0));
         assert_eq!(layout.hiding(0).map(|b| b.topic.as_str()), Some("Inv"));
         assert_eq!(layout.hiding(3), None);
-    }
-
-    #[test]
-    fn recent_topics_come_newest_first_each_once() {
-        let list = rows(&[
-            ("a", &["Q3"], true),
-            ("b", &["Inv"], true),
-            ("c", &["q3", "Web"], true),
-        ]);
-        assert_eq!(recent(&list, 5), ["Q3", "Inv", "Web"]);
-        assert_eq!(recent(&list, 2), ["Q3", "Inv"]);
     }
 
     #[test]
