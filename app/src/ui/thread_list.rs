@@ -47,15 +47,9 @@ type Key = (AccountId, String, Option<String>);
 /// A row shared between the list model and the rows this pane keeps.
 pub type Row = Rc<ThreadSummary>;
 
-/// Hands over the topics the rows name, newest first.
-type ShowTopics = dyn Fn(Vec<String>);
-
 /// Puts the dragged rows on a topic, or with `None` takes them off theirs;
 /// true when it took them.
 type PutInTopic = dyn Fn(Option<String>) -> bool;
-
-/// How many topics the Topic menu offers by name.
-const RECENT_TOPICS: usize = 5;
 
 /// How many pages a jump to a topic's next place loads before it gives
 /// up on finding one.
@@ -299,10 +293,6 @@ pub struct ThreadList {
     steered: Rc<Cell<bool>>,
     /// Asks the window for the next page, as scrolling to the end does.
     more: RefCell<Option<Rc<dyn Fn()>>>,
-    /// Hands the window the topics the rows name, newest first, for the
-    /// Topic menu, whenever they change.
-    on_topics: RefCell<Option<Box<ShowTopics>>>,
-    topics: RefCell<Vec<String>>,
     /// Puts the dragged rows on a bundle's topic, from a drop on any line
     /// of it, or takes them off theirs, from a drop outside every bundle.
     on_topic_drop: RefCell<Option<Box<PutInTopic>>>,
@@ -648,8 +638,6 @@ impl ThreadList {
             shown: state,
             steered,
             more: RefCell::new(None),
-            on_topics: RefCell::new(None),
-            topics: RefCell::new(Vec::new()),
             on_topic_drop: RefCell::new(None),
             dragged,
             show_accounts,
@@ -890,13 +878,6 @@ impl ThreadList {
         shown.jump = None;
     }
 
-    /// Runs `show` with the topics the rows name, newest first, whenever
-    /// they change.
-    pub fn connect_topics(&self, show: impl Fn(Vec<String>) + 'static) {
-        show(self.topics.borrow().clone());
-        *self.on_topics.borrow_mut() = Some(Box::new(show));
-    }
-
     /// Runs `put` with a bundle's topic when rows are dropped on it; it
     /// says whether it took them.
     pub fn connect_topic_drop(&self, put: impl Fn(Option<String>) -> bool + 'static) {
@@ -982,13 +963,6 @@ impl ThreadList {
         let landing = self.shown.borrow_mut().landing.take();
         if let Some(landing) = landing {
             self.land_focus(&landing);
-        }
-        let topics = bundles::recent(&self.shown.borrow().rows, RECENT_TOPICS);
-        if *self.topics.borrow() != topics {
-            self.topics.replace(topics.clone());
-            if let Some(show) = self.on_topics.borrow().as_ref() {
-                show(topics);
-            }
         }
     }
 
