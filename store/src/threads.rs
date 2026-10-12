@@ -1040,6 +1040,49 @@ fn topics(row: &Row<'_>, keywords: usize, labels: usize) -> rusqlite::Result<Vec
     Ok(names)
 }
 
+/// The topics mail in `accounts` carries, most recent first by the
+/// newest message on each, at most `most` of them and each once, spelled
+/// as on that newest message. A topic with no mail on it is left out.
+pub fn recent_topics(conn: &Connection, accounts: &[AccountId], most: usize) -> Result<Vec<String>> {
+    let mut dated: Vec<(String, i64)> = Vec::new();
+    let mut keep = |name: String, date: i64| match dated.iter_mut().find(|(n, _)| topic::same(n, &name)) {
+        Some(known) if known.1 < date => *known = (name, date),
+        Some(_) => {}
+        None => dated.push((name, date)),
+    };
+    for account_id in accounts {
+        let mut keywords = conn.prepare_cached(
+            "SELECT k.keyword, MAX(m.date) FROM message_keywords k \
+             JOIN messages m ON m.account_id = k.account_id AND m.id = k.message_id \
+             WHERE k.keyword >= 'topic:' AND k.keyword < 'topic;' AND k.account_id = ?1 \
+             GROUP BY k.keyword",
+        )?;
+        let rows = keywords.query_map([account_id], |row| Ok((row.get::<_, String>(0)?, row.get(1)?)))?;
+        for row in rows {
+            let (keyword, date) = row?;
+            if let Some(name) = topic::name_of_keyword(&keyword) {
+                keep(name, date);
+            }
+        }
+        let mut labels = conn.prepare_cached(
+            "SELECT b.name, MAX(m.date) FROM mailboxes b \
+             JOIN message_mailboxes l ON l.mailbox = b.key \
+             JOIN messages m ON m.account_id = b.account_id AND m.id = l.message_id \
+             WHERE b.name >= 'topic:' AND b.name < 'topic;' AND b.account_id = ?1 \
+             GROUP BY b.name",
+        )?;
+        let rows = labels.query_map([account_id], |row| Ok((row.get::<_, String>(0)?, row.get(1)?)))?;
+        for row in rows {
+            let (label, date) = row?;
+            if let Some(name) = topic::name_of_label(&label) {
+                keep(name.to_string(), date);
+            }
+        }
+    }
+    dated.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.to_lowercase().cmp(&b.0.to_lowercase())));
+    Ok(dated.into_iter().take(most).map(|(name, _)| name).collect())
+}
+
 /// Every topic the store knows in `accounts`, each name once,
 /// sorted ignoring case: the topic keywords messages carry and the
 /// server mailboxes named as topics, such as Gmail labels.
