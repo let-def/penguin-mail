@@ -4181,8 +4181,8 @@ msgstr "Acel cont nu este conectat."
 msgid "Could not save: {reason}"
 msgstr "Nu s-a putut salva: {reason}"
 
-#: app/src/protection/draft.rs:212 app/src/ui/window.rs:2921
-#: app/src/ui/window.rs:2944
+#: app/src/protection/draft.rs:212 app/src/ui/window.rs:2936
+#: app/src/ui/window.rs:2959
 msgid "Could not open the draft: {reason}"
 msgstr "Nu s-a putut deschide ciorna: {reason}"
 
@@ -4442,7 +4442,7 @@ msgid "Set up a different project"
 msgstr "Configurați un alt proiect"
 
 #. Translators: Google is a name; keep it as it is.
-#: app/src/route_choice.rs:175 app/src/ui/window.rs:3274
+#: app/src/route_choice.rs:175 app/src/ui/window.rs:3289
 msgid "Set up your own Google project"
 msgstr "Configurați propriul proiect Google"
 
@@ -4509,7 +4509,7 @@ msgstr "Mai mic de {size}"
 msgid "Larger than {size}"
 msgstr "Mai mare de {size}"
 
-#: app/src/rules.rs:251 app/src/settings/mod.rs:864
+#: app/src/rules.rs:251 app/src/settings/mod.rs:867
 msgid "All mail"
 msgstr "Toată corespondența"
 
@@ -4607,213 +4607,213 @@ msgstr "Pe acest calculator, cât timp Penguin Mail este deschis"
 msgid "On the server"
 msgstr "Pe server"
 
-#: app/src/settings/mod.rs:210 app/src/settings/mod.rs:402
-#: app/src/settings/mod.rs:776 app/src/ui/assistant_mcp_prefs.rs:202
+#: app/src/settings/mod.rs:212 app/src/settings/mod.rs:404
+#: app/src/settings/mod.rs:779 app/src/ui/assistant_mcp_prefs.rs:202
 #: app/src/ui/preferences.rs:1031
 msgid "Off"
 msgstr "Dezactivat"
 
-#: app/src/settings/mod.rs:211
+#: app/src/settings/mod.rs:213
 msgid "Local Server"
 msgstr "Server local"
 
-#: app/src/settings/mod.rs:212
+#: app/src/settings/mod.rs:214
 msgid "Anthropic API"
 msgstr "API Anthropic"
 
-#: app/src/settings/mod.rs:213
+#: app/src/settings/mod.rs:215
 msgid "Claude Subscription"
 msgstr "Abonament Claude"
 
-#: app/src/settings/mod.rs:238 app/src/ui/window.rs:3647
-#: app/src/ui/window.rs:3727
+#: app/src/settings/mod.rs:240 app/src/ui/window.rs:3677
+#: app/src/ui/window.rs:3757
 msgid "Assistant"
 msgstr "Asistent"
 
-#: app/src/settings/mod.rs:239 app/src/ui/preferences.rs:214
+#: app/src/settings/mod.rs:241 app/src/ui/preferences.rs:214
 msgid "Translation"
 msgstr "Traducere"
 
 #. The assistant's running label says "Unsubscribing" too, and
 #. means the act rather than the feature, which Portuguese
 #. words differently.
-#: app/src/settings/mod.rs:243
+#: app/src/settings/mod.rs:245
 msgctxt "ai feature"
 msgid "Unsubscribing"
 msgstr "Dezabonare"
 
-#: app/src/settings/mod.rs:249
+#: app/src/settings/mod.rs:251
 msgid "Answers questions and acts on your mail"
 msgstr "Răspunde la întrebări și acționează asupra corespondenței"
 
-#: app/src/settings/mod.rs:250
+#: app/src/settings/mod.rs:252
 msgid "Translates a message when you ask"
 msgstr "Traduce un mesaj când cereți"
 
-#: app/src/settings/mod.rs:252
+#: app/src/settings/mod.rs:254
 msgid "Reads a newsletter's unsubscribe page when the rules cannot"
 msgstr ""
 "Citește pagina de dezabonare a unui buletin informativ când regulile nu pot"
 
-#: app/src/settings/mod.rs:290
+#: app/src/settings/mod.rs:292
 msgid "Same as the Assistant"
 msgstr "La fel ca Asistentul"
 
-#: app/src/settings/mod.rs:403
+#: app/src/settings/mod.rs:405
 msgid "Claude's own only"
 msgstr "Doar căutarea proprie Claude"
 
-#: app/src/settings/mod.rs:404
+#: app/src/settings/mod.rs:406
 msgid "Brave Search"
 msgstr "Brave Search"
 
-#: app/src/settings/mod.rs:405
+#: app/src/settings/mod.rs:407
 msgid "SearXNG"
 msgstr "SearXNG"
 
-#: app/src/settings/mod.rs:406
+#: app/src/settings/mod.rs:408
 msgid "Keenable"
 msgstr "Keenable"
 
-#: app/src/settings/mod.rs:576
+#: app/src/settings/mod.rs:579
 msgid "Rich text"
 msgstr "Text formatat"
 
-#: app/src/settings/mod.rs:577
+#: app/src/settings/mod.rs:580
 msgid "Markdown"
 msgstr "Markdown"
 
-#: app/src/settings/mod.rs:596 app/src/ui/preferences/accounts.rs:150
+#: app/src/settings/mod.rs:599 app/src/ui/preferences/accounts.rs:150
 msgid "Automatic"
 msgstr "Automat"
 
-#: app/src/settings/mod.rs:597 app/src/ui/calendar/editor.rs:2163
+#: app/src/settings/mod.rs:600 app/src/ui/calendar/editor.rs:2163
 msgid "Monday"
 msgstr "luni"
 
-#: app/src/settings/mod.rs:598 app/src/ui/calendar/editor.rs:2169
+#: app/src/settings/mod.rs:601 app/src/ui/calendar/editor.rs:2169
 msgid "Sunday"
 msgstr "duminică"
 
-#: app/src/settings/mod.rs:636
+#: app/src/settings/mod.rs:639
 msgid "When opened"
 msgstr "La deschidere"
 
-#: app/src/settings/mod.rs:637
+#: app/src/settings/mod.rs:640
 msgid "After 2 seconds"
 msgstr "După 2 secunde"
 
-#: app/src/settings/mod.rs:638
+#: app/src/settings/mod.rs:641
 msgid "Only when I choose"
 msgstr "Doar când aleg eu"
 
-#: app/src/settings/mod.rs:654 app/src/settings/mod.rs:672
+#: app/src/settings/mod.rs:657 app/src/settings/mod.rs:675
 msgid "Ask each time"
 msgstr "Întreabă de fiecare dată"
 
-#: app/src/settings/mod.rs:655
+#: app/src/settings/mod.rs:658
 msgid "Always load"
 msgstr "Încarcă întotdeauna"
 
-#: app/src/settings/mod.rs:673
+#: app/src/settings/mod.rs:676
 msgid "Never ask"
 msgstr "Nu întreba niciodată"
 
-#: app/src/settings/mod.rs:700
+#: app/src/settings/mod.rs:703
 msgid "No Preview"
 msgstr "Fără previzualizare"
 
-#: app/src/settings/mod.rs:701
+#: app/src/settings/mod.rs:704
 msgid "1 Line"
 msgstr "1 rând"
 
-#: app/src/settings/mod.rs:702
+#: app/src/settings/mod.rs:705
 msgid "2 Lines"
 msgstr "2 rânduri"
 
-#: app/src/settings/mod.rs:736
+#: app/src/settings/mod.rs:739
 msgid "Small"
 msgstr "Mic"
 
-#: app/src/settings/mod.rs:737
+#: app/src/settings/mod.rs:740
 msgid "Default"
 msgstr "Implicit"
 
-#: app/src/settings/mod.rs:738
+#: app/src/settings/mod.rs:741
 msgid "Large"
 msgstr "Mare"
 
-#: app/src/settings/mod.rs:739
+#: app/src/settings/mod.rs:742
 msgid "Larger"
 msgstr "Mai mare"
 
-#: app/src/settings/mod.rs:777
+#: app/src/settings/mod.rs:780
 msgid "5 seconds"
 msgstr "5 secunde"
 
-#: app/src/settings/mod.rs:778
+#: app/src/settings/mod.rs:781
 msgid "10 seconds"
 msgstr "10 secunde"
 
-#: app/src/settings/mod.rs:779
+#: app/src/settings/mod.rs:782
 msgid "20 seconds"
 msgstr "20 de secunde"
 
-#: app/src/settings/mod.rs:780
+#: app/src/settings/mod.rs:783
 msgid "30 seconds"
 msgstr "30 de secunde"
 
-#: app/src/settings/mod.rs:797
+#: app/src/settings/mod.rs:800
 msgid "Follow system"
 msgstr "Ca sistemul"
 
-#: app/src/settings/mod.rs:798
+#: app/src/settings/mod.rs:801
 msgid "Light"
 msgstr "Luminos"
 
-#: app/src/settings/mod.rs:799
+#: app/src/settings/mod.rs:802
 msgid "Dark"
 msgstr "Întunecat"
 
-#: app/src/settings/mod.rs:833
+#: app/src/settings/mod.rs:836
 msgid "Every second"
 msgid_plural "Every {count} seconds"
 msgstr[0] "În fiecare secundă"
 msgstr[1] "La fiecare {count} secunde"
 msgstr[2] "La fiecare {count} de secunde"
 
-#: app/src/settings/mod.rs:841
+#: app/src/settings/mod.rs:844
 msgid "Every minute"
 msgid_plural "Every {count} minutes"
 msgstr[0] "În fiecare minut"
 msgstr[1] "La fiecare {count} minute"
 msgstr[2] "La fiecare {count} de minute"
 
-#: app/src/settings/mod.rs:858
+#: app/src/settings/mod.rs:861
 msgid "2 weeks"
 msgstr "2 săptămâni"
 
-#: app/src/settings/mod.rs:859
+#: app/src/settings/mod.rs:862
 msgid "30 days"
 msgstr "30 de zile"
 
-#: app/src/settings/mod.rs:860
+#: app/src/settings/mod.rs:863
 msgid "90 days"
 msgstr "90 de zile"
 
-#: app/src/settings/mod.rs:861
+#: app/src/settings/mod.rs:864
 msgid "1 year"
 msgstr "1 an"
 
-#: app/src/settings/mod.rs:862
+#: app/src/settings/mod.rs:865
 msgid "2 years"
 msgstr "2 ani"
 
-#: app/src/settings/mod.rs:863
+#: app/src/settings/mod.rs:866
 msgid "5 years"
 msgstr "5 ani"
 
-#: app/src/settings/mod.rs:885
+#: app/src/settings/mod.rs:888
 msgid ""
 "Every message stays on this computer. A large account takes a lot of disk "
 "space and memory, and its older mail downloads in the background."
@@ -4821,21 +4821,21 @@ msgstr ""
 "Fiecare mesaj rămâne pe acest calculator. Un cont mare ocupă mult spațiu pe "
 "disc și multă memorie, iar corespondența mai veche se descarcă în fundal."
 
-#: app/src/settings/mod.rs:887
+#: app/src/settings/mod.rs:890
 msgid "Everything in your inbox stays too, and older mail remains searchable"
 msgstr ""
 "Tot ce se află în Mesaje primite rămâne și el, iar corespondența mai veche "
 "poate fi căutată în continuare"
 
-#: app/src/settings/mod.rs:894
+#: app/src/settings/mod.rs:897
 msgid "256 MB"
 msgstr "256 MB"
 
-#: app/src/settings/mod.rs:895
+#: app/src/settings/mod.rs:898
 msgid "1 GB"
 msgstr "1 GB"
 
-#: app/src/settings/mod.rs:896
+#: app/src/settings/mod.rs:899
 msgid "4 GB"
 msgstr "4 GB"
 
@@ -5021,11 +5021,11 @@ msgstr "Deschide Penguin Mail"
 
 #: app/src/tray.rs:249 app/src/ui/composer/mod.rs:369
 #: app/src/ui/composer/mod.rs:672 app/src/ui/composer/mod.rs:1561
-#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:775
+#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:774
 msgid "New Message"
 msgstr "Mesaj nou"
 
-#: app/src/tray.rs:250 app/src/ui/sidebar.rs:1970 app/src/ui/window.rs:3653
+#: app/src/tray.rs:250 app/src/ui/sidebar.rs:1970 app/src/ui/window.rs:3683
 msgid "Check for Mail"
 msgstr "Verifică corespondența"
 
@@ -5043,7 +5043,7 @@ msgstr "Noutăți în {version}"
 msgid "Check for Updates"
 msgstr "Caută actualizări"
 
-#: app/src/tray.rs:266 app/src/ui/window.rs:3666
+#: app/src/tray.rs:266 app/src/ui/window.rs:3696
 #: app/src/ui/window/shortcuts.rs:644
 msgid "Quit"
 msgstr "Ieșire"
@@ -5066,7 +5066,7 @@ msgstr "Noutăți"
 msgid "Website"
 msgstr "Site web"
 
-#: app/src/ui/about.rs:179 app/src/ui/window.rs:3665
+#: app/src/ui/about.rs:179 app/src/ui/window.rs:3695
 msgid "Donate"
 msgstr "Donează"
 
@@ -5074,7 +5074,7 @@ msgstr "Donează"
 msgid "License"
 msgstr "Licență"
 
-#: app/src/ui/about.rs:203 app/src/ui/window.rs:3664
+#: app/src/ui/about.rs:203 app/src/ui/window.rs:3694
 msgid "About Penguin Mail"
 msgstr "Despre Penguin Mail"
 
@@ -5124,12 +5124,12 @@ msgid "The update to {version} failed"
 msgstr "Actualizarea la {version} a eșuat"
 
 #: app/src/ui/add_account.rs:514 app/src/ui/sandbox_setup.rs:129
-#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1546
+#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1564
 msgid "Copy Command"
 msgstr "Copiază comanda"
 
 #: app/src/ui/add_account.rs:524 app/src/ui/sandbox_setup.rs:143
-#: app/src/ui/window.rs:1551
+#: app/src/ui/window.rs:1569
 msgid "Command copied"
 msgstr "Comandă copiată"
 
@@ -5238,7 +5238,7 @@ msgstr "Anulează"
 #: app/src/ui/add_account.rs:3164 app/src/ui/add_account.rs:3254
 #: app/src/ui/add_account.rs:3711 app/src/ui/gmail_password_page.rs:128
 #: app/src/ui/gmail_password_page.rs:133 app/src/ui/gmail_password_page.rs:262
-#: app/src/ui/window.rs:1490
+#: app/src/ui/window.rs:1508
 msgid "Sign In"
 msgstr "Conectare"
 
@@ -5362,7 +5362,7 @@ msgstr "Nu acum"
 #: app/src/ui/add_account.rs:1435 app/src/ui/calendar/editor.rs:1681
 #: app/src/ui/calendar/sidebar.rs:1008 app/src/ui/contacts_prefs.rs:487
 #: app/src/ui/invitation.rs:490 app/src/ui/permission.rs:42
-#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1623
+#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1641
 msgid "Grant Access"
 msgstr "Acordă acces"
 
@@ -5515,7 +5515,7 @@ msgid "Sign In Again"
 msgstr "Conectare din nou"
 
 #: app/src/ui/add_account.rs:3898 app/src/ui/own_project.rs:761
-#: app/src/ui/preferences/google_route.rs:259 app/src/ui/window.rs:2229
+#: app/src/ui/preferences/google_route.rs:259 app/src/ui/window.rs:2244
 msgid "Open Google Cloud"
 msgstr "Deschide Google Cloud"
 
@@ -5585,7 +5585,7 @@ msgid "Filters, aliases and the automatic reply aren't available this way."
 msgstr ""
 "Filtrele, aliasurile și răspunsul automat nu sunt disponibile în acest mod."
 
-#: app/src/ui/assistant.rs:35 app/src/ui/window.rs:3813
+#: app/src/ui/assistant.rs:35 app/src/ui/window.rs:3843
 msgid "Summarize this conversation"
 msgstr "Rezumă această conversație"
 
@@ -5610,13 +5610,13 @@ msgstr "Scrie o ciornă de răspuns la conversația deschisă"
 msgid "Choose a Model"
 msgstr "Alege un model"
 
-#: app/src/ui/assistant.rs:123 app/src/ui/window.rs:3774
-#: app/src/ui/window.rs:3775
+#: app/src/ui/assistant.rs:123 app/src/ui/window.rs:3804
+#: app/src/ui/window.rs:3805
 msgid "Detach"
 msgstr "Detașează"
 
 #: app/src/ui/assistant.rs:124 app/src/ui/key_import.rs:213
-#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4441
+#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4485
 msgid "Close"
 msgstr "Închide"
 
@@ -5826,7 +5826,7 @@ msgstr "Editează {server}"
 
 #: app/src/ui/assistant_mcp_prefs.rs:137 app/src/ui/calendar/editor.rs:1726
 #: app/src/ui/composer/mod.rs:2230 app/src/ui/composer/recipients.rs:318
-#: app/src/ui/sender_prefs.rs:215 app/src/ui/window.rs:3417
+#: app/src/ui/sender_prefs.rs:215 app/src/ui/window.rs:3432
 msgid "Remove"
 msgstr "Elimină"
 
@@ -6641,7 +6641,7 @@ msgstr "Nu s-a putut atașa {file}: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1947 app/src/ui/composer/mod.rs:413
 #: app/src/ui/thread_list.rs:633 app/src/ui/thread_list.rs:639
-#: app/src/ui/thread_list.rs:1916
+#: app/src/ui/thread_list.rs:1950
 msgid "More"
 msgstr "Mai multe"
 
@@ -8940,7 +8940,7 @@ msgstr ""
 msgid "Allow Hide My Email"
 msgstr "Permite Hide My Email"
 
-#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3864
+#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3894
 msgid "Add an account first"
 msgstr "Adăugați mai întâi un cont"
 
@@ -10104,7 +10104,7 @@ msgstr "Ultimul cont de calendar folosit"
 msgid "Same as New Messages"
 msgstr "La fel ca la mesajele noi"
 
-#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:562
+#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:555
 msgid "All Inboxes"
 msgstr "Toate mesajele primite"
 
@@ -10123,7 +10123,7 @@ msgstr "Mută {account} în jos"
 #: app/src/ui/preferences/dialog.rs:27 app/src/ui/preferences/dialog.rs:33
 #: app/src/ui/preferences/dialog.rs:82 app/src/ui/preferences/dialog.rs:83
 #: app/src/ui/preferences/dialog.rs:353 app/src/ui/preferences/dialog.rs:355
-#: app/src/ui/window.rs:3662 app/src/ui/window/shortcuts.rs:616
+#: app/src/ui/window.rs:3692 app/src/ui/window/shortcuts.rs:616
 msgid "Preferences"
 msgstr "Preferințe"
 
@@ -10617,7 +10617,7 @@ msgstr "Răspuns automat…"
 msgid "Rules…"
 msgstr "Reguli…"
 
-#: app/src/ui/sidebar.rs:1881 app/src/ui/window.rs:3656
+#: app/src/ui/sidebar.rs:1881 app/src/ui/window.rs:3686
 msgid "Hide My Email…"
 msgstr "Hide My Email…"
 
@@ -10816,30 +10816,34 @@ msgstr "Corpul mesajului"
 msgid "New Template"
 msgstr "Șablon nou"
 
-#: app/src/ui/thread_list.rs:525
+#: app/src/ui/thread_list.rs:518
 msgid "No Mail"
 msgstr "Nicio corespondență"
 
 #. The two search terms are Gmail's own and stay in English.
-#: app/src/ui/thread_list.rs:543
+#: app/src/ui/thread_list.rs:536
 msgid "Search mail, e.g. from:ann has:attachment"
 msgstr "Căutați în corespondență, de ex. from:ann has:attachment"
 
-#: app/src/ui/thread_list.rs:582 app/src/ui/thread_list.rs:602
+#: app/src/ui/thread_list.rs:575 app/src/ui/thread_list.rs:600
 msgid "Show Mailboxes"
 msgstr "Arată căsuțele poștale"
 
-#: app/src/ui/thread_list.rs:587
+#: app/src/ui/thread_list.rs:580
 msgid "New Message (C)"
 msgstr "Mesaj nou (C)"
 
-#: app/src/ui/thread_list.rs:592
+#: app/src/ui/thread_list.rs:585
 msgid "Search (/)"
 msgstr "Caută (/)"
 
+#: app/src/ui/thread_list.rs:589 app/src/ui/thread_list.rs:601
+msgid "Group by Topic"
+msgstr ""
+
 #. The tooltips already say what these do; the spoken name takes
 #. the words and leaves the keys to a property of their own.
-#: app/src/ui/thread_list.rs:601
+#: app/src/ui/thread_list.rs:599
 msgid "Search mail"
 msgstr "Caută în corespondență"
 
@@ -10962,7 +10966,7 @@ msgstr "Filtrează mesajele (activ)"
 msgid "VIP"
 msgstr "VIP"
 
-#: app/src/ui/thread_row.rs:127 app/src/ui/window.rs:415
+#: app/src/ui/thread_row.rs:127 app/src/ui/window.rs:424
 msgid "Muted"
 msgstr "Ignorată"
 
@@ -11206,265 +11210,265 @@ msgstr ""
 "Alegeți unde se află corespondența. Puteți adăuga mai multe conturi ulterior "
 "din meniul principal."
 
-#: app/src/ui/window.rs:292
+#: app/src/ui/window.rs:301
 msgid "Deleted forever"
 msgstr "Șters definitiv"
 
-#: app/src/ui/window.rs:294
+#: app/src/ui/window.rs:303
 msgid "Deleted {count} conversation forever"
 msgid_plural "Deleted {count} conversations forever"
 msgstr[0] "{count} conversație ștearsă definitiv"
 msgstr[1] "{count} conversații șterse definitiv"
 msgstr[2] "{count} de conversații șterse definitiv"
 
-#: app/src/ui/window.rs:300
+#: app/src/ui/window.rs:309
 msgid "Deleted {count} message forever"
 msgid_plural "Deleted {count} messages forever"
 msgstr[0] "{count} mesaj șters definitiv"
 msgstr[1] "{count} mesaje șterse definitiv"
 msgstr[2] "{count} de mesaje șterse definitiv"
 
-#: app/src/ui/window.rs:313
+#: app/src/ui/window.rs:322
 msgid "{label}, on this mail"
 msgstr "{label}, pe acest mesaj"
 
-#: app/src/ui/window.rs:342
+#: app/src/ui/window.rs:351
 msgid "Added {person} to VIPs"
 msgstr "{person} a fost adăugat la contactele VIP"
 
-#: app/src/ui/window.rs:343
+#: app/src/ui/window.rs:352
 msgid "Removed {person} from VIPs"
 msgstr "{person} a fost eliminat din contactele VIP"
 
-#: app/src/ui/window.rs:349
+#: app/src/ui/window.rs:358
 msgid "Could not load mail: {reason}"
 msgstr "Corespondența nu a putut fi încărcată: {reason}"
 
-#: app/src/ui/window.rs:359
+#: app/src/ui/window.rs:368
 msgid "Added {account}. Downloading mail…"
 msgstr "S-a adăugat {account}. Se descarcă corespondența…"
 
-#: app/src/ui/window.rs:363 app/src/ui/window.rs:3036
+#: app/src/ui/window.rs:372 app/src/ui/window.rs:3051
 msgid "{account} is signed in again."
 msgstr "{account} este din nou conectat."
 
-#: app/src/ui/window.rs:382
+#: app/src/ui/window.rs:391
 msgid "Made a folder called “{name}” on {provider} for archived mail"
 msgstr ""
 "S-a creat pe {provider} un dosar numit „{name}” pentru corespondența arhivată"
 
-#: app/src/ui/window.rs:391
+#: app/src/ui/window.rs:400
 msgid "Flagged red"
 msgstr "Marcat cu steguleț roșu"
 
-#: app/src/ui/window.rs:392
+#: app/src/ui/window.rs:401
 msgid "Flagged orange"
 msgstr "Marcat cu steguleț portocaliu"
 
-#: app/src/ui/window.rs:393
+#: app/src/ui/window.rs:402
 msgid "Flagged yellow"
 msgstr "Marcat cu steguleț galben"
 
-#: app/src/ui/window.rs:394
+#: app/src/ui/window.rs:403
 msgid "Flagged green"
 msgstr "Marcat cu steguleț verde"
 
-#: app/src/ui/window.rs:395
+#: app/src/ui/window.rs:404
 msgid "Flagged blue"
 msgstr "Marcat cu steguleț albastru"
 
-#: app/src/ui/window.rs:396
+#: app/src/ui/window.rs:405
 msgid "Flagged purple"
 msgstr "Marcat cu steguleț mov"
 
-#: app/src/ui/window.rs:397
+#: app/src/ui/window.rs:406
 msgid "Flagged gray"
 msgstr "Marcat cu steguleț gri"
 
-#: app/src/ui/window.rs:408 app/src/ui/window.rs:510
+#: app/src/ui/window.rs:417 app/src/ui/window.rs:519
 msgid "Labels changed"
 msgstr "Etichete modificate"
 
-#: app/src/ui/window.rs:410
+#: app/src/ui/window.rs:419
 #, fuzzy
 #| msgid "Added to {calendar}"
 msgid "Added to {topic}"
 msgstr "Adăugat în {calendar}"
 
-#: app/src/ui/window.rs:412
+#: app/src/ui/window.rs:421
 #, fuzzy
 #| msgid "Remove from VIPs"
 msgid "Removed from topic"
 msgstr "Elimină din contactele VIP"
 
-#: app/src/ui/window.rs:416
+#: app/src/ui/window.rs:425
 msgid "Unmuted"
 msgstr "Nu mai este ignorată"
 
-#: app/src/ui/window.rs:418
+#: app/src/ui/window.rs:427
 msgid "Muted {count} conversation"
 msgid_plural "Muted {count} conversations"
 msgstr[0] "{count} conversație ignorată"
 msgstr[1] "{count} conversații ignorate"
 msgstr[2] "{count} de conversații ignorate"
 
-#: app/src/ui/window.rs:424
+#: app/src/ui/window.rs:433
 msgid "Muted {count} message"
 msgid_plural "Muted {count} messages"
 msgstr[0] "{count} mesaj ignorat"
 msgstr[1] "{count} mesaje ignorate"
 msgstr[2] "{count} de mesaje ignorate"
 
-#: app/src/ui/window.rs:430
+#: app/src/ui/window.rs:439
 msgid "Unmuted {count} conversation"
 msgid_plural "Unmuted {count} conversations"
 msgstr[0] "{count} conversație nu mai este ignorată"
 msgstr[1] "{count} conversații nu mai sunt ignorate"
 msgstr[2] "{count} de conversații nu mai sunt ignorate"
 
-#: app/src/ui/window.rs:436
+#: app/src/ui/window.rs:445
 msgid "Unmuted {count} message"
 msgid_plural "Unmuted {count} messages"
 msgstr[0] "{count} mesaj nu mai este ignorat"
 msgstr[1] "{count} mesaje nu mai sunt ignorate"
 msgstr[2] "{count} de mesaje nu mai sunt ignorate"
 
-#: app/src/ui/window.rs:446
+#: app/src/ui/window.rs:455
 msgid "Dismissed {count} follow-up"
 msgid_plural "Dismissed {count} follow-ups"
 msgstr[0] "{count} urmărire închisă"
 msgstr[1] "{count} urmăriri închise"
 msgstr[2] "{count} de urmăriri închise"
 
-#: app/src/ui/window.rs:455
+#: app/src/ui/window.rs:464
 msgid "Archived"
 msgstr "Arhivat"
 
-#: app/src/ui/window.rs:457
+#: app/src/ui/window.rs:466
 msgid "Archived {count} conversation"
 msgid_plural "Archived {count} conversations"
 msgstr[0] "{count} conversație arhivată"
 msgstr[1] "{count} conversații arhivate"
 msgstr[2] "{count} de conversații arhivate"
 
-#: app/src/ui/window.rs:463
+#: app/src/ui/window.rs:472
 msgid "Archived {count} message"
 msgid_plural "Archived {count} messages"
 msgstr[0] "{count} mesaj arhivat"
 msgstr[1] "{count} mesaje arhivate"
 msgstr[2] "{count} de mesaje arhivate"
 
-#: app/src/ui/window.rs:468
+#: app/src/ui/window.rs:477
 msgid "Moved to Trash"
 msgstr "Mutat în Coșul de gunoi"
 
-#: app/src/ui/window.rs:470
+#: app/src/ui/window.rs:479
 msgid "Moved {count} conversation to Trash"
 msgid_plural "Moved {count} conversations to Trash"
 msgstr[0] "{count} conversație mutată în Coșul de gunoi"
 msgstr[1] "{count} conversații mutate în Coșul de gunoi"
 msgstr[2] "{count} de conversații mutate în Coșul de gunoi"
 
-#: app/src/ui/window.rs:476
+#: app/src/ui/window.rs:485
 msgid "Moved {count} message to Trash"
 msgid_plural "Moved {count} messages to Trash"
 msgstr[0] "{count} mesaj mutat în Coșul de gunoi"
 msgstr[1] "{count} mesaje mutate în Coșul de gunoi"
 msgstr[2] "{count} de mesaje mutate în Coșul de gunoi"
 
-#: app/src/ui/window.rs:481
+#: app/src/ui/window.rs:490
 msgid "Marked as junk"
 msgstr "Marcat ca spam"
 
-#: app/src/ui/window.rs:483
+#: app/src/ui/window.rs:492
 msgid "Marked {count} conversation as junk"
 msgid_plural "Marked {count} conversations as junk"
 msgstr[0] "{count} conversație marcată ca spam"
 msgstr[1] "{count} conversații marcate ca spam"
 msgstr[2] "{count} de conversații marcate ca spam"
 
-#: app/src/ui/window.rs:489
+#: app/src/ui/window.rs:498
 msgid "Marked {count} message as junk"
 msgid_plural "Marked {count} messages as junk"
 msgstr[0] "{count} mesaj marcat ca spam"
 msgstr[1] "{count} mesaje marcate ca spam"
 msgstr[2] "{count} de mesaje marcate ca spam"
 
-#: app/src/ui/window.rs:494
+#: app/src/ui/window.rs:503
 msgid "Moved to the Inbox"
 msgstr "Mutat în Mesaje primite"
 
-#: app/src/ui/window.rs:496
+#: app/src/ui/window.rs:505
 msgid "Moved {count} conversation to the Inbox"
 msgid_plural "Moved {count} conversations to the Inbox"
 msgstr[0] "{count} conversație mutată în Mesaje primite"
 msgstr[1] "{count} conversații mutate în Mesaje primite"
 msgstr[2] "{count} de conversații mutate în Mesaje primite"
 
-#: app/src/ui/window.rs:502
+#: app/src/ui/window.rs:511
 msgid "Moved {count} message to the Inbox"
 msgid_plural "Moved {count} messages to the Inbox"
 msgstr[0] "{count} mesaj mutat în Mesaje primite"
 msgstr[1] "{count} mesaje mutate în Mesaje primite"
 msgstr[2] "{count} de mesaje mutate în Mesaje primite"
 
-#: app/src/ui/window.rs:942
+#: app/src/ui/window.rs:951
 msgid "Penguin Mail (Demo)"
 msgstr "Penguin Mail (demonstrație)"
 
-#: app/src/ui/window.rs:1376
+#: app/src/ui/window.rs:1391
 msgid "Could not read accounts: {reason}"
 msgstr "Conturile nu au putut fi citite: {reason}"
 
-#: app/src/ui/window.rs:2120
+#: app/src/ui/window.rs:2135
 msgid "Could not delete the mail: {reason}"
 msgstr "Corespondența nu a putut fi ștearsă: {reason}"
 
-#: app/src/ui/window.rs:2227
+#: app/src/ui/window.rs:2242
 msgid "Turn On the {service}"
 msgstr "Activați {service}"
 
-#: app/src/ui/window.rs:2412 app/src/ui/window.rs:2415
+#: app/src/ui/window.rs:2427 app/src/ui/window.rs:2430
 msgid "Move to Inbox"
 msgstr "Mută în Mesaje primite"
 
-#: app/src/ui/window.rs:2610
+#: app/src/ui/window.rs:2625
 msgid "Select mail from one account to tag it."
 msgstr "Selectați mesaje dintr-un singur cont pentru a le eticheta."
 
-#: app/src/ui/window.rs:2622
+#: app/src/ui/window.rs:2637
 msgid "This account has no tags yet. Make one in Outlook."
 msgstr "Acest cont nu are încă etichete. Creați una în Outlook."
 
-#: app/src/ui/window.rs:2715
+#: app/src/ui/window.rs:2730
 msgid "Add an account to reply or forward"
 msgstr "Adăugați un cont pentru a răspunde sau a redirecționa"
 
-#: app/src/ui/window.rs:2819
+#: app/src/ui/window.rs:2834
 msgid "Could not include {file}: {reason}"
 msgstr "{file} nu a putut fi inclus: {reason}"
 
-#: app/src/ui/window.rs:2900
+#: app/src/ui/window.rs:2915
 msgid "The server had already sent this message."
 msgstr "Serverul trimisese deja acest mesaj."
 
-#: app/src/ui/window.rs:2905
+#: app/src/ui/window.rs:2920
 msgid "This message was canceled in another app and is no longer in Drafts."
 msgstr "Acest mesaj a fost anulat în altă aplicație și nu mai este în Ciorne."
 
-#: app/src/ui/window.rs:3221
+#: app/src/ui/window.rs:3236
 msgid "Continue in your browser"
 msgstr "Continuați în navigator"
 
-#: app/src/ui/window.rs:3271
+#: app/src/ui/window.rs:3286
 msgid "This copy of Penguin Mail was built without Google sign-in."
 msgstr "Această copie a Penguin Mail a fost compilată fără conectare Google."
 
-#: app/src/ui/window.rs:3293
+#: app/src/ui/window.rs:3308
 msgid "Get a Release"
 msgstr "Obține o versiune oficială"
 
-#: app/src/ui/window.rs:3403
+#: app/src/ui/window.rs:3418
 msgid ""
 "Could not check for messages the server holds to send later, so {account} "
 "stays: {reason}"
@@ -11472,80 +11476,80 @@ msgstr ""
 "Nu s-a putut verifica dacă serverul păstrează mesaje de trimis mai târziu, "
 "așa că {account} rămâne: {reason}"
 
-#: app/src/ui/window.rs:3414
+#: app/src/ui/window.rs:3429
 msgid "Remove {account}?"
 msgstr "Eliminați {account}?"
 
-#: app/src/ui/window.rs:3433
+#: app/src/ui/window.rs:3448
 msgid "Remove Anyway"
 msgstr "Elimină oricum"
 
-#: app/src/ui/window.rs:3446
+#: app/src/ui/window.rs:3461
 msgid "Removed {account}"
 msgstr "{account} a fost eliminat"
 
-#: app/src/ui/window.rs:3448
+#: app/src/ui/window.rs:3463
 msgid "Could not remove {account}: {reason}"
 msgstr "{account} nu a putut fi eliminat: {reason}"
 
-#: app/src/ui/window.rs:3634
+#: app/src/ui/window.rs:3664
 msgid "Refresh"
 msgstr "Reîmprospătează"
 
-#: app/src/ui/window.rs:3638
+#: app/src/ui/window.rs:3668
 msgid "Show Declined Events"
 msgstr "Arată evenimentele refuzate"
 
-#: app/src/ui/window.rs:3654
+#: app/src/ui/window.rs:3684
 msgid "Add Account…"
 msgstr "Adaugă un cont…"
 
-#: app/src/ui/window.rs:3655
+#: app/src/ui/window.rs:3685
 msgid "New Smart Mailbox…"
 msgstr "Căsuță inteligentă nouă…"
 
-#: app/src/ui/window.rs:3663
+#: app/src/ui/window.rs:3693
 msgid "Keyboard Shortcuts"
 msgstr "Scurtături de tastatură"
 
-#: app/src/ui/window.rs:3672 app/src/ui/window.rs:3674
+#: app/src/ui/window.rs:3702 app/src/ui/window.rs:3704
 msgid "Main Menu"
 msgstr "Meniu principal"
 
-#: app/src/ui/window.rs:3739 app/src/ui/window.rs:3740
+#: app/src/ui/window.rs:3769 app/src/ui/window.rs:3770
 msgid "Dock"
 msgstr "Andochează"
 
-#: app/src/ui/window.rs:3865
+#: app/src/ui/window.rs:3895
 msgid "Add a mail account first"
 msgstr "Adăugați mai întâi un cont de e-mail"
 
 #. Translators: {account} is an email address.
-#: app/src/ui/window.rs:4116
+#: app/src/ui/window.rs:4160
 msgid "The calendar and contacts of {account} are connected."
 msgstr "Calendarul și contactele pentru {account} sunt conectate."
 
-#: app/src/ui/window.rs:4232
+#: app/src/ui/window.rs:4276
 msgid "Open a message from the person first"
 msgstr "Deschideți mai întâi un mesaj de la persoana respectivă"
 
-#: app/src/ui/window.rs:4324
+#: app/src/ui/window.rs:4368
 msgid "Penguin Mail shows the new language after a restart"
 msgstr "Penguin Mail afișează noua limbă după o repornire"
 
-#: app/src/ui/window.rs:4326 app/src/update/mod.rs:130
+#: app/src/ui/window.rs:4370 app/src/update/mod.rs:130
 msgid "Restart"
 msgstr "Repornește"
 
-#: app/src/ui/window.rs:4390
+#: app/src/ui/window.rs:4434
 msgid "Show Rules"
 msgstr "Arată regulile"
 
-#: app/src/ui/window.rs:4416
+#: app/src/ui/window.rs:4460
 msgid "Messages That Will Not Download"
 msgstr "Mesaje care nu se descarcă"
 
-#: app/src/ui/window.rs:4418
+#: app/src/ui/window.rs:4462
 msgid ""
 "Penguin Mail could not download these from {address}'s server. It tries "
 "again at each check, except for a message too large to download."

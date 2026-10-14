@@ -1795,10 +1795,7 @@ impl MainWindow {
             let mailbox = self.shown();
             self.list
                 .set_show_accounts(mailbox.account().is_none() && self.mail_accounts().len() > 1);
-            // Search hits come in the order the search ranks them, which
-            // bundles would scramble.
-            self.list
-                .set_bundling(!matches!(mailbox, Mailbox::Search { .. }));
+            self.follow_grouping();
             let accounts = self.accounts_of(&mailbox);
             self.word_buttons(&self.conversation, &mailbox, accounts);
             self.follow_outbox();
@@ -3479,6 +3476,21 @@ impl MainWindow {
         self.install_outbox_actions(&self.actions, &view);
         self.install_main_actions();
         self.install_empty_trash();
+        let on = self.settings_with(|s| s.group_topics);
+        let group = gio::SimpleAction::new_stateful("group-topics", None, &on.to_variant());
+        let weak = Rc::downgrade(self);
+        group.connect_change_state(move |action, value| {
+            let (Some(win), Some(on)) = (weak.upgrade(), value.and_then(|v| v.get::<bool>()))
+            else {
+                return;
+            };
+            action.set_state(&on.to_variant());
+            if let Some(app) = win.app.upgrade() {
+                app.change_settings(Change::GroupTopics(on));
+            }
+            win.follow_grouping();
+        });
+        self.actions.add_action(&group);
         let remind_at = gio::SimpleAction::new("remind-at", Some(glib::VariantTy::INT64));
         let weak = Rc::downgrade(self);
         remind_at.connect_activate(move |_, parameter| {
@@ -4007,6 +4019,20 @@ impl MainWindow {
             }
             Err(err) => tracing::warn!(action = %detailed, error = %err, "unreadable demo action"),
         }
+    }
+
+    /// Bundles the list as the person chose, except over search hits:
+    /// those come in the order the search ranks them, which bundles would
+    /// scramble, so Group by Topic grays out while they show.
+    fn follow_grouping(&self) {
+        let search = matches!(self.shown(), Mailbox::Search { .. });
+        if let Some(group) = self.actions.lookup_action("group-topics")
+            && let Ok(group) = group.downcast::<gio::SimpleAction>()
+        {
+            group.set_enabled(!search);
+        }
+        self.list
+            .set_bundling(!search && self.settings_with(|s| s.group_topics));
     }
 
     fn settings(&self) -> Settings {
