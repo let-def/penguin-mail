@@ -260,6 +260,9 @@ pub struct ThreadList {
     pub page: adw::NavigationPage,
     pub sidebar_button: gtk::ToggleButton,
     pub search_button: gtk::ToggleButton,
+    /// Turns bundles on and off through the window's `group-topics`
+    /// action, which also grays it out over search hits.
+    group_button: gtk::ToggleButton,
     /// Where `CategoryBar::install_categories` puts the chips, right under
     /// the header and above the banners, so a sign-in or Grant Access
     /// banner never lands between the header and the chips.
@@ -579,6 +582,11 @@ impl ThreadList {
             .icon_name("system-search-symbolic")
             .tooltip_text(gettext("Search (/)"))
             .build();
+        let group_button = gtk::ToggleButton::builder()
+            .icon_name("penguin-mail-bundle-symbolic")
+            .tooltip_text(gettext("Group by Topic"))
+            .action_name("win.group-topics")
+            .build();
         search_button
             .bind_property("active", &search_bar, "search-mode-enabled")
             .bidirectional()
@@ -588,6 +596,7 @@ impl ThreadList {
         // the words and leaves the keys to a property of their own.
         super::name(&search_entry, &gettext("Search mail"));
         super::name(&sidebar_button, &gettext("Show Mailboxes"));
+        super::name(&group_button, &gettext("Group by Topic"));
         for button in [
             compose_button.upcast_ref::<gtk::Widget>(),
             search_button.upcast_ref(),
@@ -600,6 +609,7 @@ impl ThreadList {
         header.pack_start(&titles);
         header.pack_end(&compose_button);
         header.pack_end(&search_button);
+        header.pack_end(&group_button);
 
         let categories_slot = gtk::Box::new(gtk::Orientation::Vertical, 0);
         let banner = adw::Banner::builder()
@@ -645,6 +655,7 @@ impl ThreadList {
             page,
             sidebar_button,
             search_button,
+            group_button,
             categories_slot,
             banner,
             grant_bars,
@@ -769,11 +780,13 @@ impl ThreadList {
             for class in ["suggested-action", "pill", "bottom-new"] {
                 self.compose_button.remove_css_class(class);
             }
-            // New sits at the outer end with Search inside it, so Search
-            // comes off and goes back after New.
+            // New sits at the outer end with Search and Group by Topic
+            // inside it, so those come off and go back after New.
             self.header.remove(&self.search_button);
+            self.header.remove(&self.group_button);
             self.header.pack_end(&self.compose_button);
             self.header.pack_end(&self.search_button);
+            self.header.pack_end(&self.group_button);
         }
         self.toolbar.set_reveal_bottom_bars(layout.new_below);
     }
