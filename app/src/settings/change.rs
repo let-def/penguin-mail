@@ -22,6 +22,8 @@ use super::{
 #[derive(Debug, Clone, PartialEq)]
 pub enum Change {
     Threading(bool),
+    /// Bundles in the list, from the button beside Search.
+    GroupTopics(bool),
     MarkRead(MarkRead),
     FollowSelectionDirection(bool),
     RemoteImages(RemoteImages),
@@ -288,6 +290,7 @@ impl Change {
                 }
             }
             Change::Threading(on) => settings.threading = on,
+            Change::GroupTopics(on) => settings.group_topics = on,
             Change::MarkRead(when) => settings.mark_read = when,
             Change::FollowSelectionDirection(on) => settings.follow_selection_direction = on,
             Change::RemoteImages(when) => settings.remote_images = when,
@@ -703,6 +706,9 @@ settable! {
         // decide, not something the assistant flips.
         encrypt_when_possible,
         flag_color,
+        // A button beside Search turns bundles on and off, the person's
+        // own view of the list like inbox_categories.
+        group_topics,
         hidden_addresses,
         inbox_categories,
         // A new language only arrives with a restart, and the assistant can
@@ -888,6 +894,7 @@ impl Effects {
     pub fn between(before: &Settings, after: &Settings) -> Effects {
         let Settings {
             threading,
+            group_topics,
             mark_read,
             follow_selection_direction,
             remote_images,
@@ -957,6 +964,8 @@ impl Effects {
         // Send commits, and the rest are read when they are needed, so
         // changing one saves the file and stops there.
         let _quiet = (
+            // The list's button relays the list itself as it toggles.
+            group_topics,
             mark_read,
             follow_selection_direction,
             remote_images,
@@ -1497,6 +1506,7 @@ mod tests {
             Change::Space(crate::settings::Space::Calendar),
             Change::CalendarView(crate::settings::CalendarView::Day),
             Change::ShowDeclinedEvents(true),
+            Change::GroupTopics(false),
             Change::SkillEnabled {
                 id: "claude-code/pdf".into(),
                 on: true,
