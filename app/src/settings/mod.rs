@@ -23,6 +23,8 @@ pub use file::{Opened, Saver};
 pub struct Settings {
     /// Group replies into conversations instead of listing each message.
     pub threading: bool,
+    /// Draw nearby mail of one topic together in the list, as bundles.
+    pub group_topics: bool,
     pub mark_read: MarkRead,
     pub remote_images: RemoteImages,
     pub text_size: TextSize,
@@ -452,6 +454,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             threading: true,
+            group_topics: true,
             mark_read: MarkRead::Immediately,
             remote_images: RemoteImages::Ask,
             text_size: TextSize::Normal,
@@ -1195,6 +1198,17 @@ mod tests {
             (read.space, read.calendar_view, read.show_declined_events),
             (Space::Mail, CalendarView::Week, false)
         );
+    }
+
+    #[test]
+    fn a_file_from_before_topics_groups_them_and_remembers_turning_it_off() {
+        let read: Settings = toml::from_str("threading = false\n").expect("an old file reads");
+        assert!(read.group_topics);
+        let mut settings = read;
+        Change::GroupTopics(false).apply(&mut settings);
+        let written = toml::to_string(&settings).expect("settings serialise");
+        let read: Settings = toml::from_str(&written).expect("and come back");
+        assert!(!read.group_topics);
     }
 
     #[test]
