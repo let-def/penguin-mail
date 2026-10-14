@@ -84,6 +84,14 @@ shows which topic it is on and is a place to drop more mail.
 Search results are never bundled. They stay in the order the search
 ranks them.
 
+## Turning bundles off
+
+The **Group by Topic** button, left of Search at the top of the list,
+turns bundles off and on. With it off, the list shows every conversation
+in date order, as if no mail were on a topic, and the mail keeps its
+topics for when you turn it back on. Penguin Mail remembers the choice.
+The button is grayed out over search results, which are never bundled.
+
 ## Putting mail on a topic
 
 ### From the menu
