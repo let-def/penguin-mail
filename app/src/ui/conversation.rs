@@ -37,7 +37,7 @@ use super::pgp::PgpCard;
 use super::queued::QueuedCard;
 use super::toolbar::{self, Holds};
 use super::translation::TranslationCard;
-use super::{name, name_with_shortcut};
+use super::{name, name_arrow, name_with_shortcut};
 use crate::compose::ReplyKind;
 use crate::offered::Filing;
 use crate::open_thread::inline::{self, Address};
@@ -2067,25 +2067,6 @@ fn arrow_of(split: &adw::SplitButton) -> Option<gtk::MenuButton> {
         child = widget.next_sibling();
     }
     None
-}
-
-/// Names a split button's arrow `said`, and gives the main half the
-/// description `main` in place of the arrow's words, which libadwaita
-/// copies onto it. A screen reader then says each half once: "Flag" and
-/// "Choose Flag Color", not "Flag, Flag Color" and "Flag Color".
-fn name_arrow(split: &adw::SplitButton, said: &str, main: &str) {
-    let mut child = split.first_child();
-    while let Some(widget) = child {
-        if widget.is::<gtk::MenuButton>() {
-            name(&widget, said);
-        } else if widget.is::<gtk::Button>() {
-            // libadwaita points the main half's DescribedBy at the arrow,
-            // and GTK reads that relation before the property.
-            widget.reset_relation(gtk::AccessibleRelation::DescribedBy);
-            widget.update_property(&[gtk::accessible::Property::Description(main)]);
-        }
-        child = widget.next_sibling();
-    }
 }
 
 fn flag_colors() -> gtk::Popover {

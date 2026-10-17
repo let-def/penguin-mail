@@ -1048,6 +1048,13 @@ splitbutton.new-event-split > menubutton > button {
   border-radius: 0 16px 16px 0;
 }
 .calendar-narrow splitbutton.new-event-split { margin-left: 0; }
+/* Group by Topic is a split button, whose main half is a plain button
+   that has no checked state; the list marks it "pressed" while bundles
+   are on, and this gives it the shade of a checked flat toggle. */
+splitbutton.pressed > button { background-color: alpha(currentColor, 0.1); }
+splitbutton.pressed > button:hover { background-color: alpha(currentColor, 0.13); }
+splitbutton.pressed > button:active { background-color: alpha(currentColor, 0.19); }
+popover.topic-spans > contents { padding: 6px 10px 6px 6px; }
 /* The view switch and the sidebar's Mail / Calendar switch: 13 px
    labels, the unchosen ones dimmed at weight 600. */
 toggle-group.view-switch > toggle,
