@@ -84,6 +84,24 @@ shows which topic it is on and is a place to drop more mail.
 Search results are never bundled. They stay in the order the search
 ranks them.
 
+## Choosing how mail groups
+
+The arrow beside the **Group by Topic** button opens a menu with three
+ways to gather a topic's mail:
+
+- **Within 20 Messages**, the default: each conversation of the topic
+  that comes within 20 conversations of the last one gathered joins the
+  bundle, so a long run of the topic keeps growing.
+- **By Week**: every conversation of the topic from the same week joins
+  it, however far apart they are in the list. Weeks start on the day
+  the calendar's weeks start, set under **Week Starts On** in
+  Preferences.
+- **By Month**: the same, for every conversation from the same month.
+
+A conversation counts in the week or month of its newest message. In
+each case the bundle sits where its newest conversation was. Picking
+one turns grouping on if it was off, and Penguin Mail remembers it.
+
 ## Turning bundles off
 
 The **Group by Topic** button, left of Search at the top of the list,
