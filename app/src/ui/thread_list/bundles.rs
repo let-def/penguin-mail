@@ -3,9 +3,10 @@
 //! hands over its rows and draws the entries this lays out.
 //!
 //! The list keeps its order, newest first. Walking down it, a row in a
-//! topic gathers every later row of that topic that comes within
-//! [`WINDOW`] rows of the last one gathered, so a long run of the topic
-//! keeps growing. A bundle sits where its newest row was; the rows it
+//! topic gathers the later rows of that topic within its [`Reach`]: by
+//! default each that comes within [`WINDOW`] rows of the last one
+//! gathered, so a long run of the topic keeps growing, or else every one
+//! of the same week or month. A bundle sits where its newest row was; the rows it
 //! pulled up leave their places, and the rows between keep their order. A
 //! row of a topic with no other row of it near is a bundle of its own, so
 //! its header shows which topic it is on and takes the rows dropped on
@@ -20,6 +21,7 @@
 
 use std::collections::HashSet;
 
+use chrono::{Datelike, NaiveDate, Weekday};
 use mailrs_domain::{ThreadSummary, topic};
 
 use super::{Key, Row, key};
@@ -27,6 +29,38 @@ use super::{Key, Row, key};
 /// How many rows past the last row of a bundle the next row of its topic
 /// may come and still join it.
 pub const WINDOW: usize = 20;
+
+/// Which later rows of its topic a row gathers.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Reach {
+    /// Each within this many rows of the last one gathered.
+    Rows(usize),
+    /// Each in the same period, given for every row by [`period`].
+    Periods(Vec<i64>),
+}
+
+/// The reach the list gathers with unless the person picks a period.
+pub const NEARBY: Reach = Reach::Rows(WINDOW);
+
+/// A period of the calendar mail can share a bundle in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Period {
+    /// A week starting on the given day.
+    Week(Weekday),
+    Month,
+}
+
+/// The number of the period `day` falls in: two days share a period
+/// exactly when they get the same number.
+pub fn period(day: NaiveDate, of: Period) -> i64 {
+    match of {
+        Period::Week(start) => {
+            let back = (7 + day.weekday().num_days_from_monday() - start.num_days_from_monday()) % 7;
+            i64::from(day.num_days_from_ce() - back as i32)
+        }
+        Period::Month => i64::from(day.year()) * 12 + i64::from(day.month0()),
+    }
+}
 
 /// How many colours bundles take, by the hash of their topic's name: the
 /// account colours, `account-0` and on in the stylesheet.
@@ -136,7 +170,7 @@ impl Opened {
 
 /// Lays `rows` out in bundles. A row whose key is in `kept` shows even in
 /// a closed bundle.
-pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>) -> Layout {
+pub fn lay_out(rows: &[Row], reach: &Reach, opened: &Opened, kept: &HashSet<Key>) -> Layout {
     let topics: Vec<Vec<&String>> = rows.iter().map(|r| sorted_topics(r)).collect();
     let mut placed = vec![false; rows.len()];
     let mut layout = Layout::default();
@@ -150,7 +184,7 @@ pub fn lay_out(rows: &[Row], window: usize, opened: &Opened, kept: &HashSet<Key>
         let gathered = topics[start]
             .iter()
             .find_map(|topic| {
-                let members = gather(&topics, &placed, start, topic, window);
+                let members = gather(&topics, &placed, start, topic, reach);
                 (members.len() > 1).then_some((topic, members))
             })
             .or_else(|| topics[start].first().map(|topic| (topic, vec![start])));
@@ -214,22 +248,32 @@ fn sorted_topics(row: &ThreadSummary) -> Vec<&String> {
 }
 
 /// `start` and the rows after it that join it in `topic`: each unplaced
-/// row of the topic within `window` rows of the last one gathered.
+/// row of the topic within `reach`.
 fn gather(
     topics: &[Vec<&String>],
     placed: &[bool],
     start: usize,
     topic: &str,
-    window: usize,
+    reach: &Reach,
 ) -> Vec<usize> {
+    let joins = |row: usize| !placed[row] && topics[row].iter().any(|g| topic::same(g, topic));
     let mut members = vec![start];
-    let mut next = start + 1;
-    while next < topics.len() && next <= members[members.len() - 1] + window {
-        let joins = !placed[next] && topics[next].iter().any(|g| topic::same(g, topic));
-        if joins {
-            members.push(next);
+    match reach {
+        Reach::Rows(window) => {
+            let mut next = start + 1;
+            while next < topics.len() && next <= members[members.len() - 1] + window {
+                if joins(next) {
+                    members.push(next);
+                }
+                next += 1;
+            }
         }
-        next += 1;
+        // The list is newest first, but a row can sit out of date order,
+        // so every later row is looked at rather than stopping at the
+        // first of another period.
+        Reach::Periods(periods) => members.extend(
+            (start + 1..topics.len()).filter(|row| periods[*row] == periods[start] && joins(*row)),
+        ),
     }
     members
 }
@@ -324,7 +368,7 @@ mod tests {
     }
 
     fn plain(rows: &[Row], window: usize) -> Vec<String> {
-        words(rows, &lay_out(rows, window, &Opened::default(), &HashSet::new()))
+        words(rows, &lay_out(rows, &Reach::Rows(window), &Opened::default(), &HashSet::new()))
     }
 
     #[test]
@@ -357,7 +401,7 @@ mod tests {
         let mut opened = Opened::default();
         opened.toggle("Q3", &list, &[0], &mut HashSet::new());
         assert_eq!(
-            words(&list, &lay_out(&list, WINDOW, &opened, &HashSet::new())),
+            words(&list, &lay_out(&list, &NEARBY, &opened, &HashSet::new())),
             ["[Q3 1]", "a", "b"],
             "no trailer to fold it with"
         );
@@ -373,6 +417,36 @@ mod tests {
             ("e", &["Q3"], true),
         ]);
         assert_eq!(plain(&list, 2), ["[Q3 3]", "a", "c", "e", "b", "d"]);
+    }
+
+    #[test]
+    fn rows_of_one_period_gather_however_far_apart_and_others_do_not() {
+        let list = rows(&[
+            ("a", &["Q3"], true),
+            ("b", &[], true),
+            ("c", &["Q3"], true),
+            ("d", &["Q3"], true),
+        ]);
+        let reach = Reach::Periods(vec![5, 5, 5, 4]);
+        assert_eq!(
+            words(&list, &lay_out(&list, &reach, &Opened::default(), &HashSet::new())),
+            ["[Q3 2]", "a", "c", "b", "[Q3 1]", "d"]
+        );
+    }
+
+    #[test]
+    fn a_week_starts_on_the_day_asked_and_a_month_on_the_first() {
+        let day = |d: u32| NaiveDate::from_ymd_opt(2026, 10, d).expect("a day of October");
+        // 18 October 2026 is a Sunday.
+        let monday = Period::Week(Weekday::Mon);
+        assert_eq!(period(day(18), monday), period(day(12), monday));
+        assert_ne!(period(day(19), monday), period(day(18), monday));
+        let sunday = Period::Week(Weekday::Sun);
+        assert_eq!(period(day(18), sunday), period(day(24), sunday));
+        assert_ne!(period(day(17), sunday), period(day(18), sunday));
+        assert_eq!(period(day(1), Period::Month), period(day(31), Period::Month));
+        let september = NaiveDate::from_ymd_opt(2026, 9, 30).expect("a day");
+        assert_ne!(period(september, Period::Month), period(day(1), Period::Month));
     }
 
     #[test]
@@ -402,7 +476,7 @@ mod tests {
         let mut none = HashSet::new();
         opened.toggle("Q3", &list, &[0, 1, 2], &mut none);
         assert_eq!(
-            words(&list, &lay_out(&list, WINDOW, &opened, &none)),
+            words(&list, &lay_out(&list, &NEARBY, &opened, &none)),
             ["[Q3 3]", "a", "b", "c", "+0"]
         );
         let grown = rows(&[
@@ -412,12 +486,12 @@ mod tests {
             ("c", &["Q3"], false),
         ]);
         assert_eq!(
-            words(&grown, &lay_out(&grown, WINDOW, &opened, &none)),
+            words(&grown, &lay_out(&grown, &NEARBY, &opened, &none)),
             ["[q3 4]", "new", "a", "b", "c", "+0"]
         );
         opened.toggle("q3", &grown, &[0, 1, 2, 3], &mut none);
         assert_eq!(
-            words(&grown, &lay_out(&grown, WINDOW, &opened, &none)),
+            words(&grown, &lay_out(&grown, &NEARBY, &opened, &none)),
             ["[q3 4]", "b", "+3"]
         );
     }
@@ -427,7 +501,7 @@ mod tests {
         let list = rows(&[("a", &["Q3"], false), ("b", &["Q3"], true)]);
         let kept = HashSet::from([key(&list[0])]);
         assert_eq!(
-            words(&list, &lay_out(&list, WINDOW, &Opened::default(), &kept)),
+            words(&list, &lay_out(&list, &NEARBY, &Opened::default(), &kept)),
             ["[Q3 2]", "a", "b"]
         );
     }
@@ -444,7 +518,7 @@ mod tests {
         kept.insert(key(&other[0]));
         opened.toggle("Q3", &list, &[0, 1], &mut kept);
         assert_eq!(
-            words(&list, &lay_out(&list, WINDOW, &opened, &kept)),
+            words(&list, &lay_out(&list, &NEARBY, &opened, &kept)),
             ["[Q3 2]", "a", "+1"]
         );
         assert!(kept.contains(&key(&other[0])), "rows outside the bundle stay kept");
@@ -475,7 +549,7 @@ mod tests {
             ("h", &["Q3"], true),
             ("i", &["Q3"], true),
         ]);
-        let layout = lay_out(&list, 1, &Opened::default(), &HashSet::new());
+        let layout = lay_out(&list, &Reach::Rows(1), &Opened::default(), &HashSet::new());
         assert_eq!(
             words(&list, &layout),
             ["[Q3 2]", "a", "b", "c", "d", "[Q3 1]", "e", "f", "g", "[Q3 2]", "h", "i"]
@@ -495,7 +569,7 @@ mod tests {
             ("d", &["Q3"], true),
             ("e", &["Q3"], true),
         ]);
-        let layout = lay_out(&list, 1, &Opened::default(), &HashSet::new());
+        let layout = lay_out(&list, &Reach::Rows(1), &Opened::default(), &HashSet::new());
         assert_eq!(
             words(&list, &layout),
             ["[Inv 2]", "(summary)", "c", "[Q3 2]", "d", "e"]
