@@ -33,7 +33,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 - An AppImage bundles the current runtime for Ubuntu 22.04 and newer, and Debian 13.
 - Choose Greek, Romanian or Ukrainian in Preferences.
 - Build and install Penguin Mail with Nix, or enter its development environment with `nix develop`.
-- Put mail on a named topic from its right-click menu or by dragging it onto a topic, and drag it out of one to take it off; the list shows nearby mail of each topic together, unread first, and on Gmail and on IMAP servers that store keywords your other devices see the same topics. The Group by Topic button beside Search turns the grouping off and on.
+- Put mail on a named topic from its right-click menu or by dragging it onto a topic, and drag it out of one to take it off; the list shows nearby mail of each topic together, unread first, and on Gmail and on IMAP servers that store keywords your other devices see the same topics. The Group by Topic button beside Search turns the grouping off and on, and its arrow gathers each topic's mail by week or by month instead of mail that sits close together.
 
 ### Fixed
 

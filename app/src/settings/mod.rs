@@ -27,6 +27,9 @@ pub struct Settings {
     pub threading: bool,
     /// Draw nearby mail of one topic together in the list, as bundles.
     pub group_topics: bool,
+    /// How far apart mail of one topic may be and still share a bundle,
+    /// from the menu beside Group by Topic.
+    pub topic_span: TopicSpan,
     pub mark_read: MarkRead,
     pub remote_images: RemoteImages,
     pub text_size: TextSize,
@@ -472,6 +475,7 @@ impl Default for Settings {
         Settings {
             threading: true,
             group_topics: true,
+            topic_span: TopicSpan::Nearby,
             mark_read: MarkRead::Immediately,
             remote_images: RemoteImages::Ask,
             text_size: TextSize::Normal,
@@ -612,6 +616,44 @@ pub trait Choice: Sized + Copy + PartialEq + 'static {
             .get(index as usize)
             .copied()
             .unwrap_or(Self::ALL[0])
+    }
+}
+
+/// Which mail of one topic a bundle gathers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum TopicSpan {
+    /// Mail within `bundles::WINDOW` rows of the last one gathered.
+    Nearby,
+    /// Mail of one calendar week, starting on the day the calendar's
+    /// weeks start.
+    Week,
+    /// Mail of one calendar month.
+    Month,
+}
+
+impl TopicSpan {
+    pub const ALL: [TopicSpan; 3] = [TopicSpan::Nearby, TopicSpan::Week, TopicSpan::Month];
+
+    /// The name the `win.topic-span` action knows it by.
+    pub fn id(self) -> &'static str {
+        match self {
+            TopicSpan::Nearby => "nearby",
+            TopicSpan::Week => "week",
+            TopicSpan::Month => "month",
+        }
+    }
+
+    pub fn from_id(id: &str) -> Option<TopicSpan> {
+        TopicSpan::ALL.into_iter().find(|span| span.id() == id)
+    }
+
+    pub fn label(self) -> String {
+        match self {
+            TopicSpan::Nearby => gettext("Within 20 Messages"),
+            TopicSpan::Week => gettext("By Week"),
+            TopicSpan::Month => gettext("By Month"),
+        }
     }
 }
 
@@ -1274,6 +1316,19 @@ mod tests {
         let written = toml::to_string(&settings).expect("settings serialise");
         let read: Settings = toml::from_str(&written).expect("and come back");
         assert!(!read.group_topics);
+        assert_eq!(read.topic_span, TopicSpan::Nearby);
+    }
+
+    #[test]
+    fn a_topic_span_goes_by_its_action_name_and_is_remembered() {
+        for span in TopicSpan::ALL {
+            assert_eq!(TopicSpan::from_id(span.id()), Some(span));
+        }
+        let mut settings = Settings::default();
+        Change::TopicSpan(TopicSpan::Month).apply(&mut settings);
+        let written = toml::to_string(&settings).expect("settings serialise");
+        let read: Settings = toml::from_str(&written).expect("and come back");
+        assert_eq!(read.topic_span, TopicSpan::Month);
     }
 
     #[test]

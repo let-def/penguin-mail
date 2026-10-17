@@ -36,7 +36,7 @@ use crate::core::Core;
 use crate::offered::Filing;
 use crate::open_thread::OpenThread;
 use crate::permission::{Occasion, Permission};
-use crate::settings::{Change, Effect, Settings};
+use crate::settings::{Change, Effect, Settings, TopicSpan};
 use crate::unread::Counted;
 use aftermath::Cause;
 use futures::FutureExt;
@@ -3274,6 +3274,38 @@ impl MainWindow {
             win.follow_grouping();
         });
         self.actions.add_action(&group);
+        let span = self.settings_with(|s| s.topic_span);
+        let spans = gio::SimpleAction::new_stateful(
+            "topic-span",
+            Some(glib::VariantTy::STRING),
+            &span.id().to_variant(),
+        );
+        let weak = Rc::downgrade(self);
+        spans.connect_change_state(move |action, value| {
+            let Some(win) = weak.upgrade() else {
+                return;
+            };
+            let Some(span) = value
+                .and_then(|v| v.get::<String>())
+                .and_then(|id| TopicSpan::from_id(&id))
+            else {
+                return;
+            };
+            action.set_state(&span.id().to_variant());
+            if let Some(app) = win.app.upgrade() {
+                app.change_settings(Change::TopicSpan(span));
+            }
+            // Picking how to group is asking for the grouping, so the
+            // button turns on with it.
+            if let Some(group) = win.actions.lookup_action("group-topics") {
+                group.change_state(&true.to_variant());
+            }
+            win.follow_grouping();
+        });
+        self.actions.add_action(&spans);
+        // The list starts out bundling nearby mail with the button unpressed;
+        // this brings both to the saved choice before the first mailbox shows.
+        self.follow_grouping();
         let remind_at = gio::SimpleAction::new("remind-at", Some(glib::VariantTy::INT64));
         let weak = Rc::downgrade(self);
         remind_at.connect_activate(move |_, parameter| {
@@ -3795,13 +3827,16 @@ impl MainWindow {
     /// scramble, so Group by Topic grays out while they show.
     fn follow_grouping(&self) {
         let search = matches!(self.shown(), Mailbox::Search { .. });
-        if let Some(group) = self.actions.lookup_action("group-topics")
-            && let Ok(group) = group.downcast::<gio::SimpleAction>()
-        {
-            group.set_enabled(!search);
+        for name in ["group-topics", "topic-span"] {
+            if let Some(action) = self.actions.lookup_action(name)
+                && let Ok(action) = action.downcast::<gio::SimpleAction>()
+            {
+                action.set_enabled(!search);
+            }
         }
-        self.list
-            .set_bundling(!search && self.settings_with(|s| s.group_topics));
+        let (on, span) = self.settings_with(|s| (s.group_topics, s.topic_span));
+        self.list.show_grouping(on);
+        self.list.set_bundling((on && !search).then_some(span));
     }
 
     fn settings(&self) -> Settings {

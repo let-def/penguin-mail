@@ -15,7 +15,7 @@ use super::mcp::McpServer;
 
 use super::{
     Choice, ColorScheme, ComposeFormat, Feature, MarkRead, PreviewLines, ReadReceipts,
-    RemoteImages, Settings, TextSize, UndoSend, Use, WebSearch,
+    RemoteImages, Settings, TextSize, TopicSpan, UndoSend, Use, WebSearch,
 };
 
 /// One named change to the preferences.
@@ -24,6 +24,8 @@ pub enum Change {
     Threading(bool),
     /// Bundles in the list, from the button beside Search.
     GroupTopics(bool),
+    /// How bundles gather, from the menu beside Group by Topic.
+    TopicSpan(TopicSpan),
     MarkRead(MarkRead),
     RemoteImages(RemoteImages),
     TextSize(TextSize),
@@ -284,6 +286,7 @@ impl Change {
             }
             Change::Threading(on) => settings.threading = on,
             Change::GroupTopics(on) => settings.group_topics = on,
+            Change::TopicSpan(span) => settings.topic_span = span,
             Change::MarkRead(when) => settings.mark_read = when,
             Change::RemoteImages(when) => settings.remote_images = when,
             Change::TextSize(size) => settings.text_size = size,
@@ -689,8 +692,10 @@ settable! {
         encrypt_when_possible,
         flag_color,
         // A button beside Search turns bundles on and off, the person's
-        // own view of the list like inbox_categories.
+        // own view of the list like inbox_categories, and its menu picks
+        // how they gather.
         group_topics,
+        topic_span,
         hidden_addresses,
         inbox_categories,
         // A new language only arrives with a restart, and the assistant can
@@ -874,6 +879,7 @@ impl Effects {
         let Settings {
             threading,
             group_topics,
+            topic_span,
             mark_read,
             remote_images,
             text_size,
@@ -939,8 +945,9 @@ impl Effects {
         // Send commits, and the rest are read when they are needed, so
         // changing one saves the file and stops there.
         let _quiet = (
-            // The list's button relays the list itself as it toggles.
+            // The list's button and its menu relay the list themselves.
             group_topics,
+            topic_span,
             mark_read,
             remote_images,
             notifications,
@@ -1423,6 +1430,7 @@ mod tests {
             Change::CalendarView(crate::settings::CalendarView::Day),
             Change::ShowDeclinedEvents(true),
             Change::GroupTopics(false),
+            Change::TopicSpan(crate::settings::TopicSpan::Week),
             Change::SkillEnabled {
                 id: "claude-code/pdf".into(),
                 on: true,

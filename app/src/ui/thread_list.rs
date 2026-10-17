@@ -25,6 +25,7 @@ use super::sidebar::DRAG_MAIL;
 use super::thread_row::{Avatar, OpenMenu, ThreadRow};
 use crate::diff::edits;
 use crate::photos::ContactPhotos;
+use crate::settings::TopicSpan;
 use bundle_line::{BundleLine, Handlers, Kind};
 use bundles::{Entry, Layout, Opened};
 use mailrs_domain::translate::gettext;
@@ -139,8 +140,8 @@ struct Shown {
     /// Rows a closed bundle keeps showing once read: those the reader
     /// selected in this mailbox, so a row does not vanish as it is read.
     kept: HashSet<Key>,
-    /// Whether rows gather into bundles at all; a search lists hits.
-    bundling: bool,
+    /// How rows gather into bundles, if they do; a search lists hits.
+    bundling: Option<TopicSpan>,
     /// The mailbox has rows past the last one loaded.
     more: bool,
     /// Where the focus goes after the next change, set before a change
@@ -186,6 +187,61 @@ impl Shown {
                 && b.members.iter().any(|m| key(&self.rows[*m]) == *row)
         })
     }
+}
+
+/// The arrow's choices of how bundles gather, as radio buttons on the
+/// window's `topic-span` action. A menu model would draw the same radio
+/// items, but GTK points their accessible label at an empty box, so a
+/// screen reader would read three nameless items.
+fn topic_spans() -> gtk::Popover {
+    let content = gtk::Box::builder()
+        .orientation(gtk::Orientation::Vertical)
+        .spacing(2)
+        .build();
+    let popover = gtk::Popover::builder()
+        .child(&content)
+        .css_classes(["topic-spans"])
+        .build();
+    let mut first: Option<gtk::CheckButton> = None;
+    for span in TopicSpan::ALL {
+        let choice = gtk::CheckButton::builder()
+            .label(span.label())
+            .action_name("win.topic-span")
+            .action_target(&span.id().to_variant())
+            .build();
+        // Grouped, so each draws as a radio button.
+        choice.set_group(first.as_ref());
+        first.get_or_insert_with(|| choice.clone());
+        let pop = popover.clone();
+        choice.connect_toggled(move |choice| {
+            if choice.is_active() && pop.is_visible() {
+                pop.popdown();
+            }
+        });
+        content.append(&choice);
+    }
+    popover
+}
+
+/// How far bundles reach over `rows` for `span`: a week and a month go
+/// by each row's newest message on this computer's calendar, with weeks
+/// starting where the calendar's do.
+fn reach(rows: &[Row], span: TopicSpan) -> bundles::Reach {
+    let period = match span {
+        TopicSpan::Nearby => return bundles::NEARBY,
+        TopicSpan::Week => bundles::Period::Week(crate::locale_time::week_start_weekday()),
+        TopicSpan::Month => bundles::Period::Month,
+    };
+    bundles::Reach::Periods(
+        rows.iter()
+            .map(|row| {
+                let day = crate::format::local(row.last_message_at)
+                    .map(|when| when.date_naive())
+                    .unwrap_or_default();
+                bundles::period(day, period)
+            })
+            .collect(),
+    )
 }
 
 /// The items for `layout` over `rows`. `threaded` says whether the rows
@@ -261,8 +317,9 @@ pub struct ThreadList {
     pub sidebar_button: gtk::ToggleButton,
     pub search_button: gtk::ToggleButton,
     /// Turns bundles on and off through the window's `group-topics`
-    /// action, which also grays it out over search hits.
-    group_button: gtk::ToggleButton,
+    /// action, which also grays it out over search hits; its arrow picks
+    /// how they gather through `topic-span`.
+    group_button: adw::SplitButton,
     /// Where `CategoryBar::install_categories` puts the chips, right under
     /// the header and above the banners, so a sign-in or Grant Access
     /// banner never lands between the header and the chips.
@@ -328,7 +385,7 @@ impl ThreadList {
         let selection = gtk::MultiSelection::new(Some(store.clone()));
         let show_accounts = Rc::new(Cell::new(true));
         let state = Rc::new(RefCell::new(Shown {
-            bundling: true,
+            bundling: Some(TopicSpan::Nearby),
             ..Shown::default()
         }));
         // The lines a bundle adds reach the list through this, which is
@@ -582,9 +639,11 @@ impl ThreadList {
             .icon_name("system-search-symbolic")
             .tooltip_text(gettext("Search (/)"))
             .build();
-        let group_button = gtk::ToggleButton::builder()
+        let group_button = adw::SplitButton::builder()
             .icon_name("penguin-mail-bundle-symbolic")
             .tooltip_text(gettext("Group by Topic"))
+            .dropdown_tooltip(gettext("Choose How to Group"))
+            .popover(&topic_spans())
             .action_name("win.group-topics")
             .build();
         search_button
@@ -597,6 +656,11 @@ impl ThreadList {
         super::name(&search_entry, &gettext("Search mail"));
         super::name(&sidebar_button, &gettext("Show Mailboxes"));
         super::name(&group_button, &gettext("Group by Topic"));
+        super::name_arrow(
+            &group_button,
+            &gettext("Choose How to Group"),
+            &gettext("Draws mail of one topic together in the list"),
+        );
         for button in [
             compose_button.upcast_ref::<gtk::Widget>(),
             search_button.upcast_ref(),
@@ -996,9 +1060,31 @@ impl ThreadList {
         }
     }
 
-    /// Turns bundles on or off: a search lists its hits as they come.
-    pub fn set_bundling(&self, on: bool) {
-        let changed = std::mem::replace(&mut self.shown.borrow_mut().bundling, on) != on;
+    /// Shows Group by Topic pressed or not. A split button's main half is
+    /// a plain button, so the look comes from the stylesheet and a screen
+    /// reader hears the pressed state set here.
+    pub fn show_grouping(&self, on: bool) {
+        match on {
+            true => self.group_button.add_css_class("pressed"),
+            false => self.group_button.remove_css_class("pressed"),
+        }
+        let pressed = match on {
+            true => gtk::AccessibleTristate::True,
+            false => gtk::AccessibleTristate::False,
+        };
+        let mut child = self.group_button.first_child();
+        while let Some(widget) = child {
+            if widget.is::<gtk::Button>() {
+                widget.update_state(&[gtk::accessible::State::Pressed(pressed)]);
+            }
+            child = widget.next_sibling();
+        }
+    }
+
+    /// Gathers rows into bundles over `span`, or not at all: a search
+    /// lists its hits as they come.
+    pub fn set_bundling(&self, span: Option<TopicSpan>) {
+        let changed = std::mem::replace(&mut self.shown.borrow_mut().bundling, span) != span;
         if changed {
             self.relayout();
         }
@@ -1074,8 +1160,11 @@ impl ThreadList {
             let mut shown = self.shown.borrow_mut();
             threaded = shown.rows.first().is_none_or(|r| r.message_id.is_none());
             let layout = match shown.bundling {
-                true => bundles::lay_out(&shown.rows, bundles::WINDOW, &shown.opened, &shown.kept),
-                false => bundles::flat(shown.rows.len()),
+                Some(span) => {
+                    let reach = reach(&shown.rows, span);
+                    bundles::lay_out(&shown.rows, &reach, &shown.opened, &shown.kept)
+                }
+                None => bundles::flat(shown.rows.len()),
             };
             let items = items_of(&shown.rows, &layout, threaded, shown.more);
             shown.layout = layout;
@@ -2062,13 +2151,13 @@ mod tests {
 
     /// The list showing `rows`, bundled as the list bundles them.
     fn shown(rows: Vec<Row>, more: bool) -> Shown {
-        let layout = bundles::lay_out(&rows, bundles::WINDOW, &Opened::default(), &HashSet::new());
+        let layout = bundles::lay_out(&rows, &bundles::NEARBY, &Opened::default(), &HashSet::new());
         let items = items_of(&rows, &layout, true, more);
         Shown {
             rows,
             layout,
             items,
-            bundling: true,
+            bundling: Some(TopicSpan::Nearby),
             more,
             ..Shown::default()
         }
