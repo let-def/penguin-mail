@@ -333,8 +333,14 @@ impl OAuthClient {
     /// A client for Google's endpoints. Google issues installed-app secrets to
     /// identify the app; they are not confidential.
     pub fn new(client_id: impl Into<String>, client_secret: impl Into<String>) -> Self {
+        // Every Gmail, Calendar and People call goes through this client.
+        // A ping while a call waits drops a connection that died during a
+        // suspend, so the next call opens a new one rather than timing
+        // out on the dead one.
         let http = reqwest::Client::builder()
             .timeout(Duration::from_secs(30))
+            .http2_keep_alive_interval(Duration::from_secs(15))
+            .http2_keep_alive_timeout(Duration::from_secs(15))
             .build()
             .expect("the TLS backend initializes");
         OAuthClient {
