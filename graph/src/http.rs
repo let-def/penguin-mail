@@ -193,8 +193,13 @@ impl Graph {
     pub fn with_base(session: Arc<Session>, base: &str) -> Result<Graph, GraphError> {
         let base =
             Url::parse(base).map_err(|e| GraphError::OAuth(format!("bad base {base}: {e}")))?;
+        // A ping while a call waits drops a connection that died during a
+        // suspend, so the next call opens a new one rather than timing
+        // out on the dead one.
         let http = reqwest::Client::builder()
             .timeout(Duration::from_secs(60))
+            .http2_keep_alive_interval(Duration::from_secs(15))
+            .http2_keep_alive_timeout(Duration::from_secs(15))
             .build()
             .map_err(|e| GraphError::Network(e.to_string()))?;
         Ok(Graph {

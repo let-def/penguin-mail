@@ -284,6 +284,11 @@ fn http_client(https_only: bool) -> Result<reqwest::Client, DavError> {
         // where `same_site` allows.
         .redirect(reqwest::redirect::Policy::none())
         .timeout(REQUEST_LIMIT)
+        // A ping while a request waits drops a connection that died
+        // during a suspend, so the next request opens a new one rather
+        // than timing out on the dead one.
+        .http2_keep_alive_interval(Duration::from_secs(15))
+        .http2_keep_alive_timeout(Duration::from_secs(15))
         .user_agent(concat!("Penguin Mail/", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|err| DavError::Network(err.to_string()))

@@ -40,6 +40,11 @@ const STALL_LIMIT: Duration = Duration::from_secs(20);
 /// The account polls meanwhile, and the next stream is probed again.
 const PUSH_PAUSE: Duration = Duration::from_secs(30 * 60);
 
+/// How long a connection with a call waiting may stay silent before it is
+/// pinged, and how long the ping may take before the connection is
+/// dropped.
+const KEEP_ALIVE: Duration = Duration::from_secs(15);
+
 /// How many same-host redirects the session fetch follows.
 const MOST_REDIRECTS: usize = 5;
 
@@ -143,6 +148,13 @@ impl JmapClient {
             .referer(false)
             .user_agent(concat!("Penguin Mail/", env!("CARGO_PKG_VERSION")))
             .connect_timeout(Duration::from_secs(20))
+            // Calls share one HTTP/2 connection, and after a suspend the
+            // server or a router has often forgotten it without a word.
+            // A ping while a call waits finds that out and closes it, so
+            // the next call opens a new one instead of timing out on the
+            // dead one until the kernel gives up on it.
+            .http2_keep_alive_interval(KEEP_ALIVE)
+            .http2_keep_alive_timeout(KEEP_ALIVE)
             .build()
             .map_err(network)?;
         Ok(JmapClient {
