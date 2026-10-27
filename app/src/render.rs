@@ -108,6 +108,9 @@ pub struct Head<'a> {
     pub count: usize,
     /// Whether remote images and styles may load.
     pub allow_remote: bool,
+    /// Why none of the thread's messages could load, while the run tries
+    /// again. It takes the place of the count, which would say none.
+    pub failed: Option<&'a str>,
 }
 
 /// A whole thread, for the tests that read one page at once.
@@ -132,6 +135,7 @@ pub fn render(conversation: &Conversation, theme: &Theme) -> String {
             subject: conversation.subject,
             count: conversation.messages.len(),
             allow_remote: conversation.allow_remote,
+            failed: None,
         },
         theme,
     );
@@ -182,12 +186,18 @@ pub fn head(conversation: &Head, theme: &Theme) -> String {
         conversation.subject.to_string()
     };
     let count = conversation.count;
-    let many = fill_plural(
-        "{count} message",
-        "{count} messages",
-        count,
-        &[("count", &count.to_string())],
-    );
+    let many = match conversation.failed {
+        Some(reason) => fill(
+            &gettext("The messages did not load: {reason}. Penguin Mail will try again."),
+            &[("reason", reason)],
+        ),
+        None => fill_plural(
+            "{count} message",
+            "{count} messages",
+            count,
+            &[("count", &count.to_string())],
+        ),
+    };
     let offer = if theme.summarize {
         format!(
             "<a class=\"summarize\" href=\"mailrs:summarize\">{}</a>",
@@ -2187,6 +2197,7 @@ mod tests {
                     subject: "Rent",
                     count: 2,
                     allow_remote: false,
+                    failed: None,
                 },
                 &Theme {
                     summarize,

@@ -1756,3 +1756,110 @@ async fn a_loose_message_is_parsed_away_from_the_window_before_it_shows() {
     let at = |step| steps.iter().position(|s| *s == step).expect("step taken");
     assert!(at(Step::Parse) < at(Step::Show));
 }
+
+/// A thread the store holds none of, as a search past the window lists it.
+fn unstored() -> std::rc::Rc<FakeWindow> {
+    let window = FakeWindow::new();
+    window.with(|screen| {
+        screen.stored.remove(THREAD);
+    });
+    window
+}
+
+#[tokio::test]
+async fn a_thread_that_did_not_load_says_why_and_tries_again_until_it_does() {
+    let window = unstored();
+    window.with(|screen| screen.ensure_fails = 2);
+    window.run().open(row(THREAD)).await;
+    let steps = window.steps();
+    assert_eq!(steps.iter().filter(|s| **s == Step::Ensure).count(), 3);
+    // The two-second wait is the Mark as Read delay, once the thread came.
+    assert_eq!(window.with(|screen| screen.waits.clone()), [15, 30, 2]);
+    let said = window.with(|screen| {
+        screen
+            .loads
+            .iter()
+            .any(|page| page.contains("The messages did not load: the server is busy."))
+    });
+    assert!(said, "the page said why while it waited");
+    assert_eq!(window.open(|open| open.load_failure.clone()), Some(None));
+    let page = window.with(|screen| screen.document.as_ref().expect("a page").html(""));
+    assert!(
+        !page.contains("did not load"),
+        "the reason went once it loaded"
+    );
+    assert!(page.contains("id=\"m-m1\""), "the message came");
+}
+
+#[tokio::test]
+async fn a_thread_the_store_holds_shows_that_copy_when_the_server_fails() {
+    let window = FakeWindow::new();
+    window.with(|screen| screen.ensure_fails = 1);
+    window.run().open(row(THREAD)).await;
+    assert!(!window.took(Step::LoadFailed));
+    // Only the Mark as Read delay waits.
+    assert_eq!(window.with(|screen| screen.waits.clone()), [2]);
+    assert!(window.took(Step::BodiesArrived), "the stored copy goes on");
+}
+
+/// The row clicked again opens the thread once more, and that opening
+/// takes over the tries.
+#[tokio::test]
+async fn a_newer_opening_ends_the_tries_of_the_one_before() {
+    let window = unstored();
+    window.with(|screen| {
+        screen.ensure_fails = 5;
+        screen.reopens_while_waiting = true;
+    });
+    window.run().open(row(THREAD)).await;
+    assert_eq!(
+        window
+            .steps()
+            .iter()
+            .filter(|s| **s == Step::Ensure)
+            .count(),
+        1
+    );
+    assert!(!window.took(Step::Messages));
+}
+
+#[tokio::test]
+async fn a_reader_who_left_stops_the_tries() {
+    let window = unstored();
+    window.with(|screen| {
+        screen.ensure_fails = 5;
+        screen.moves_on = Some(Step::Sleep);
+    });
+    window.run().open(row(THREAD)).await;
+    assert_eq!(
+        window
+            .steps()
+            .iter()
+            .filter(|s| **s == Step::Ensure)
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn the_wait_doubles_up_to_five_minutes() {
+    let waits: Vec<u32> = (0..8).map(super::retry_wait).collect();
+    assert_eq!(waits, [15, 30, 60, 120, 240, 300, 300, 300]);
+}
+
+/// Read mail from a search past the window: nothing stored to open with,
+/// and nothing unread to open when it arrives.
+#[tokio::test]
+async fn a_thread_the_store_held_none_of_opens_its_newest_message() {
+    let window = unstored();
+    window.with(|screen| {
+        screen.messages = vec![meta("m1", false), meta("m2", false)];
+        screen.gmail.insert("m2".to_string(), body("Later"));
+    });
+    window.run().open(row(THREAD)).await;
+    let expanded = window.open(|open| open.expanded.clone()).expect("open");
+    assert_eq!(
+        expanded,
+        std::collections::HashSet::from(["m2".to_string()])
+    );
+}

@@ -1162,6 +1162,12 @@ impl MainWindow {
             None => false,
         });
         let weak = Rc::downgrade(&window);
+        window.list.connect_picked_again(move |row| {
+            if let Some(win) = weak.upgrade() {
+                win.open_again(row);
+            }
+        });
+        let weak = Rc::downgrade(&window);
         window.list.connect_open(move |row| {
             if let Some(win) = weak.upgrade() {
                 win.open_in_window(row);
@@ -1829,6 +1835,17 @@ impl MainWindow {
         }
         self.follow_sender_actions(summary.account_id);
         self.load_into(Rc::clone(&self.conversation), summary);
+    }
+
+    /// Opens the row on screen once more when its thread did not load, so
+    /// a click on it tries again now rather than at the run's next try.
+    fn open_again(self: &Rc<Self>, summary: ThreadSummary) {
+        if self
+            .conversation
+            .failed_to_load(&mailrs_domain::Target::from_row(&summary))
+        {
+            self.load_into(Rc::clone(&self.conversation), summary);
+        }
     }
 
     // ---- Actions on the selection or the open conversation -----------------

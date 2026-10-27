@@ -1420,6 +1420,22 @@ impl ConversationView {
         missing
     }
 
+    /// Says why the thread did not load, in place of a count of no
+    /// messages, or with `None` that it did.
+    pub fn load_failed(&self, reason: Option<String>) {
+        self.change(|open| open.take_load_failure(reason));
+        self.render(false);
+    }
+
+    /// Whether the thread on screen is the one `target` names and its
+    /// messages did not load.
+    pub fn failed_to_load(&self, target: &Target) -> bool {
+        self.open
+            .borrow()
+            .as_ref()
+            .is_some_and(|o| o.target() == *target && o.load_failure.is_some())
+    }
+
     /// Replaces the messages after the store changed under the thread, and
     /// answers whether the ids differ from what was on screen. Nothing is
     /// redrawn: that answer is what decides between a redraw and a fetch.

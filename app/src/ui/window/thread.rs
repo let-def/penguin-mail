@@ -679,6 +679,10 @@ impl Effects for Ports {
         self.view.messages_arrived(&fresh)
     }
 
+    fn load_failed(&self, reason: Option<String>) {
+        self.view.load_failed(reason);
+    }
+
     fn replace_messages(&self, fresh: Vec<MessageMeta>) -> bool {
         self.view.replace_messages(fresh)
     }

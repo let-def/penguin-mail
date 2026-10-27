@@ -1793,6 +1793,43 @@ impl ThreadList {
         });
     }
 
+    /// Runs `again` with the row a click lands on when it was already the
+    /// one row picked. GTK changes no selection then, so nothing else
+    /// hears of the click. The check waits until the list has handled the
+    /// click, which may have picked another row after all.
+    pub fn connect_picked_again(self: &Rc<Self>, again: impl Fn(ThreadSummary) + 'static) {
+        let again = Rc::new(again);
+        let click = gtk::GestureClick::builder()
+            .button(gdk::BUTTON_PRIMARY)
+            .build();
+        click.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let before: Rc<RefCell<Option<Row>>> = Rc::default();
+        let (weak, held) = (Rc::downgrade(self), Rc::clone(&before));
+        click.connect_pressed(move |_, _, _, _| {
+            let Some(list) = weak.upgrade() else { return };
+            *held.borrow_mut() = match list.picked() {
+                Picked::One(row) => Some(row),
+                _ => None,
+            };
+        });
+        let weak = Rc::downgrade(self);
+        click.connect_released(move |_, _, _, _| {
+            let Some(was) = before.take() else { return };
+            let (weak, again) = (weak.clone(), Rc::clone(&again));
+            glib::idle_add_local_once(move || {
+                let Some(list) = weak.upgrade() else { return };
+                if let Picked::One(row) = list.picked()
+                    && row.account_id == was.account_id
+                    && row.id == was.id
+                    && row.message_id == was.message_id
+                {
+                    again(Rc::unwrap_or_clone(row));
+                }
+            });
+        });
+        self.view.add_controller(click);
+    }
+
     /// The rows of the last drag.
     pub fn dragged(&self) -> Vec<Row> {
         self.dragged.borrow().clone()

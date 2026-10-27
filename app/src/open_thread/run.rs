@@ -124,6 +124,15 @@ pub trait Desk: Screen {
     fn preferences(&self) -> Preferences;
 }
 
+/// How long an opening waits before it asks again for a thread that did
+/// not load, after `failures` failures in a row: fifteen seconds, then
+/// twice as long each time, up to five minutes. A server that is busy or
+/// out of reach gets room, and the reader still sees the thread soon
+/// after it comes back.
+fn retry_wait(failures: u32) -> u32 {
+    15u32.saturating_mul(1 << failures.min(5)).min(300)
+}
+
 /// What the run asks of the store, Gmail and the view. A test answers with
 /// what it likes and records the rest.
 pub trait Effects {
@@ -258,6 +267,9 @@ pub trait Effects {
     /// The messages as the store has them; gives back the ids whose
     /// bodies are still missing.
     fn messages_arrived(&self, fresh: Vec<MessageMeta>) -> Vec<String>;
+    /// Says on the page why the thread did not load, or with `None`
+    /// takes that back.
+    fn load_failed(&self, reason: Option<String>);
     /// Replaces the messages; answers whether the ids changed.
     fn replace_messages(&self, fresh: Vec<MessageMeta>) -> bool;
     fn bodies_arrived(&self, fetched: Fetched);
@@ -516,7 +528,10 @@ impl ThreadRun {
         self.effects.show(thread);
         self.effects.sender_vip(vip);
         let wanted = self.wanted(target);
-        futures::join!(self.follow(&wanted, Event::Shown), self.complete(&wanted));
+        futures::join!(
+            self.follow(&wanted, Event::Shown),
+            self.complete(&wanted, Some(ticket))
+        );
     }
 
     /// Picks up label changes and new messages in the thread on screen.
@@ -552,7 +567,7 @@ impl ThreadRun {
             return;
         }
         match wanted.on_screen(|effects| effects.replace_messages(fresh)) {
-            Some(true) => self.complete(&wanted).await,
+            Some(true) => self.complete(&wanted, None).await,
             Some(false) => {
                 wanted.on_screen(|effects| effects.render_buttons());
             }
@@ -678,6 +693,41 @@ impl ThreadRun {
         }
     }
 
+    /// Asks for the whole thread to be stored. A thread the store holds
+    /// none of has nothing to show until the server answers, so when that
+    /// fails the page says why and the opening tries again, waiting longer
+    /// each time, for as long as the reader stays on it and opens it no
+    /// second time. A newer opening, from the row clicked again, starts
+    /// its own tries at once. `None` once the reader has moved on.
+    async fn ensure(&self, wanted: &Want<'_>, ticket: Option<u64>) -> Option<()> {
+        let target = wanted.target().clone();
+        let mut failures = 0u32;
+        loop {
+            let ensured = wanted
+                .wait(|effects| effects.ensure_thread(target.account_id, target.thread_id.clone()))
+                .await?;
+            let Err(err) = ensured else {
+                if failures > 0 {
+                    wanted.on_screen(|effects| effects.load_failed(None))?;
+                }
+                return Some(());
+            };
+            let empty = self.thread(|open| open.messages.is_empty()) == Some(true);
+            let Some(ticket) = ticket.filter(|_| empty) else {
+                tracing::info!(error = %err, "showing the stored copy of the thread");
+                return Some(());
+            };
+            tracing::warn!(error = %err, failures, "the thread did not load; trying again");
+            wanted.on_screen(|effects| effects.load_failed(Some(err)))?;
+            let wait = retry_wait(failures);
+            failures = failures.saturating_add(1);
+            wanted.wait(|effects| effects.sleep(wait)).await?;
+            if !self.desk.still_loading(ticket) {
+                return None;
+            }
+        }
+    }
+
     /// Reads the flag colour of the thread on screen again. The store's
     /// change events do not carry it, so an undo needs this.
     pub async fn refresh_flag_color(&self) {
@@ -700,17 +750,13 @@ impl ThreadRun {
     }
 
     /// Fetches the whole thread and the bodies it lacks, then brings the
-    /// rest up to date.
-    async fn complete(&self, wanted: &Want<'_>) {
+    /// rest up to date. `ticket` is the opening this belongs to, when it
+    /// is one: only an opening keeps trying a thread that would not load.
+    async fn complete(&self, wanted: &Want<'_>, ticket: Option<u64>) {
         let target = wanted.target().clone();
         let (account_id, thread_id) = (target.account_id, target.thread_id.clone());
-        let ensured = wanted
-            .wait(|effects| effects.ensure_thread(account_id, thread_id.clone()))
-            .await;
-        match ensured {
-            None => return,
-            Some(Err(err)) => tracing::info!(error = %err, "showing the stored copy of the thread"),
-            Some(Ok(())) => {}
+        if self.ensure(wanted, ticket).await.is_none() {
+            return;
         }
         let Some(fresh) = wanted
             .wait(|effects| effects.thread_messages(account_id, thread_id))

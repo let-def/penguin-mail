@@ -80,7 +80,7 @@ pub mod checks {
                 summarize: false, font: String::new(),
             };
             let mut html = crate::render::head(&crate::render::Head {
-                subject: "Links", count: 1, allow_remote: false,
+                subject: "Links", count: 1, allow_remote: false, failed: None,
             }, &theme);
             html.push_str(r#"<div class="body-frame"><div id="body"><template shadowrootmode="open"><a id="ordinary" href="https://example.com/read">Read more</a><a id="link" href="https://evil.example/login"><b>https://bank.example</b></a><div style="height:1800px"></div><a id="bottom" href="https://bottom.example">Bottom</a></template></div></div>"#);
             html.push_str(crate::render::TAIL);
