@@ -50,6 +50,7 @@ pub enum Step {
     Ensure,
     Messages,
     MessagesArrived,
+    LoadFailed,
     Bodies,
     BodiesArrived,
     Clean,
@@ -195,6 +196,14 @@ pub struct Screen {
     pub clean_fails: bool,
     pub image_senders: Vec<String>,
     pub images_always_allowed: bool,
+    /// How many times in a row the server fails to hand over the thread
+    /// before it does.
+    pub ensure_fails: u32,
+    /// A wait ends with the reader opening the same row again, which
+    /// starts a newer load.
+    pub reopens_while_waiting: bool,
+    /// The waits asked for, in seconds.
+    pub waits: Vec<u32>,
 }
 
 pub struct FakeWindow(pub RefCell<Screen>);
@@ -508,6 +517,9 @@ impl FakeWindow {
             clean_fails: false,
             image_senders: Vec::new(),
             images_always_allowed: false,
+            ensure_fails: 0,
+            reopens_while_waiting: false,
+            waits: Vec::new(),
         })))
     }
 
@@ -708,11 +720,19 @@ impl Effects for FakeWindow {
     ) -> Answer<'_, Result<(), String>> {
         self.reached(Step::Ensure);
         let held = self.with(|screen| screen.ensure_hold.take());
+        let failed = self.with(|screen| {
+            let failed = screen.ensure_fails > 0;
+            screen.ensure_fails = screen.ensure_fails.saturating_sub(1);
+            failed
+        });
         Box::pin(async move {
             if let Some(held) = held {
                 let _ = held.await;
             }
-            Ok(())
+            match failed {
+                true => Err("the server is busy".to_string()),
+                false => Ok(()),
+            }
         })
     }
 
@@ -888,8 +908,14 @@ impl Effects for FakeWindow {
         Box::pin(async move { said })
     }
 
-    fn sleep(&self, _seconds: u32) -> Answer<'_, ()> {
+    fn sleep(&self, seconds: u32) -> Answer<'_, ()> {
         self.reached(Step::Sleep);
+        self.with(|screen| {
+            screen.waits.push(seconds);
+            if screen.reopens_while_waiting {
+                screen.ticket += 1;
+            }
+        });
         Box::pin(async {})
     }
 
@@ -963,6 +989,11 @@ impl Effects for FakeWindow {
             self.draw();
         }
         missing
+    }
+
+    fn load_failed(&self, reason: Option<String>) {
+        self.change(Step::LoadFailed, |open| open.take_load_failure(reason));
+        self.draw();
     }
 
     fn replace_messages(&self, fresh: Vec<MessageMeta>) -> bool {

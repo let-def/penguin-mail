@@ -13013,3 +13013,7 @@ msgstr ""
 #: app/src/ui/window.rs:2906 app/src/ui/window/attachments.rs:260
 msgid "Saved {file} to Downloads"
 msgstr ""
+
+#: app/src/render.rs:191
+msgid "The messages did not load: {reason}. Penguin Mail will try again."
+msgstr ""

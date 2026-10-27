@@ -82,6 +82,10 @@ pub struct OpenThread {
     pub photos: crate::render::Photos,
     /// Set once the user unsubscribed from this thread's list.
     pub unsubscribed: bool,
+    /// Why the server did not hand over the thread, while the store holds
+    /// none of it and the run tries again. The page says so in place of a
+    /// count of no messages.
+    pub load_failure: Option<String>,
     /// What the engine made of each protected message in this thread, by
     /// message id, once it has run. It stays here so redrawing the thread
     /// never asks again, and so the card survives the body being replaced
@@ -163,6 +167,7 @@ impl OpenThread {
             sealed: HashSet::new(),
             photos: HashMap::new(),
             unsubscribed: false,
+            load_failure: None,
             marks: HashMap::new(),
             asked: HashSet::new(),
             flag_color: None,
@@ -426,6 +431,13 @@ impl OpenThread {
                 self.expanded.insert(meta.id.clone());
             }
         }
+        // A thread the store held none of opens with these, so the newest
+        // opens as it does in a thread the store held.
+        if self.messages.is_empty()
+            && let Some(last) = fresh.last()
+        {
+            self.expanded.insert(last.id.clone());
+        }
         if !fresh.is_empty() {
             self.restrict_images(&fresh);
             self.messages = fresh;
@@ -446,6 +458,11 @@ impl OpenThread {
             })
             .map(|m| m.id.clone())
             .collect()
+    }
+
+    /// Says why the thread did not load, or with `None` that it did.
+    pub fn take_load_failure(&mut self, reason: Option<String>) {
+        self.load_failure = reason;
     }
 
     /// Replaces the messages and answers whether their ids or image
@@ -663,6 +680,7 @@ mod tests {
             sealed: HashSet::new(),
             photos: HashMap::new(),
             unsubscribed: false,
+            load_failure: None,
             marks: HashMap::new(),
             asked: HashSet::new(),
             flag_color: None,

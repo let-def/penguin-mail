@@ -13820,6 +13820,11 @@ msgstr "Adicionar a {topic}"
 msgid "“{topic}” cannot name a topic."
 msgstr "“{topic}” não pode ser o nome de um tópico."
 
+#: app/src/render.rs:191
+msgid "The messages did not load: {reason}. Penguin Mail will try again."
+msgstr ""
+"As mensagens não carregaram: {reason}. O Penguin Mail vai tentar de novo."
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

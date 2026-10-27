@@ -14019,6 +14019,12 @@ msgstr "Zu {calendar} hinzugefügt"
 msgid "“{topic}” cannot name a topic."
 msgstr ""
 
+#: app/src/render.rs:191
+#, fuzzy
+#| msgid "The message is larger than Penguin Mail downloads."
+msgid "The messages did not load: {reason}. Penguin Mail will try again."
+msgstr "Die Nachricht ist größer als das, was Penguin Mail herunterlädt."
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

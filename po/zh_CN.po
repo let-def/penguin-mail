@@ -13174,6 +13174,12 @@ msgstr "已加入 {calendar}"
 msgid "“{topic}” cannot name a topic."
 msgstr ""
 
+#: app/src/render.rs:191
+#, fuzzy
+#| msgid "The message is larger than Penguin Mail downloads."
+msgid "The messages did not load: {reason}. Penguin Mail will try again."
+msgstr "邮件超过 Penguin Mail 的下载大小上限。"
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"
