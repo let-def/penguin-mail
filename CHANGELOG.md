@@ -7,6 +7,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 
 ### Fixed
 
+- A server that asks Penguin Mail to slow down no longer leaves the action you took unfinished, such as a conversation opened from search showing no messages.
 - Mail syncs again soon after the computer wakes from sleep, instead of staying stuck on a connection the server dropped.
 - Closing Customize Mailboxes releases its folder lists.
 - Smart mailboxes combining Gmail folders over IMAP include selected Trash and Junk messages and keep the newest matches when results are limited.
