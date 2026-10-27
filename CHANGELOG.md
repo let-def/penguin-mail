@@ -7,6 +7,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 
 ### Fixed
 
+- A conversation found by search that does not load says why and tries again by itself, or at once when you click it again in the list. Once it loads, its newest message is open.
 - A server that asks Penguin Mail to slow down no longer leaves the action you took unfinished, such as a conversation opened from search showing no messages.
 - Mail syncs again soon after the computer wakes from sleep, instead of staying stuck on a connection the server dropped.
 - Closing Customize Mailboxes releases its folder lists.

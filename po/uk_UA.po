@@ -4207,73 +4207,79 @@ msgstr "Цей обліковий запис не під'єднано."
 msgid "Could not save: {reason}"
 msgstr "Не вдалося зберегти: {reason}"
 
-#: app/src/protection/draft.rs:212 app/src/ui/window.rs:3003
-#: app/src/ui/window.rs:3026
+#: app/src/protection/draft.rs:212 app/src/ui/window.rs:3020
+#: app/src/ui/window.rs:3043
 msgid "Could not open the draft: {reason}"
 msgstr "Не вдалося відкрити чернетку: {reason}"
 
-#: app/src/render.rs:189
+#: app/src/render.rs:194
+#, fuzzy
+#| msgid "The message is larger than Penguin Mail downloads."
+msgid "The messages did not load: {reason}. Penguin Mail will try again."
+msgstr "Повідомлення більше, ніж Penguin Mail завантажує."
+
+#: app/src/render.rs:198
 msgid "{count} message"
 msgid_plural "{count} messages"
 msgstr[0] "{count} повідомлення"
 msgstr[1] "{count} повідомлення"
 msgstr[2] "{count} повідомлень"
 
-#: app/src/render.rs:197
+#: app/src/render.rs:207
 msgid "Summarize"
 msgstr "Підсумувати"
 
-#: app/src/render.rs:198
+#: app/src/render.rs:208
 msgid "Explain"
 msgstr "Пояснити"
 
-#: app/src/render.rs:285 app/src/ui/thread_row.rs:447
+#: app/src/render.rs:295 app/src/ui/thread_row.rs:447
 msgid "Unknown sender"
 msgstr "Невідомий відправник"
 
-#: app/src/render.rs:303
+#: app/src/render.rs:313
 msgid "Show or hide this message"
 msgstr "Показати або сховати це повідомлення"
 
-#: app/src/render.rs:305 app/src/ui/contact_card.rs:43
+#: app/src/render.rs:315 app/src/ui/contact_card.rs:43
 msgid "Contact"
 msgstr "Контакт"
 
-#: app/src/render.rs:310
+#: app/src/render.rs:320
 msgid "Contact card for {person}"
 msgstr "Картка контакту {person}"
 
-#: app/src/render.rs:379 app/src/ui/thread_row.rs:165
+#: app/src/render.rs:389 app/src/ui/thread_row.rs:165
 msgid "Invitation"
 msgstr "Запрошення"
 
-#: app/src/render.rs:393
+#: app/src/render.rs:403
 msgid "{date}, {time}"
 msgstr "{date}, {time}"
 
-#: app/src/render.rs:414
+#: app/src/render.rs:424
 msgid "Loading…"
 msgstr "Завантаження…"
 
-#: app/src/render.rs:419
+#: app/src/render.rs:429
 msgid "This message could not be loaded: {reason}"
 msgstr "Не вдалося завантажити це повідомлення: {reason}"
 
-#: app/src/render.rs:431
+#: app/src/render.rs:441
 msgid "This message could not be displayed"
 msgstr "Не вдалося показати це повідомлення"
 
-#: app/src/render.rs:433 app/src/ui/conversation.rs:275
+#: app/src/render.rs:443 app/src/ui/conversation.rs:275
 #: app/src/ui/conversation.rs:546 app/src/ui/conversation.rs:652
 #: app/src/ui/toolbar/customize.rs:28
 msgid "View Source"
 msgstr "Переглянути джерело"
 
-#: app/src/render.rs:448
+#: app/src/render.rs:458
 msgid "Possible phishing links"
 msgstr "Можливі фішингові посилання"
 
-#: app/src/render.rs:450
+#: app/src/render.rs:460
 msgid ""
 "This message contains potentially deceptive links. Check the destination "
 "before opening them."
@@ -4281,106 +4287,106 @@ msgstr ""
 "Це повідомлення містить посилання, що можуть вводити в оману. Перевірте "
 "адресу, перш ніж їх відкривати."
 
-#: app/src/render.rs:503
+#: app/src/render.rs:513
 msgid "Details"
 msgstr "Подробиці"
 
-#: app/src/render.rs:524
+#: app/src/render.rs:534
 msgid "from"
 msgstr "від"
 
-#: app/src/render.rs:535
+#: app/src/render.rs:545
 msgid "to"
 msgstr "кому"
 
-#: app/src/render.rs:549
+#: app/src/render.rs:559
 msgid "delivered-to"
 msgstr "адреса доставки"
 
-#: app/src/render.rs:552
+#: app/src/render.rs:562
 msgid "cc"
 msgstr "копія"
 
-#: app/src/render.rs:556
+#: app/src/render.rs:566
 msgid "date"
 msgstr "дата"
 
-#: app/src/render.rs:558
+#: app/src/render.rs:568
 msgid "subject"
 msgstr "тема"
 
-#: app/src/render.rs:560
+#: app/src/render.rs:570
 msgid "mailed-by"
 msgstr "надіслано через"
 
-#: app/src/render.rs:563
+#: app/src/render.rs:573
 msgid "signed-by"
 msgstr "підписано"
 
-#: app/src/render.rs:567
+#: app/src/render.rs:577
 msgid "security"
 msgstr "безпека"
 
-#: app/src/render.rs:569
+#: app/src/render.rs:579
 msgid "Standard encryption (TLS)"
 msgstr "Стандартне шифрування (TLS)"
 
-#: app/src/render.rs:574
+#: app/src/render.rs:584
 msgid "Not encrypted in transit"
 msgstr "Не зашифровано під час передавання"
 
-#: app/src/render.rs:611 app/src/ui/composer/mod.rs:2200
+#: app/src/render.rs:621 app/src/ui/composer/mod.rs:2200
 msgid "{count} attachment"
 msgid_plural "{count} attachments"
 msgstr[0] "{count} вкладення"
 msgstr[1] "{count} вкладення"
 msgstr[2] "{count} вкладень"
 
-#: app/src/render.rs:643
+#: app/src/render.rs:653
 msgid "Quick Look"
 msgstr "Швидкий перегляд"
 
-#: app/src/render.rs:644 app/src/ui/window/attachments.rs:284
+#: app/src/render.rs:654 app/src/ui/window/attachments.rs:284
 #: app/src/ui/window/attachments.rs:450 app/src/ui/window/attachments.rs:456
 #: app/src/ui/window/detached.rs:303
 msgid "Save As…"
 msgstr "Зберегти як…"
 
-#: app/src/render.rs:646
+#: app/src/render.rs:656
 msgid "Open {file}, {size}"
 msgstr "Відкрити {file}, {size}"
 
-#: app/src/render.rs:653
+#: app/src/render.rs:663
 msgid "Save {file}…"
 msgstr "Зберегти {file}…"
 
-#: app/src/render.rs:660
+#: app/src/render.rs:670
 msgid "Save All ({count})"
 msgid_plural "Save All ({count})"
 msgstr[0] "Зберегти все ({count})"
 msgstr[1] "Зберегти все ({count})"
 msgstr[2] "Зберегти все ({count})"
 
-#: app/src/render.rs:671
+#: app/src/render.rs:681
 msgid "Save every attachment to a folder"
 msgstr "Зберегти всі вкладення до теки"
 
-#: app/src/render.rs:735
+#: app/src/render.rs:745
 msgid "undisclosed recipients"
 msgstr "приховані отримувачі"
 
-#: app/src/render.rs:738
+#: app/src/render.rs:748
 msgid "{named}, and {count} other"
 msgid_plural "{named}, and {count} others"
 msgstr[0] "{named} та ще {count}"
 msgstr[1] "{named} та ще {count}"
 msgstr[2] "{named} та ще {count}"
 
-#: app/src/render.rs:751
+#: app/src/render.rs:761
 msgid "me"
 msgstr "я"
 
-#: app/src/render.rs:761 app/src/ui/composer/mod.rs:619
+#: app/src/render.rs:771 app/src/ui/composer/mod.rs:619
 #: app/src/ui/composer/mod.rs:623
 msgid "Show trimmed content"
 msgstr "Показати обрізаний вміст"
@@ -4476,7 +4482,7 @@ msgid "Set up a different project"
 msgstr "Налаштувати інший проєкт"
 
 #. Translators: Google is a name; keep it as it is.
-#: app/src/route_choice.rs:175 app/src/ui/window.rs:3356
+#: app/src/route_choice.rs:175 app/src/ui/window.rs:3373
 msgid "Set up your own Google project"
 msgstr "Налаштувати власний проєкт Google"
 
@@ -4659,8 +4665,8 @@ msgstr "Anthropic API"
 msgid "Claude Subscription"
 msgstr "Передплата Claude"
 
-#: app/src/settings/mod.rs:257 app/src/ui/window.rs:3748
-#: app/src/ui/window.rs:3836
+#: app/src/settings/mod.rs:257 app/src/ui/window.rs:3765
+#: app/src/ui/window.rs:3853
 msgid "Assistant"
 msgstr "Асистент"
 
@@ -5075,7 +5081,7 @@ msgstr "Відкрити Penguin Mail"
 msgid "New Message"
 msgstr "Нове повідомлення"
 
-#: app/src/tray.rs:250 app/src/ui/sidebar.rs:2521 app/src/ui/window.rs:3754
+#: app/src/tray.rs:250 app/src/ui/sidebar.rs:2521 app/src/ui/window.rs:3771
 msgid "Check for Mail"
 msgstr "Перевірити пошту"
 
@@ -5093,7 +5099,7 @@ msgstr "Що нового у {version}"
 msgid "Check for Updates"
 msgstr "Перевірити оновлення"
 
-#: app/src/tray.rs:266 app/src/ui/window.rs:3775
+#: app/src/tray.rs:266 app/src/ui/window.rs:3792
 #: app/src/ui/window/shortcuts.rs:644
 msgid "Quit"
 msgstr "Вийти"
@@ -5115,7 +5121,7 @@ msgstr "Що нового"
 msgid "Website"
 msgstr "Вебсайт"
 
-#: app/src/ui/about.rs:179 app/src/ui/window.rs:3774
+#: app/src/ui/about.rs:179 app/src/ui/window.rs:3791
 msgid "Donate"
 msgstr "Пожертвувати"
 
@@ -5123,7 +5129,7 @@ msgstr "Пожертвувати"
 msgid "License"
 msgstr "Ліцензія"
 
-#: app/src/ui/about.rs:203 app/src/ui/window.rs:3773
+#: app/src/ui/about.rs:203 app/src/ui/window.rs:3790
 msgid "About Penguin Mail"
 msgstr "Про Penguin Mail"
 
@@ -5173,12 +5179,12 @@ msgid "The update to {version} failed"
 msgstr "Не вдалося оновити до {version}"
 
 #: app/src/ui/add_account.rs:514 app/src/ui/sandbox_setup.rs:129
-#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1575
+#: app/src/ui/sandbox_setup.rs:136 app/src/ui/window.rs:1581
 msgid "Copy Command"
 msgstr "Копіювати команду"
 
 #: app/src/ui/add_account.rs:524 app/src/ui/sandbox_setup.rs:143
-#: app/src/ui/window.rs:1580
+#: app/src/ui/window.rs:1586
 msgid "Command copied"
 msgstr "Команду скопійовано"
 
@@ -5289,7 +5295,7 @@ msgstr "Скасувати"
 #: app/src/ui/add_account.rs:3164 app/src/ui/add_account.rs:3254
 #: app/src/ui/add_account.rs:3711 app/src/ui/gmail_password_page.rs:128
 #: app/src/ui/gmail_password_page.rs:133 app/src/ui/gmail_password_page.rs:262
-#: app/src/ui/window.rs:1519
+#: app/src/ui/window.rs:1525
 msgid "Sign In"
 msgstr "Увійти"
 
@@ -5413,7 +5419,7 @@ msgstr "Не зараз"
 #: app/src/ui/add_account.rs:1435 app/src/ui/calendar/editor.rs:1684
 #: app/src/ui/calendar/sidebar.rs:1008 app/src/ui/contacts_prefs.rs:496
 #: app/src/ui/invitation.rs:490 app/src/ui/permission.rs:42
-#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1652
+#: app/src/ui/permission.rs:66 app/src/ui/window.rs:1658
 msgid "Grant Access"
 msgstr "Надати доступ"
 
@@ -5563,7 +5569,7 @@ msgid "Sign In Again"
 msgstr "Увійти знову"
 
 #: app/src/ui/add_account.rs:3898 app/src/ui/own_project.rs:761
-#: app/src/ui/preferences/google_route.rs:259 app/src/ui/window.rs:2263
+#: app/src/ui/preferences/google_route.rs:259 app/src/ui/window.rs:2280
 msgid "Open Google Cloud"
 msgstr "Відкрити Google Cloud"
 
@@ -5653,13 +5659,13 @@ msgstr "Написати чернетку відповіді на відкрит
 msgid "Choose a Model"
 msgstr "Вибрати модель"
 
-#: app/src/ui/assistant.rs:127 app/src/ui/window.rs:3883
-#: app/src/ui/window.rs:3884
+#: app/src/ui/assistant.rs:127 app/src/ui/window.rs:3900
+#: app/src/ui/window.rs:3901
 msgid "Detach"
 msgstr "Відкріпити"
 
 #: app/src/ui/assistant.rs:128 app/src/ui/key_import.rs:213
-#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4563
+#: app/src/ui/key_import.rs:217 app/src/ui/window.rs:4580
 msgid "Close"
 msgstr "Закрити"
 
@@ -5884,7 +5890,7 @@ msgstr "Змінити {server}"
 
 #: app/src/ui/assistant_mcp_prefs.rs:137 app/src/ui/calendar/editor.rs:1729
 #: app/src/ui/composer/mod.rs:2253 app/src/ui/composer/recipients.rs:318
-#: app/src/ui/sender_prefs.rs:215 app/src/ui/window.rs:3512
+#: app/src/ui/sender_prefs.rs:215 app/src/ui/window.rs:3529
 msgid "Remove"
 msgstr "Прибрати"
 
@@ -6723,7 +6729,7 @@ msgstr "Не вдалося вкласти {file}: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1950 app/src/ui/composer/mod.rs:416
 #: app/src/ui/thread_list.rs:351 app/src/ui/thread_list.rs:357
-#: app/src/ui/thread_list.rs:1153
+#: app/src/ui/thread_list.rs:1190
 msgid "More"
 msgstr "Більше"
 
@@ -7922,7 +7928,7 @@ msgstr "Зашифрувати"
 msgid "Request Read Receipt"
 msgstr "Запитати підтвердження прочитання"
 
-#: app/src/ui/composer/mod.rs:381 app/src/ui/conversation.rs:1804
+#: app/src/ui/composer/mod.rs:381 app/src/ui/conversation.rs:1820
 msgid "Choose a Time…"
 msgstr "Вибрати час…"
 
@@ -8467,7 +8473,7 @@ msgid "Export…"
 msgstr "Експортувати…"
 
 #: app/src/ui/conversation.rs:279 app/src/ui/conversation.rs:656
-#: app/src/ui/window.rs:3764
+#: app/src/ui/window.rs:3781
 msgid "Customize Toolbar…"
 msgstr "Налаштувати панель інструментів…"
 
@@ -8532,7 +8538,7 @@ msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr "Позначити як непрочитане (Ctrl+Shift+U)"
 
 #: app/src/ui/conversation.rs:560 app/src/ui/conversation.rs:564
-#: app/src/ui/conversation.rs:1845
+#: app/src/ui/conversation.rs:1861
 msgid "Flag (Ctrl+Shift+L)"
 msgstr "Позначити прапорцем (Ctrl+Shift+L)"
 
@@ -8656,23 +8662,23 @@ msgstr[0] "Вибрано {count} повідомлення"
 msgstr[1] "Вибрано {count} повідомлення"
 msgstr[2] "Вибрано {count} повідомлень"
 
-#: app/src/ui/conversation.rs:1844
+#: app/src/ui/conversation.rs:1860
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr "Зняти прапорець (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:1857
+#: app/src/ui/conversation.rs:1873
 msgid "Mark as Read (U)"
 msgstr "Позначити як прочитане (U)"
 
-#: app/src/ui/conversation.rs:1858
+#: app/src/ui/conversation.rs:1874
 msgid "Mark as Unread (U)"
 msgstr "Позначити як непрочитане (U)"
 
-#: app/src/ui/conversation.rs:2156
+#: app/src/ui/conversation.rs:2172
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr "{color} (Ctrl+Alt+{number})"
 
-#: app/src/ui/conversation.rs:2173 app/src/ui/window/message_menu.rs:269
+#: app/src/ui/conversation.rs:2189 app/src/ui/window/message_menu.rs:269
 msgid "Clear Flag"
 msgstr "Зняти прапорець"
 
@@ -9036,7 +9042,7 @@ msgstr ""
 msgid "Allow Hide My Email"
 msgstr "Дозволити «Сховати e-mail»"
 
-#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3977
+#: app/src/ui/hide_my_email.rs:652 app/src/ui/window.rs:3994
 msgid "Add an account first"
 msgstr "Спершу додайте обліковий запис"
 
@@ -10360,7 +10366,7 @@ msgstr "Перемістити {account} вниз"
 #: app/src/ui/preferences/dialog.rs:27 app/src/ui/preferences/dialog.rs:33
 #: app/src/ui/preferences/dialog.rs:82 app/src/ui/preferences/dialog.rs:83
 #: app/src/ui/preferences/dialog.rs:353 app/src/ui/preferences/dialog.rs:355
-#: app/src/ui/window.rs:3771 app/src/ui/window/shortcuts.rs:616
+#: app/src/ui/window.rs:3788 app/src/ui/window/shortcuts.rs:616
 msgid "Preferences"
 msgstr "Параметри"
 
@@ -10906,7 +10912,7 @@ msgstr "Автовідповідь…"
 msgid "Rules…"
 msgstr "Правила…"
 
-#: app/src/ui/sidebar.rs:2432 app/src/ui/window.rs:3757
+#: app/src/ui/sidebar.rs:2432 app/src/ui/window.rs:3774
 msgid "Hide My Email…"
 msgstr "Сховати e-mail…"
 
@@ -11549,7 +11555,7 @@ msgstr "Не вдалося завантажити пошту: {reason}"
 msgid "Added {account}. Downloading mail…"
 msgstr "Додано {account}. Завантаження пошти…"
 
-#: app/src/ui/window.rs:366 app/src/ui/window.rs:3118
+#: app/src/ui/window.rs:366 app/src/ui/window.rs:3135
 msgid "{account} is signed in again."
 msgstr "Вхід до {account} виконано знову."
 
@@ -11704,67 +11710,67 @@ msgstr[2] "{count} повідомлень переміщено до «Вхідн
 msgid "Penguin Mail (Demo)"
 msgstr "Penguin Mail (демо)"
 
-#: app/src/ui/window.rs:1395
+#: app/src/ui/window.rs:1401
 msgid "Could not read accounts: {reason}"
 msgstr "Не вдалося прочитати облікові записи: {reason}"
 
-#: app/src/ui/window.rs:2154
+#: app/src/ui/window.rs:2171
 msgid "Could not delete the mail: {reason}"
 msgstr "Не вдалося вилучити пошту: {reason}"
 
-#: app/src/ui/window.rs:2261
+#: app/src/ui/window.rs:2278
 msgid "Turn On the {service}"
 msgstr "Увімкніть {service}"
 
-#: app/src/ui/window.rs:2446 app/src/ui/window.rs:2449
+#: app/src/ui/window.rs:2463 app/src/ui/window.rs:2466
 msgid "Move to Inbox"
 msgstr "Перемістити до «Вхідних»"
 
-#: app/src/ui/window.rs:2617 app/src/ui/window.rs:2622
+#: app/src/ui/window.rs:2634 app/src/ui/window.rs:2639
 #, fuzzy
 #| msgid "Search models"
 msgid "Search all folders"
 msgstr "Шукати моделі"
 
-#: app/src/ui/window.rs:2691
+#: app/src/ui/window.rs:2708
 msgid "Select mail from one account to tag it."
 msgstr "Щоб додати тег, виберіть пошту з одного облікового запису."
 
-#: app/src/ui/window.rs:2703
+#: app/src/ui/window.rs:2720
 msgid "This account has no tags yet. Make one in Outlook."
 msgstr "Цей обліковий запис ще не має тегів. Створіть тег в Outlook."
 
-#: app/src/ui/window.rs:2796
+#: app/src/ui/window.rs:2813
 msgid "Add an account to reply or forward"
 msgstr "Додайте обліковий запис, щоб відповідати або пересилати"
 
-#: app/src/ui/window.rs:2901
+#: app/src/ui/window.rs:2918
 msgid "Could not include {file}: {reason}"
 msgstr "Не вдалося додати {file}: {reason}"
 
-#: app/src/ui/window.rs:2982
+#: app/src/ui/window.rs:2999
 msgid "The server had already sent this message."
 msgstr "Сервер уже надіслав це повідомлення."
 
-#: app/src/ui/window.rs:2987
+#: app/src/ui/window.rs:3004
 msgid "This message was canceled in another app and is no longer in Drafts."
 msgstr ""
 "Це повідомлення скасовано в іншій програмі, і його більше немає в "
 "«Чернетках»."
 
-#: app/src/ui/window.rs:3303
+#: app/src/ui/window.rs:3320
 msgid "Continue in your browser"
 msgstr "Продовжте в браузері"
 
-#: app/src/ui/window.rs:3353
+#: app/src/ui/window.rs:3370
 msgid "This copy of Penguin Mail was built without Google sign-in."
 msgstr "Цю копію Penguin Mail зібрано без входу через Google."
 
-#: app/src/ui/window.rs:3375
+#: app/src/ui/window.rs:3392
 msgid "Get a Release"
 msgstr "Отримати випуск"
 
-#: app/src/ui/window.rs:3498
+#: app/src/ui/window.rs:3515
 msgid ""
 "Could not check for messages the server holds to send later, so {account} "
 "stays: {reason}"
@@ -11772,86 +11778,86 @@ msgstr ""
 "Не вдалося перевірити, чи сервер зберігає повідомлення для пізнішого "
 "надсилання, тому {account} залишається: {reason}"
 
-#: app/src/ui/window.rs:3509
+#: app/src/ui/window.rs:3526
 msgid "Remove {account}?"
 msgstr "Прибрати {account}?"
 
-#: app/src/ui/window.rs:3528
+#: app/src/ui/window.rs:3545
 msgid "Remove Anyway"
 msgstr "Усе одно прибрати"
 
-#: app/src/ui/window.rs:3541
+#: app/src/ui/window.rs:3558
 msgid "Removed {account}"
 msgstr "{account} прибрано"
 
-#: app/src/ui/window.rs:3543
+#: app/src/ui/window.rs:3560
 msgid "Could not remove {account}: {reason}"
 msgstr "Не вдалося прибрати {account}: {reason}"
 
-#: app/src/ui/window.rs:3735
+#: app/src/ui/window.rs:3752
 msgid "Refresh"
 msgstr "Оновити"
 
-#: app/src/ui/window.rs:3739
+#: app/src/ui/window.rs:3756
 msgid "Show Declined Events"
 msgstr "Показувати відхилені події"
 
-#: app/src/ui/window.rs:3755
+#: app/src/ui/window.rs:3772
 msgid "Add Account…"
 msgstr "Додати обліковий запис…"
 
-#: app/src/ui/window.rs:3756
+#: app/src/ui/window.rs:3773
 msgid "New Smart Mailbox…"
 msgstr "Нова розумна скринька…"
 
-#: app/src/ui/window.rs:3768
+#: app/src/ui/window.rs:3785
 #, fuzzy
 #| msgid "Customize Toolbar…"
 msgid "Customize Mailboxes…"
 msgstr "Налаштувати панель інструментів…"
 
-#: app/src/ui/window.rs:3772 app/src/ui/window/shortcuts.rs:813
+#: app/src/ui/window.rs:3789 app/src/ui/window/shortcuts.rs:813
 msgid "Keyboard Shortcuts"
 msgstr "Комбінації клавіш"
 
-#: app/src/ui/window.rs:3781 app/src/ui/window.rs:3783
+#: app/src/ui/window.rs:3798 app/src/ui/window.rs:3800
 msgid "Main Menu"
 msgstr "Головне меню"
 
-#: app/src/ui/window.rs:3848 app/src/ui/window.rs:3849
+#: app/src/ui/window.rs:3865 app/src/ui/window.rs:3866
 msgid "Dock"
 msgstr "Закріпити"
 
-#: app/src/ui/window.rs:3978
+#: app/src/ui/window.rs:3995
 msgid "Add a mail account first"
 msgstr "Спочатку додайте поштовий обліковий запис"
 
 #. Translators: {account} is an email address.
-#: app/src/ui/window.rs:4229
+#: app/src/ui/window.rs:4246
 msgid "The calendar and contacts of {account} are connected."
 msgstr "Календар і контакти {account} підключено."
 
-#: app/src/ui/window.rs:4345
+#: app/src/ui/window.rs:4362
 msgid "Open a message from the person first"
 msgstr "Спочатку відкрийте повідомлення від цієї людини"
 
-#: app/src/ui/window.rs:4446
+#: app/src/ui/window.rs:4463
 msgid "Penguin Mail shows the new language after a restart"
 msgstr "Penguin Mail покаже нову мову після перезапуску"
 
-#: app/src/ui/window.rs:4448 app/src/update/mod.rs:130
+#: app/src/ui/window.rs:4465 app/src/update/mod.rs:130
 msgid "Restart"
 msgstr "Перезапустити"
 
-#: app/src/ui/window.rs:4512
+#: app/src/ui/window.rs:4529
 msgid "Show Rules"
 msgstr "Показати правила"
 
-#: app/src/ui/window.rs:4538
+#: app/src/ui/window.rs:4555
 msgid "Messages That Will Not Download"
 msgstr "Повідомлення, які не завантажуються"
 
-#: app/src/ui/window.rs:4540
+#: app/src/ui/window.rs:4557
 msgid ""
 "Penguin Mail could not download these from {address}'s server. It tries "
 "again at each check, except for a message too large to download."

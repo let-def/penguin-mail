@@ -348,6 +348,7 @@ impl OpenThread {
             subject: self.subject.clone(),
             count: self.messages.len(),
             allow_remote: self.images_allowed,
+            failed: self.load_failure.clone(),
             theme: theme.clone(),
         };
         let (head_kept, head_html) = match drawn.head.take() {
@@ -358,6 +359,7 @@ impl OpenThread {
                         subject: &self.subject,
                         count: self.messages.len(),
                         allow_remote: self.images_allowed,
+                        failed: self.load_failure.as_deref(),
                     },
                     theme,
                 )
@@ -699,6 +701,7 @@ struct HeadInputs {
     subject: String,
     count: usize,
     allow_remote: bool,
+    failed: Option<String>,
     theme: Theme,
 }
 
