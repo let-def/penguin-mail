@@ -12996,3 +12996,20 @@ msgid ""
 "It runs in a sandbox with no access to your mail or home folder. {network} "
 "Always Allow covers this exact command only."
 msgstr ""
+
+#: app/src/render.rs:625 app/src/ui/window/attachments.rs:360
+#: app/src/ui/window/attachments.rs:366
+msgid "Save to Downloads"
+msgstr ""
+
+#: app/src/render.rs:634
+msgid "Save {file} to Downloads"
+msgstr ""
+
+#: app/src/ui/moving.rs:57
+msgid "Move it from the Trash to the Inbox first"
+msgstr ""
+
+#: app/src/ui/window.rs:2906 app/src/ui/window/attachments.rs:260
+msgid "Saved {file} to Downloads"
+msgstr ""
