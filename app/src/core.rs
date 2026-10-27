@@ -625,8 +625,9 @@ impl Core {
         ) {
             return Err(err);
         }
+        // The caller awaits on the GTK loop, which has no tokio reactor;
+        // the store reads on the runtime.
         let provider = self
-            .db
             .read(move |c| accounts::account(c, account_id))
             .await
             .ok()
@@ -2267,14 +2268,14 @@ mod tests {
         let _demo = DEMO.lock().unwrap_or_else(PoisonError::into_inner);
         let core = Core::open(true).expect("the demo core opens");
         let account = running_fastmail(&core);
-        let err = core
-            .runtime
-            .block_on(core.call_for(account.id, async {
-                Err::<(), _>(mailrs_sync::SyncError::Backend(
-                    mailrs_sync::BackendError::RateLimited(None),
-                ))
-            }))
-            .unwrap_err();
+        // Blocked on outside the runtime, as the GTK loop awaits it: the
+        // provider's name is read on the runtime, not on the caller's thread.
+        let err = futures::executor::block_on(core.call_for(account.id, async {
+            Err::<(), _>(mailrs_sync::SyncError::Backend(
+                mailrs_sync::BackendError::RateLimited(None),
+            ))
+        }))
+        .unwrap_err();
         assert_eq!(err.to_string(), "Fastmail asked Penguin Mail to wait");
         assert!(matches!(
             err.downcast_ref::<mailrs_sync::SyncError>(),
@@ -2282,14 +2283,12 @@ mod tests {
                 mailrs_sync::BackendError::RateLimited(_)
             ))
         ));
-        let unknown = core
-            .runtime
-            .block_on(core.call_for(-1, async {
-                Err::<(), _>(mailrs_sync::SyncError::Backend(
-                    mailrs_sync::BackendError::RateLimited(None),
-                ))
-            }))
-            .unwrap_err();
+        let unknown = futures::executor::block_on(core.call_for(-1, async {
+            Err::<(), _>(mailrs_sync::SyncError::Backend(
+                mailrs_sync::BackendError::RateLimited(None),
+            ))
+        }))
+        .unwrap_err();
         assert_eq!(unknown.to_string(), "The server asked Penguin Mail to wait");
     }
 

@@ -2208,31 +2208,31 @@ msgstr ""
 msgid "Penguin Mail could not update its mail store, and kept the old one."
 msgstr "Penguin Mail posta deposunu güncelleyemedi ve eskisini sakladı."
 
-#: app/src/core.rs:964 app/src/core.rs:1019 app/src/core.rs:1095
-#: app/src/core.rs:1224 app/src/core.rs:1238 app/src/core.rs:1303
-#: app/src/core.rs:1399
+#: app/src/core.rs:965 app/src/core.rs:1020 app/src/core.rs:1096
+#: app/src/core.rs:1225 app/src/core.rs:1239 app/src/core.rs:1304
+#: app/src/core.rs:1400
 msgid "Demo mode cannot add real accounts."
 msgstr "Demo kipinde gerçek hesap eklenemez."
 
-#: app/src/core.rs:982 app/src/core.rs:1851
+#: app/src/core.rs:983 app/src/core.rs:1852
 msgid "Canceled."
 msgstr "İptal edildi."
 
-#: app/src/core.rs:1571 app/src/core.rs:1596
+#: app/src/core.rs:1572 app/src/core.rs:1597
 msgid "This account keeps no password a calendar or contacts server takes."
 msgstr ""
 "Bu hesapta, takvim veya kişi sunucusunun kabul ettiği bir parola kayıtlı "
 "değil."
 
-#: app/src/core.rs:1777 app/src/core.rs:1877
+#: app/src/core.rs:1778 app/src/core.rs:1878
 msgid "The demo cannot switch accounts."
 msgstr "Demo hesap değiştiremez."
 
-#: app/src/core.rs:1831
+#: app/src/core.rs:1832
 msgid "The demo cannot connect a calendar."
 msgstr "Demo modunda takvim bağlanamaz."
 
-#: app/src/core.rs:1897
+#: app/src/core.rs:1898
 msgid "Gave up waiting for the browser after five minutes."
 msgstr "Tarayıcı beş dakika beklendikten sonra vazgeçildi."
 

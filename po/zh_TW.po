@@ -2091,29 +2091,29 @@ msgstr ""
 msgid "Penguin Mail could not update its mail store, and kept the old one."
 msgstr "Penguin Mail 無法更新郵件資料庫，已保留舊資料庫。"
 
-#: app/src/core.rs:964 app/src/core.rs:1019 app/src/core.rs:1095
-#: app/src/core.rs:1224 app/src/core.rs:1238 app/src/core.rs:1303
-#: app/src/core.rs:1399
+#: app/src/core.rs:965 app/src/core.rs:1020 app/src/core.rs:1096
+#: app/src/core.rs:1225 app/src/core.rs:1239 app/src/core.rs:1304
+#: app/src/core.rs:1400
 msgid "Demo mode cannot add real accounts."
 msgstr "示範模式無法新增真實帳號。"
 
-#: app/src/core.rs:982 app/src/core.rs:1851
+#: app/src/core.rs:983 app/src/core.rs:1852
 msgid "Canceled."
 msgstr "已取消。"
 
-#: app/src/core.rs:1571 app/src/core.rs:1596
+#: app/src/core.rs:1572 app/src/core.rs:1597
 msgid "This account keeps no password a calendar or contacts server takes."
 msgstr "此帳號沒有保存行事曆或聯絡人伺服器接受的密碼。"
 
-#: app/src/core.rs:1777 app/src/core.rs:1877
+#: app/src/core.rs:1778 app/src/core.rs:1878
 msgid "The demo cannot switch accounts."
 msgstr "示範模式無法切換帳號。"
 
-#: app/src/core.rs:1831
+#: app/src/core.rs:1832
 msgid "The demo cannot connect a calendar."
 msgstr "示範模式下無法連接行事曆。"
 
-#: app/src/core.rs:1897
+#: app/src/core.rs:1898
 msgid "Gave up waiting for the browser after five minutes."
 msgstr "已等候瀏覽器五分鐘，停止等候。"
 

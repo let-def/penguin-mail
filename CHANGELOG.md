@@ -29,6 +29,7 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 - Move mail directly between folders in the same account, including out of Trash, and choose Inbox from the mail's folder menu.
 - Choose where to save a single attachment, including in Flatpak, and see errors when its default application cannot open it.
 - Show shared and group calendars discovered through CalDAV or JMAP, with their read-only and editing permissions.
+- A server that asks Penguin Mail to slow down no longer leaves the action you took unfinished, such as a conversation opened from search showing no messages.
 - Mail syncs again soon after the computer wakes from sleep, instead of staying stuck on a connection the server dropped.
 - Google Calendar edits can switch events between timed and all-day without reverting.
 - Microsoft 365 searches show each matching message once and open mail outside the local sync window.

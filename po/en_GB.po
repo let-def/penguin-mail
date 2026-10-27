@@ -1937,29 +1937,29 @@ msgstr "Another copy of Penguin Mail, or penguin-mail-cli sync, is syncing your 
 msgid "Penguin Mail could not update its mail store, and kept the old one."
 msgstr "Penguin Mail could not update its mail store, and kept the old one."
 
-#: app/src/core.rs:964 app/src/core.rs:1019 app/src/core.rs:1095
-#: app/src/core.rs:1224 app/src/core.rs:1238 app/src/core.rs:1303
-#: app/src/core.rs:1399
+#: app/src/core.rs:965 app/src/core.rs:1020 app/src/core.rs:1096
+#: app/src/core.rs:1225 app/src/core.rs:1239 app/src/core.rs:1304
+#: app/src/core.rs:1400
 msgid "Demo mode cannot add real accounts."
 msgstr "Demo mode cannot add real accounts."
 
-#: app/src/core.rs:982 app/src/core.rs:1851
+#: app/src/core.rs:983 app/src/core.rs:1852
 msgid "Canceled."
 msgstr "Cancelled."
 
-#: app/src/core.rs:1571 app/src/core.rs:1596
+#: app/src/core.rs:1572 app/src/core.rs:1597
 msgid "This account keeps no password a calendar or contacts server takes."
 msgstr "This account keeps no password a calendar or contacts server takes."
 
-#: app/src/core.rs:1777 app/src/core.rs:1877
+#: app/src/core.rs:1778 app/src/core.rs:1878
 msgid "The demo cannot switch accounts."
 msgstr "The demo cannot switch accounts."
 
-#: app/src/core.rs:1831
+#: app/src/core.rs:1832
 msgid "The demo cannot connect a calendar."
 msgstr "The demo cannot connect a calendar."
 
-#: app/src/core.rs:1897
+#: app/src/core.rs:1898
 msgid "Gave up waiting for the browser after five minutes."
 msgstr "Gave up waiting for the browser after five minutes."
 
