@@ -11732,7 +11732,7 @@ msgstr "查看存储空间"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "隐藏空间警告至下次启动"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "账号尚未连接。"
 

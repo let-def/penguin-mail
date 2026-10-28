@@ -12276,7 +12276,7 @@ msgstr "Tinjau Penyimpanan"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Sembunyikan Peringatan Penyimpanan hingga Mulai Berikutnya"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Akun belum terhubung."
 

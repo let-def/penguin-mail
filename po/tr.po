@@ -12208,7 +12208,7 @@ msgstr "Depolamayı İncele"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Depolama Uyarısını Sonraki Başlatmaya Kadar Gizle"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Hesap henüz bağlı değil."
 

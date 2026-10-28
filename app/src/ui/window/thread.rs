@@ -273,10 +273,13 @@ impl Effects for Ports {
         Box::pin(async move {
             let sync = self.sync(account_id)?;
             self.core
-                .call_for(
-                    account_id,
-                    async move { sync.open_thread(&thread_id).await },
-                )
+                .call_for(account_id, async move {
+                    mailrs_jmap::slow::timed(
+                        "opening a conversation: fetching its thread",
+                        sync.open_thread(&thread_id),
+                    )
+                    .await
+                })
                 .await
                 .map(|_| ())
                 .map_err(|err| err.to_string())
@@ -310,7 +313,13 @@ impl Effects for Ports {
                 async move {
                     let key = id.clone();
                     let result = core
-                        .call_for(account_id, async move { sync.body(&key).await })
+                        .call_for(account_id, async move {
+                            mailrs_jmap::slow::timed(
+                                "opening a conversation: fetching a body",
+                                sync.body(&key),
+                            )
+                            .await
+                        })
                         .await;
                     (id, result.map_err(|err| err.to_string()))
                 }

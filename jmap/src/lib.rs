@@ -22,6 +22,7 @@ pub mod quota;
 mod request;
 pub mod session;
 pub mod sieve;
+pub mod slow;
 pub mod submission;
 pub mod vacation;
 

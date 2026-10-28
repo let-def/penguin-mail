@@ -205,7 +205,11 @@ impl JmapClient {
         if let Some(session) = self.cached() {
             return Ok(session);
         }
-        let _reading = self.inner.reading.lock().await;
+        let _reading = crate::slow::timed(
+            "JMAP: waiting for the session read",
+            self.inner.reading.lock(),
+        )
+        .await;
         if let Some(session) = self.cached() {
             return Ok(session);
         }
@@ -358,8 +362,13 @@ impl JmapClient {
         F: Fn(HeaderValue) -> Fut,
         Fut: Future<Output = Result<reqwest::Response, JmapError>>,
     {
-        let header = self.inner.auth.header(None).await?;
-        let response = send(header.clone()).await?;
+        let header = crate::slow::timed(
+            "JMAP: waiting for credentials",
+            self.inner.auth.header(None),
+        )
+        .await?;
+        let response =
+            crate::slow::timed("JMAP: waiting for an answer", send(header.clone())).await?;
         if response.status() != StatusCode::UNAUTHORIZED
             || self.inner.auth.kind() != AuthKind::OAuth
         {
@@ -476,11 +485,14 @@ impl JmapClient {
     /// One of the account's slots for a request in flight.
     pub(crate) async fn permit(&self) -> SemaphorePermit<'_> {
         // The semaphore is never closed, so acquiring cannot fail.
-        self.inner
-            .permits
-            .acquire()
-            .await
-            .expect("the permits stay open")
+        let free = self.inner.permits.available_permits();
+        crate::slow::watched(
+            "JMAP: waiting for a request slot",
+            || format!("{free} free when asked"),
+            self.inner.permits.acquire(),
+        )
+        .await
+        .expect("the permits stay open")
     }
 
     /// Sends `request` to the session's `apiUrl`. A capability the session

@@ -12513,7 +12513,7 @@ msgstr "Έλεγχος χώρου αποθήκευσης"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Απόκρυψη προειδοποίησης χώρου έως την επόμενη εκκίνηση"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Ο λογαριασμός δεν έχει συνδεθεί ακόμη."
 

@@ -11566,7 +11566,7 @@ msgstr ""
 msgid "Hide Storage Warning Until Next Launch"
 msgstr ""
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr ""
 

@@ -12399,7 +12399,7 @@ msgstr "Vérifier le stockage"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Masquer l’alerte d’espace jusqu’au prochain lancement"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Le compte n’est pas encore connecté."
 

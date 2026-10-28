@@ -11960,7 +11960,7 @@ msgstr "Xem dung lượng"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Ẩn cảnh báo dung lượng đến lần khởi động sau"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Tài khoản chưa kết nối."
 

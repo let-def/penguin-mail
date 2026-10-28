@@ -12425,7 +12425,7 @@ msgstr "Проверить хранилище"
 msgid "Hide Storage Warning Until Next Launch"
 msgstr "Скрыть предупреждение о хранилище до следующего запуска"
 
-#: app/src/ui/window/thread.rs:630
+#: app/src/ui/window/thread.rs:639
 msgid "The account is not connected yet."
 msgstr "Учётная запись ещё не подключена."
 

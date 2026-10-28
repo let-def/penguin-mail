@@ -50,12 +50,33 @@ pub(crate) struct StoreMail {
     /// folder server read a moved message's old place as expunged and
     /// delete it.
     moving: Arc<Mutex<()>>,
+    /// Where the move lock was taken and when, while it is held: what a
+    /// caller that waits on it names in the log.
+    holder: Arc<std::sync::Mutex<Option<Holder>>>,
+}
+
+#[derive(Clone, Copy)]
+struct Holder {
+    at: &'static std::panic::Location<'static>,
+    since: std::time::Instant,
+}
+
+impl std::fmt::Display for Holder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} for {}s", self.at, self.since.elapsed().as_secs())
+    }
 }
 
 /// The move lock, held: what a write and a sync pass do while holding it.
 pub(crate) struct Moves<'a> {
     mail: &'a StoreMail,
     _held: MutexGuard<'a, ()>,
+}
+
+impl Drop for Moves<'_> {
+    fn drop(&mut self) {
+        self.mail.set_holder(None);
+    }
 }
 
 /// A tentative first load. Its lock and rollback live through a queued
@@ -119,6 +140,7 @@ impl StoreMail {
             account_id,
             renames,
             moving: Arc::new(Mutex::new(())),
+            holder: Arc::new(std::sync::Mutex::new(None)),
         }
     }
 
@@ -140,11 +162,42 @@ impl StoreMail {
     /// server, so a pass that read the server in between would put the
     /// mail back where it was, on any server. On IMAP a move also renames
     /// the message, which a pass must not read halfway.
-    pub(crate) async fn hold_moves(&self) -> Moves<'_> {
-        Moves {
-            mail: self,
-            _held: self.moving.lock().await,
+    #[track_caller]
+    pub(crate) fn hold_moves(&self) -> impl Future<Output = Moves<'_>> + Send + '_ {
+        let at = std::panic::Location::caller();
+        async move {
+            let held = mailrs_jmap::slow::watched(
+                &format!("waiting for the move lock at {at}"),
+                || {
+                    self.holder()
+                        .map_or_else(|| "nobody".to_string(), |h| h.to_string())
+                },
+                self.moving.lock(),
+            )
+            .await;
+            self.set_holder(Some(Holder {
+                at,
+                since: std::time::Instant::now(),
+            }));
+            Moves {
+                mail: self,
+                _held: held,
+            }
         }
+    }
+
+    fn holder(&self) -> Option<Holder> {
+        *self
+            .holder
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+    }
+
+    fn set_holder(&self, holder: Option<Holder>) {
+        *self
+            .holder
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = holder;
     }
 
     /// The server's name for each of `ids`, in the same order: what a
