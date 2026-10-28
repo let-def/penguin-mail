@@ -92,8 +92,7 @@ fn hex(digit: u8) -> Option<u8> {
 /// Whether a server whose stored keywords are `stored` keeps `keyword`:
 /// it is among them, or it is a topic keyword and they hold [`FAMILY`].
 pub fn stored(stored: &[&str], keyword: &str) -> bool {
-    stored.contains(&keyword)
-        || (stored.contains(&FAMILY) && name_of_keyword(keyword).is_some())
+    stored.contains(&keyword) || (stored.contains(&FAMILY) && name_of_keyword(keyword).is_some())
 }
 
 #[cfg(test)]
@@ -102,7 +101,14 @@ mod tests {
 
     #[test]
     fn a_name_survives_the_keyword_whatever_the_server_does_to_case() {
-        for name in ["Foo bar", "foo bar", "Café", "Invoice #2041", "Q3 Launch", "日本"] {
+        for name in [
+            "Foo bar",
+            "foo bar",
+            "Café",
+            "Invoice #2041",
+            "Q3 Launch",
+            "日本",
+        ] {
             let keyword = keyword_of(name);
             assert!(keyword.is_ascii() && !keyword.contains(' '), "{keyword}");
             assert_eq!(name_of_keyword(&keyword).as_deref(), Some(name));
@@ -120,15 +126,30 @@ mod tests {
     fn the_keyword_is_an_imap_atom() {
         // RFC 9051's atom-specials, and `%` and `*`, which are wildcards.
         let keyword = keyword_of("a (b) {c} %d* \"e\" \\f ]g");
-        assert!(!keyword.chars().any(|c| "(){ %*\"\\]".contains(c)), "{keyword}");
+        assert!(
+            !keyword.chars().any(|c| "(){ %*\"\\]".contains(c)),
+            "{keyword}"
+        );
     }
 
     #[test]
     fn other_keywords_and_broken_escapes_name_no_topic() {
-        for keyword in ["$seen", "topic:", "topic:=4", "topic:=zz", "topic:a b", "topic:=ff", "topica"] {
+        for keyword in [
+            "$seen",
+            "topic:",
+            "topic:=4",
+            "topic:=zz",
+            "topic:a b",
+            "topic:=ff",
+            "topica",
+        ] {
             assert_eq!(name_of_keyword(keyword), None, "{keyword}");
         }
-        assert_eq!(name_of_keyword("topic:=20a"), None, "a padded name is not clean");
+        assert_eq!(
+            name_of_keyword("topic:=20a"),
+            None,
+            "a padded name is not clean"
+        );
     }
 
     #[test]

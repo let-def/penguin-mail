@@ -24,12 +24,19 @@ pub fn matching<'a>(typed: &str, known: &'a [String]) -> Vec<&'a str> {
         return Vec::new();
     }
     let lower: Vec<String> = known.iter().map(|k| k.to_lowercase()).collect();
-    let starts = known.iter().zip(&lower).filter(|(_, l)| l.starts_with(&wanted));
+    let starts = known
+        .iter()
+        .zip(&lower)
+        .filter(|(_, l)| l.starts_with(&wanted));
     let holds = known
         .iter()
         .zip(&lower)
         .filter(|(_, l)| !l.starts_with(&wanted) && l.contains(&wanted));
-    starts.chain(holds).map(|(k, _)| k.as_str()).take(SHOWN).collect()
+    starts
+        .chain(holds)
+        .map(|(k, _)| k.as_str())
+        .take(SHOWN)
+        .collect()
 }
 
 /// Asks which topic to put mail on, from `known` or a new name, and

@@ -5181,7 +5181,7 @@ msgstr "Άνοιγμα του Penguin Mail"
 
 #: app/src/tray.rs:249 app/src/ui/composer/mod.rs:372
 #: app/src/ui/composer/mod.rs:675 app/src/ui/composer/mod.rs:1565
-#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:857
+#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:873
 msgid "New Message"
 msgstr "Νέο μήνυμα"
 
@@ -5389,7 +5389,7 @@ msgstr "Αντιγραφή συνδέσμου"
 #: app/src/ui/sender_prefs.rs:210 app/src/ui/sender_prefs/signature.rs:78
 #: app/src/ui/smart_editor.rs:326 app/src/ui/switch_jmap.rs:174
 #: app/src/ui/switch_jmap.rs:225 app/src/ui/templates.rs:240
-#: app/src/ui/topic_picker.rs:57 app/src/ui/unsubscribe.rs:79
+#: app/src/ui/topic_picker.rs:64 app/src/ui/unsubscribe.rs:79
 #: app/src/ui/unsubscribe.rs:142 app/src/ui/vacation.rs:46
 #: app/src/ui/when.rs:52 app/src/ui/window/arrange.rs:169
 #: app/src/ui/window/images.rs:87 app/src/ui/window/images.rs:157
@@ -6848,8 +6848,8 @@ msgid "Could not attach {file}: {reason}"
 msgstr "Αδυναμία επισύναψης του {file}: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1950 app/src/ui/composer/mod.rs:416
-#: app/src/ui/thread_list.rs:705 app/src/ui/thread_list.rs:711
-#: app/src/ui/thread_list.rs:2131
+#: app/src/ui/thread_list.rs:721 app/src/ui/thread_list.rs:727
+#: app/src/ui/thread_list.rs:2174
 msgid "More"
 msgstr "Περισσότερα"
 
@@ -8036,7 +8036,7 @@ msgstr "Κρυπτογράφηση"
 msgid "Request Read Receipt"
 msgstr "Αίτηση απόδειξης ανάγνωσης"
 
-#: app/src/ui/composer/mod.rs:381 app/src/ui/conversation.rs:1848
+#: app/src/ui/composer/mod.rs:381 app/src/ui/conversation.rs:1851
 msgid "Choose a Time…"
 msgstr "Επιλογή ώρας…"
 
@@ -8655,7 +8655,7 @@ msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr "Σήμανση ως μη αναγνωσμένο (Ctrl+Shift+U)"
 
 #: app/src/ui/conversation.rs:563 app/src/ui/conversation.rs:567
-#: app/src/ui/conversation.rs:1889
+#: app/src/ui/conversation.rs:1892
 msgid "Flag (Ctrl+Shift+L)"
 msgstr "Σήμανση με σημαία (Ctrl+Shift+L)"
 
@@ -8778,37 +8778,37 @@ msgid_plural "{count} Messages Selected"
 msgstr[0] "Επιλέχθηκε {count} μήνυμα"
 msgstr[1] "Επιλέχθηκαν {count} μηνύματα"
 
-#: app/src/ui/conversation.rs:1824
+#: app/src/ui/conversation.rs:1825
 msgid "Set Topic…"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1832
+#: app/src/ui/conversation.rs:1834
 msgid "Recent Topics"
 msgstr ""
 
-#: app/src/ui/conversation.rs:1834
+#: app/src/ui/conversation.rs:1837
 #, fuzzy
 #| msgid "Remove from VIPs"
 msgid "Remove from Topic"
 msgstr "Αφαίρεση από τις επαφές VIP"
 
-#: app/src/ui/conversation.rs:1888
+#: app/src/ui/conversation.rs:1891
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr "Αφαίρεση σημαίας (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:1901
+#: app/src/ui/conversation.rs:1904
 msgid "Mark as Read (U)"
 msgstr "Σήμανση ως αναγνωσμένο (U)"
 
-#: app/src/ui/conversation.rs:1902
+#: app/src/ui/conversation.rs:1905
 msgid "Mark as Unread (U)"
 msgstr "Σήμανση ως μη αναγνωσμένο (U)"
 
-#: app/src/ui/conversation.rs:2181
+#: app/src/ui/conversation.rs:2184
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr "{color} (Ctrl+Alt+{number})"
 
-#: app/src/ui/conversation.rs:2198 app/src/ui/window/message_menu.rs:269
+#: app/src/ui/conversation.rs:2201 app/src/ui/window/message_menu.rs:269
 msgid "Clear Flag"
 msgstr "Αφαίρεση σημαίας"
 
@@ -10494,7 +10494,7 @@ msgstr "Τελευταίος λογαριασμός ημερολογίου πο�
 msgid "Same as New Messages"
 msgstr "Όπως στα νέα μηνύματα"
 
-#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:615
+#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:631
 msgid "All Inboxes"
 msgstr "Όλα τα εισερχόμενα"
 
@@ -10967,7 +10967,7 @@ msgid "Mailboxes"
 msgstr "Αλληλογραφία"
 
 #: app/src/ui/sidebar.rs:494 app/src/ui/sidebar.rs:548
-#: app/src/ui/sidebar.rs:1903 app/src/ui/thread_list.rs:726
+#: app/src/ui/sidebar.rs:1903 app/src/ui/thread_list.rs:742
 msgid "Mail"
 msgstr "Αλληλογραφία"
 
@@ -11325,42 +11325,42 @@ msgstr "Κείμενο μηνύματος"
 msgid "New Template"
 msgstr "Νέο πρότυπο"
 
-#: app/src/ui/thread_list.rs:578
+#: app/src/ui/thread_list.rs:594
 msgid "No Mail"
 msgstr "Καμία αλληλογραφία"
 
 #. The two search terms are Gmail's own and stay in English.
-#: app/src/ui/thread_list.rs:596
+#: app/src/ui/thread_list.rs:612
 msgid "Search mail, e.g. from:ann has:attachment"
 msgstr "Αναζήτηση αλληλογραφίας, π.χ. from:ann has:attachment"
 
-#: app/src/ui/thread_list.rs:635 app/src/ui/thread_list.rs:662
+#: app/src/ui/thread_list.rs:651 app/src/ui/thread_list.rs:678
 msgid "Show Mailboxes"
 msgstr "Εμφάνιση γραμματοκιβωτίων"
 
-#: app/src/ui/thread_list.rs:640
+#: app/src/ui/thread_list.rs:656
 msgid "New Message (C)"
 msgstr "Νέο μήνυμα (C)"
 
-#: app/src/ui/thread_list.rs:645
+#: app/src/ui/thread_list.rs:661
 msgid "Search (/)"
 msgstr "Αναζήτηση (/)"
 
-#: app/src/ui/thread_list.rs:649 app/src/ui/thread_list.rs:663
+#: app/src/ui/thread_list.rs:665 app/src/ui/thread_list.rs:679
 msgid "Group by Topic"
 msgstr ""
 
-#: app/src/ui/thread_list.rs:650 app/src/ui/thread_list.rs:666
+#: app/src/ui/thread_list.rs:666 app/src/ui/thread_list.rs:682
 msgid "Choose How to Group"
 msgstr ""
 
 #. The tooltips already say what these do; the spoken name takes
 #. the words and leaves the keys to a property of their own.
-#: app/src/ui/thread_list.rs:661
+#: app/src/ui/thread_list.rs:677
 msgid "Search mail"
 msgstr "Αναζήτηση αλληλογραφίας"
 
-#: app/src/ui/thread_list.rs:667
+#: app/src/ui/thread_list.rs:683
 msgid "Draws mail of one topic together in the list"
 msgstr ""
 
@@ -11394,7 +11394,7 @@ msgid_plural "{count} in {topic}"
 msgstr[0] "{count} όχι"
 msgstr[1] "{count} όχι"
 
-#: app/src/ui/thread_list/bundle_line.rs:383
+#: app/src/ui/thread_list/bundle_line.rs:393
 #, fuzzy
 #| msgid "{count} conversation"
 #| msgid_plural "{count} conversations"
@@ -11403,7 +11403,7 @@ msgid_plural "Topic {topic}, {count} conversations"
 msgstr[0] "{count} συζήτηση"
 msgstr[1] "{count} συζητήσεις"
 
-#: app/src/ui/thread_list/bundle_line.rs:389
+#: app/src/ui/thread_list/bundle_line.rs:399
 #, fuzzy
 #| msgid "{mailbox}, {count} message"
 #| msgid_plural "{mailbox}, {count} messages"
@@ -11412,11 +11412,11 @@ msgid_plural "Topic {topic}, {count} messages"
 msgstr[0] "{mailbox}, {count} μήνυμα"
 msgstr[1] "{mailbox}, {count} μηνύματα"
 
-#: app/src/ui/thread_list/bundle_line.rs:395
+#: app/src/ui/thread_list/bundle_line.rs:405
 msgid "Show only unread in {topic}"
 msgstr ""
 
-#: app/src/ui/thread_list/bundle_line.rs:400
+#: app/src/ui/thread_list/bundle_line.rs:410
 #, fuzzy
 #| msgid "{count} more event"
 #| msgid_plural "{count} more events"
@@ -11425,7 +11425,7 @@ msgid_plural "Show {count} more in {topic}"
 msgstr[0] "{count} ακόμη συμβάν"
 msgstr[1] "{count} ακόμη συμβάντα"
 
-#: app/src/ui/thread_list/bundle_line.rs:407
+#: app/src/ui/thread_list/bundle_line.rs:417
 #, fuzzy
 #| msgid "Moved {count} conversation to Trash"
 #| msgid_plural "Moved {count} conversations to Trash"
@@ -11434,7 +11434,7 @@ msgid_plural "{count} read conversations in {topic}, show them"
 msgstr[0] "Μετακινήθηκε {count} συζήτηση στον Κάδο απορριμμάτων"
 msgstr[1] "Μετακινήθηκαν {count} συζητήσεις στον Κάδο απορριμμάτων"
 
-#: app/src/ui/thread_list/bundle_line.rs:413
+#: app/src/ui/thread_list/bundle_line.rs:423
 #, fuzzy
 #| msgid "{count} unread message"
 #| msgid_plural "{count} unread messages"
@@ -11545,26 +11545,26 @@ msgstr "Επαναφορά προεπιλογών"
 msgid "Customize Toolbar"
 msgstr "Προσαρμογή γραμμής εργαλείων"
 
-#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:50
 #, fuzzy
 #| msgid "it names"
 msgid "Topic name"
 msgstr "αναφέρει"
 
-#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+#: app/src/ui/topic_picker.rs:53 app/src/ui/topic_picker.rs:93
 msgid "Known topics"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:51
+#: app/src/ui/topic_picker.rs:58
 msgid "Set Topic"
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:53
+#: app/src/ui/topic_picker.rs:60
 msgid ""
 "Mail on one topic is shown together in the list. A new name starts a topic."
 msgstr ""
 
-#: app/src/ui/topic_picker.rs:57
+#: app/src/ui/topic_picker.rs:64
 #, fuzzy
 #| msgid "Sent"
 msgid "Set"

@@ -55,7 +55,8 @@ pub enum Period {
 pub fn period(day: NaiveDate, of: Period) -> i64 {
     match of {
         Period::Week(start) => {
-            let back = (7 + day.weekday().num_days_from_monday() - start.num_days_from_monday()) % 7;
+            let back =
+                (7 + day.weekday().num_days_from_monday() - start.num_days_from_monday()) % 7;
             i64::from(day.num_days_from_ce() - back as i32)
         }
         Period::Month => i64::from(day.year()) * 12 + i64::from(day.month0()),
@@ -146,7 +147,13 @@ impl Opened {
     /// Opens or closes the bundle of `topic` holding `members`. Closing
     /// is the person asking for the unread rows alone, so the read rows
     /// the bundle kept on screen leave `kept` and hide too.
-    pub fn toggle(&mut self, topic: &str, rows: &[Row], members: &[usize], kept: &mut HashSet<Key>) {
+    pub fn toggle(
+        &mut self,
+        topic: &str,
+        rows: &[Row],
+        members: &[usize],
+        kept: &mut HashSet<Key>,
+    ) {
         let open = self.holds(topic, rows, members);
         if open {
             for member in members {
@@ -209,10 +216,12 @@ pub fn lay_out(rows: &[Row], reach: &Reach, opened: &Opened, kept: &HashSet<Key>
         if shown.is_empty() {
             layout.entries.push(Entry::Summary(index));
         } else {
-            layout.entries.extend(shown.into_iter().map(|row| Entry::Row {
-                row,
-                bundle: Some(index),
-            }));
+            layout
+                .entries
+                .extend(shown.into_iter().map(|row| Entry::Row {
+                    row,
+                    bundle: Some(index),
+                }));
             if open || hidden > 0 {
                 layout.entries.push(Entry::Trailer(index));
             }
@@ -234,7 +243,9 @@ pub fn lay_out(rows: &[Row], reach: &Reach, opened: &Opened, kept: &HashSet<Key>
 /// `rows` rows laid out as they come, with no bundles.
 pub fn flat(rows: usize) -> Layout {
     Layout {
-        entries: (0..rows).map(|row| Entry::Row { row, bundle: None }).collect(),
+        entries: (0..rows)
+            .map(|row| Entry::Row { row, bundle: None })
+            .collect(),
         bundles: Vec::new(),
     }
 }
@@ -368,7 +379,15 @@ mod tests {
     }
 
     fn plain(rows: &[Row], window: usize) -> Vec<String> {
-        words(rows, &lay_out(rows, &Reach::Rows(window), &Opened::default(), &HashSet::new()))
+        words(
+            rows,
+            &lay_out(
+                rows,
+                &Reach::Rows(window),
+                &Opened::default(),
+                &HashSet::new(),
+            ),
+        )
     }
 
     #[test]
@@ -429,7 +448,10 @@ mod tests {
         ]);
         let reach = Reach::Periods(vec![5, 5, 5, 4]);
         assert_eq!(
-            words(&list, &lay_out(&list, &reach, &Opened::default(), &HashSet::new())),
+            words(
+                &list,
+                &lay_out(&list, &reach, &Opened::default(), &HashSet::new())
+            ),
             ["[Q3 2]", "a", "c", "b", "[Q3 1]", "d"]
         );
     }
@@ -444,9 +466,15 @@ mod tests {
         let sunday = Period::Week(Weekday::Sun);
         assert_eq!(period(day(18), sunday), period(day(24), sunday));
         assert_ne!(period(day(17), sunday), period(day(18), sunday));
-        assert_eq!(period(day(1), Period::Month), period(day(31), Period::Month));
+        assert_eq!(
+            period(day(1), Period::Month),
+            period(day(31), Period::Month)
+        );
         let september = NaiveDate::from_ymd_opt(2026, 9, 30).expect("a day");
-        assert_ne!(period(september, Period::Month), period(day(1), Period::Month));
+        assert_ne!(
+            period(september, Period::Month),
+            period(day(1), Period::Month)
+        );
     }
 
     #[test]
@@ -521,7 +549,10 @@ mod tests {
             words(&list, &lay_out(&list, &NEARBY, &opened, &kept)),
             ["[Q3 2]", "a", "+1"]
         );
-        assert!(kept.contains(&key(&other[0])), "rows outside the bundle stay kept");
+        assert!(
+            kept.contains(&key(&other[0])),
+            "rows outside the bundle stay kept"
+        );
     }
 
     #[test]
@@ -531,7 +562,10 @@ mod tests {
             ("b", &["Zed"], true),
             ("c", &["Alpha"], true),
         ]);
-        assert_eq!(plain(&list, WINDOW), ["[Alpha 2]", "a", "c", "[Zed 1]", "b"]);
+        assert_eq!(
+            plain(&list, WINDOW),
+            ["[Alpha 2]", "a", "c", "[Zed 1]", "b"]
+        );
         let alone = rows(&[("a", &["Zed", "Alpha"], true), ("b", &["Zed"], true)]);
         assert_eq!(plain(&alone, WINDOW), ["[Zed 2]", "a", "b"]);
     }
@@ -552,12 +586,21 @@ mod tests {
         let layout = lay_out(&list, &Reach::Rows(1), &Opened::default(), &HashSet::new());
         assert_eq!(
             words(&list, &layout),
-            ["[Q3 2]", "a", "b", "c", "d", "[Q3 1]", "e", "f", "g", "[Q3 2]", "h", "i"]
+            [
+                "[Q3 2]", "a", "b", "c", "d", "[Q3 1]", "e", "f", "g", "[Q3 2]", "h", "i"
+            ]
         );
         let (first, last) = (&layout.bundles[0], &layout.bundles[2]);
-        assert_eq!((first.earlier, first.later), (None, Some(5)), "the lone row's header");
+        assert_eq!(
+            (first.earlier, first.later),
+            (None, Some(5)),
+            "the lone row's header"
+        );
         assert_eq!((last.earlier, last.later), (Some(5), None));
-        assert_eq!((layout.bundles[1].earlier, layout.bundles[1].later), (Some(0), Some(9)));
+        assert_eq!(
+            (layout.bundles[1].earlier, layout.bundles[1].later),
+            (Some(0), Some(9))
+        );
     }
 
     #[test]
