@@ -12,7 +12,6 @@ pub mod calendar;
 pub mod category;
 mod folder;
 pub mod invitation;
-pub mod topic;
 mod location;
 pub mod mailbox;
 pub mod query;
@@ -20,6 +19,7 @@ pub mod sign_in_page;
 pub mod smart;
 pub mod subject;
 mod target;
+pub mod topic;
 pub mod translate;
 
 pub use category::Category;

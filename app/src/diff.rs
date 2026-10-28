@@ -51,7 +51,10 @@ pub fn edits<T: PartialEq>(old: &[T], new: &[T]) -> Vec<Splice> {
         return Vec::new();
     };
     let start = whole.position as usize;
-    let (a, b) = (&old[start..start + whole.removed as usize], &new[whole.added.clone()]);
+    let (a, b) = (
+        &old[start..start + whole.removed as usize],
+        &new[whole.added.clone()],
+    );
     let (m, n) = (a.len(), b.len());
     if m == 0 || n == 0 || (m + 1) * (n + 1) > MOST_CELLS {
         return vec![whole];
@@ -106,7 +109,10 @@ mod tests {
         let mut list = old.to_vec();
         for edit in edits(old, new) {
             let at = edit.position as usize;
-            list.splice(at..at + edit.removed as usize, new[edit.added].iter().copied());
+            list.splice(
+                at..at + edit.removed as usize,
+                new[edit.added].iter().copied(),
+            );
         }
         list
     }
@@ -133,8 +139,16 @@ mod tests {
         assert_eq!(
             edits(&old, &new),
             [
-                Splice { position: 4, removed: 1, added: 5..5 },
-                Splice { position: 0, removed: 1, added: 0..2 },
+                Splice {
+                    position: 4,
+                    removed: 1,
+                    added: 5..5
+                },
+                Splice {
+                    position: 0,
+                    removed: 1,
+                    added: 0..2
+                },
             ]
         );
     }

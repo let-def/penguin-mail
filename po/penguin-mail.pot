@@ -12986,3 +12986,13 @@ msgstr ""
 #: sync/src/actions.rs:1112
 msgid "“{topic}” cannot name a topic."
 msgstr ""
+
+#: app/src/assistant/sources/skills/shell.rs:187
+msgid ""
+"Run this command for the skill {skill}?\n"
+"\n"
+"{command}\n"
+"\n"
+"It runs in a sandbox with no access to your mail or home folder. {network} "
+"Always Allow covers this exact command only."
+msgstr ""

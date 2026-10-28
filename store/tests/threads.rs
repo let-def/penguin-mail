@@ -430,8 +430,8 @@ fn a_cancelled_invitation_leaves_no_mark() {
 
 #[test]
 fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
-    use mailrs_domain::topic;
     use mailrs_domain::mailbox::{MailboxKind, RemoteMailbox};
+    use mailrs_domain::topic;
     let (conn, a, b) = two_accounts();
     let topic_label = RemoteMailbox {
         id: "Label_7".into(),
@@ -452,13 +452,20 @@ fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
     messages::apply(
         &conn,
         a,
-        &[keyword("a2", "Q3 launch"), keyword("a3", "Q3 Launch"), keyword("a3", "Café")],
+        &[
+            keyword("a2", "Q3 launch"),
+            keyword("a3", "Q3 Launch"),
+            keyword("a3", "Café"),
+        ],
     )
     .unwrap();
     messages::apply(
         &conn,
         b,
-        &[Change::AddToMailbox { message_id: "b1".into(), mailbox: "Label_7".into() }],
+        &[Change::AddToMailbox {
+            message_id: "b1".into(),
+            mailbox: "Label_7".into(),
+        }],
     )
     .unwrap();
 
@@ -473,14 +480,30 @@ fn a_row_names_the_topics_its_messages_are_in_by_keyword_or_label() {
     assert_eq!(topics("tb1"), ["Q3 Launch"]);
     assert!(topics("ta1").is_empty());
 
-    let one = threads::list_messages(&conn, &ThreadFilter::account(a, set("INBOX")), 0, 10).unwrap();
-    let a3 = one.iter().find(|r| r.message_id.as_deref() == Some("a3")).unwrap();
+    let one =
+        threads::list_messages(&conn, &ThreadFilter::account(a, set("INBOX")), 0, 10).unwrap();
+    let a3 = one
+        .iter()
+        .find(|r| r.message_id.as_deref() == Some("a3"))
+        .unwrap();
     assert_eq!(a3.topics.len(), 2);
 
-    assert_eq!(threads::topic_names(&conn, &[a, b]).unwrap(), ["Café", "Q3 launch"]);
+    assert_eq!(
+        threads::topic_names(&conn, &[a, b]).unwrap(),
+        ["Café", "Q3 launch"]
+    );
     // Newest mail first: Q3 Launch's label on b1 at 300 beats Café's
     // keyword on a3 at 250, and takes b1's spelling.
-    assert_eq!(threads::recent_topics(&conn, &[a, b], 5).unwrap(), ["Q3 Launch", "Café"]);
-    assert_eq!(threads::recent_topics(&conn, &[a, b], 1).unwrap(), ["Q3 Launch"]);
-    assert_eq!(threads::recent_topics(&conn, &[a], 5).unwrap(), ["Café", "Q3 Launch"]);
+    assert_eq!(
+        threads::recent_topics(&conn, &[a, b], 5).unwrap(),
+        ["Q3 Launch", "Café"]
+    );
+    assert_eq!(
+        threads::recent_topics(&conn, &[a, b], 1).unwrap(),
+        ["Q3 Launch"]
+    );
+    assert_eq!(
+        threads::recent_topics(&conn, &[a], 5).unwrap(),
+        ["Café", "Q3 Launch"]
+    );
 }
