@@ -1793,7 +1793,8 @@ impl ConversationView {
     /// list names none; and Remove from Topic.
     pub fn set_recent_topics(&self, recent: &[String]) {
         self.topics.remove_all();
-        self.topics.append(Some(&gettext("Set Topic…")), Some("win.choose-topic"));
+        self.topics
+            .append(Some(&gettext("Set Topic…")), Some("win.choose-topic"));
         if !recent.is_empty() {
             let named = gio::Menu::new();
             for topic in recent {
@@ -1801,9 +1802,11 @@ impl ConversationView {
                 item.set_action_and_target_value(Some("win.join-topic"), Some(&topic.to_variant()));
                 named.append_item(&item);
             }
-            self.topics.append_submenu(Some(&gettext("Recent Topics")), &named);
+            self.topics
+                .append_submenu(Some(&gettext("Recent Topics")), &named);
         }
-        self.topics.append(Some(&gettext("Remove from Topic")), Some("win.leave-topic"));
+        self.topics
+            .append(Some(&gettext("Remove from Topic")), Some("win.leave-topic"));
     }
 
     /// Fills Remind Me with times that make sense now.

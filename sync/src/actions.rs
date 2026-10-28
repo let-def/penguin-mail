@@ -20,9 +20,9 @@ use crate::{
 };
 
 mod categorize;
-mod topics;
 mod labelling;
 mod returning;
+mod topics;
 
 pub use categorize::Categorized;
 pub use labelling::NewLabels;

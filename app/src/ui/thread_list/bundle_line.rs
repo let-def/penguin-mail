@@ -299,10 +299,13 @@ impl BundleLine {
                 &[("count", &count), ("topic", topic)],
             ),
         });
-        imp.chevron.get().expect("built in new").set_icon_name(Some(match shown.open {
-            true => "pan-up-symbolic",
-            false => "pan-down-symbolic",
-        }));
+        imp.chevron
+            .get()
+            .expect("built in new")
+            .set_icon_name(Some(match shown.open {
+                true => "pan-up-symbolic",
+                false => "pan-down-symbolic",
+            }));
         if let Kind::Summary(rows) = kind {
             self.fill_summary(rows);
         }
@@ -337,8 +340,15 @@ impl BundleLine {
                 names.push(name);
             }
         }
-        imp.names.get().expect("built in new").set_label(&names.join(", "));
-        let newest = rows.iter().map(|r| r.last_message_at).max().unwrap_or_default();
+        imp.names
+            .get()
+            .expect("built in new")
+            .set_label(&names.join(", "));
+        let newest = rows
+            .iter()
+            .map(|r| r.last_message_at)
+            .max()
+            .unwrap_or_default();
         imp.date
             .get()
             .expect("built in new")

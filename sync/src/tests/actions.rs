@@ -1323,19 +1323,37 @@ async fn a_gmail_topic_is_a_label_named_after_it() {
     };
 
     let join = MailAction::Topic(Some("Q3 Launch".into()));
-    let outcome = actions.run(std::slice::from_ref(&target), join, History::Record).await;
+    let outcome = actions
+        .run(std::slice::from_ref(&target), join, History::Record)
+        .await;
     assert!(outcome.failed.is_empty(), "{:?}", outcome.failed);
     assert_eq!(topics().await, ["Q3 Launch"]);
     assert_eq!(
-        h.fake.with(|s| s.labels.iter().filter(|l| l.name == "topic:Q3 Launch").count()),
+        h.fake.with(|s| s
+            .labels
+            .iter()
+            .filter(|l| l.name == "topic:Q3 Launch")
+            .count()),
         1
     );
 
     let other = MailAction::Topic(Some("Invoices".into()));
-    actions.run(std::slice::from_ref(&target), other, History::Record).await;
+    actions
+        .run(std::slice::from_ref(&target), other, History::Record)
+        .await;
     assert_eq!(topics().await, ["Invoices"]);
 
-    actions.run(std::slice::from_ref(&target), MailAction::Topic(None), History::Record).await;
+    actions
+        .run(
+            std::slice::from_ref(&target),
+            MailAction::Topic(None),
+            History::Record,
+        )
+        .await;
     assert!(topics().await.is_empty());
-    assert_eq!(h.threads(MailSet::Role(Role::Inbox)).await, ["t1"], "the mail stays put");
+    assert_eq!(
+        h.threads(MailSet::Role(Role::Inbox)).await,
+        ["t1"],
+        "the mail stays put"
+    );
 }

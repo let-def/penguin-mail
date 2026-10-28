@@ -24,7 +24,10 @@ async fn one_message_on(imap: FakeImap) -> (ImapHarness, String) {
 
 fn actions(h: &ImapHarness) -> MailActions<Connected> {
     MailActions::new(
-        Arc::new(Connected(HashMap::from([(h.account_id, Arc::clone(&h.sync))]))),
+        Arc::new(Connected(HashMap::from([(
+            h.account_id,
+            Arc::clone(&h.sync),
+        )]))),
         h.db.clone(),
         crate::OneClick::Fake(Arc::default()),
     )
@@ -41,13 +44,27 @@ async fn topics(h: &ImapHarness, thread: &str) -> Vec<String> {
 }
 
 fn server_flags(h: &ImapHarness) -> Vec<String> {
-    h.imap.message("INBOX", 1).unwrap().flags.into_iter().collect()
+    h.imap
+        .message("INBOX", 1)
+        .unwrap()
+        .flags
+        .into_iter()
+        .collect()
 }
 
-async fn topic(h: &ImapHarness, actions: &MailActions<Connected>, thread: &str, name: Option<&str>) {
+async fn topic(
+    h: &ImapHarness,
+    actions: &MailActions<Connected>,
+    thread: &str,
+    name: Option<&str>,
+) {
     let target = Target::thread(h.account_id, thread);
     let outcome = actions
-        .run(&[target], MailAction::Topic(name.map(str::to_string)), History::Record)
+        .run(
+            &[target],
+            MailAction::Topic(name.map(str::to_string)),
+            History::Record,
+        )
         .await;
     assert!(outcome.failed.is_empty(), "{:?}", outcome.failed);
 }
@@ -73,14 +90,19 @@ async fn a_topic_reaches_the_server_and_a_second_one_replaces_it() {
 
     topic(&h, &actions, &thread, None).await;
     assert!(topics(&h, &thread).await.is_empty());
-    assert!(!server_flags(&h).iter().any(|f| f.starts_with("topic:")), "{:?}", server_flags(&h));
+    assert!(
+        !server_flags(&h).iter().any(|f| f.starts_with("topic:")),
+        "{:?}",
+        server_flags(&h)
+    );
 }
 
 #[tokio::test]
 async fn a_name_joins_the_topic_it_matches_ignoring_case() {
     let (h, thread) = one_message_on(FakeImap::new()).await;
     let actions = actions(&h);
-    h.imap.remote_flag("INBOX", 1, &topic::keyword_of("Q3 Launch"), true);
+    h.imap
+        .remote_flag("INBOX", 1, &topic::keyword_of("Q3 Launch"), true);
     h.sync.incremental().await.unwrap();
     assert_eq!(topics(&h, &thread).await, ["Q3 Launch"]);
 
@@ -88,7 +110,10 @@ async fn a_name_joins_the_topic_it_matches_ignoring_case() {
 
     assert_eq!(topics(&h, &thread).await, ["Q3 Launch"]);
     assert_eq!(
-        server_flags(&h).iter().filter(|f| f.starts_with("topic:")).count(),
+        server_flags(&h)
+            .iter()
+            .filter(|f| f.starts_with("topic:"))
+            .count(),
         1,
         "{:?}",
         server_flags(&h)
@@ -101,7 +126,8 @@ async fn a_topic_another_device_takes_off_leaves_this_one_too() {
     let actions = actions(&h);
     topic(&h, &actions, &thread, Some("Q3")).await;
 
-    h.imap.remote_flag("INBOX", 1, &topic::keyword_of("Q3"), false);
+    h.imap
+        .remote_flag("INBOX", 1, &topic::keyword_of("Q3"), false);
     h.sync.incremental().await.unwrap();
 
     assert!(topics(&h, &thread).await.is_empty());

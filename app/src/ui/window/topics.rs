@@ -142,7 +142,10 @@ const RECENT_TOPICS: usize = 5;
 fn recent_topics(used: &[String], stored: Vec<String>, most: usize) -> Vec<String> {
     let mut recent: Vec<String> = used.to_vec();
     for topic in stored {
-        if !recent.iter().any(|known| mailrs_domain::topic::same(known, &topic)) {
+        if !recent
+            .iter()
+            .any(|known| mailrs_domain::topic::same(known, &topic))
+        {
             recent.push(topic);
         }
     }
@@ -166,7 +169,10 @@ mod tests {
             recent_topics(&used, stored.clone(), 5),
             ["Taxes", "q3 launch", "Invoices", "Trip"]
         );
-        assert_eq!(recent_topics(&used, stored.clone(), 3), ["Taxes", "q3 launch", "Invoices"]);
+        assert_eq!(
+            recent_topics(&used, stored.clone(), 3),
+            ["Taxes", "q3 launch", "Invoices"]
+        );
         assert_eq!(recent_topics(&[], stored, 2), ["Q3 Launch", "Invoices"]);
     }
 }

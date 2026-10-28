@@ -4956,7 +4956,7 @@ msgstr "Abrir o Penguin Mail"
 
 #: app/src/tray.rs:249 app/src/ui/composer/mod.rs:369
 #: app/src/ui/composer/mod.rs:672 app/src/ui/composer/mod.rs:1561
-#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:838
+#: app/src/ui/contact_card.rs:168 app/src/ui/thread_list.rs:854
 msgid "New Message"
 msgstr "Nova mensagem"
 
@@ -5160,7 +5160,7 @@ msgstr "Copiar ligação"
 #: app/src/ui/sender_prefs.rs:210 app/src/ui/sender_prefs/signature.rs:78
 #: app/src/ui/smart_editor.rs:150 app/src/ui/switch_jmap.rs:174
 #: app/src/ui/switch_jmap.rs:225 app/src/ui/templates.rs:240
-#: app/src/ui/topic_picker.rs:57 app/src/ui/unsubscribe.rs:119
+#: app/src/ui/topic_picker.rs:64 app/src/ui/unsubscribe.rs:119
 #: app/src/ui/vacation.rs:46 app/src/ui/when.rs:52
 #: app/src/ui/window/arrange.rs:148 app/src/ui/window/images.rs:101
 #: app/src/ui/window/organize.rs:78 app/src/ui/window/organize.rs:127
@@ -6574,8 +6574,8 @@ msgid "Could not attach {file}: {reason}"
 msgstr "Não foi possível anexar {file}: {reason}"
 
 #: app/src/ui/calendar/editor.rs:1947 app/src/ui/composer/mod.rs:413
-#: app/src/ui/thread_list.rs:697 app/src/ui/thread_list.rs:703
-#: app/src/ui/thread_list.rs:2039
+#: app/src/ui/thread_list.rs:713 app/src/ui/thread_list.rs:719
+#: app/src/ui/thread_list.rs:2082
 msgid "More"
 msgstr "Mais"
 
@@ -7738,7 +7738,7 @@ msgstr "Encriptar"
 msgid "Request Read Receipt"
 msgstr "Pedir recibo de leitura"
 
-#: app/src/ui/composer/mod.rs:378 app/src/ui/conversation.rs:1820
+#: app/src/ui/composer/mod.rs:378 app/src/ui/conversation.rs:1823
 msgid "Choose a Time…"
 msgstr "Escolher uma hora…"
 
@@ -8331,7 +8331,7 @@ msgid "Mark as Unread (Ctrl+Shift+U)"
 msgstr "Marcar como não lida (Ctrl+Shift+U)"
 
 #: app/src/ui/conversation.rs:530 app/src/ui/conversation.rs:534
-#: app/src/ui/conversation.rs:1861
+#: app/src/ui/conversation.rs:1864
 msgid "Flag (Ctrl+Shift+L)"
 msgstr "Marcar (Ctrl+Shift+L)"
 
@@ -8451,35 +8451,35 @@ msgid_plural "{count} Messages Selected"
 msgstr[0] "{count} mensagem selecionada"
 msgstr[1] "{count} mensagens selecionadas"
 
-#: app/src/ui/conversation.rs:1796
+#: app/src/ui/conversation.rs:1797
 msgid "Set Topic…"
 msgstr "Definir Tópico…"
 
-#: app/src/ui/conversation.rs:1804
+#: app/src/ui/conversation.rs:1806
 msgid "Recent Topics"
 msgstr "Tópicos Recentes"
 
-#: app/src/ui/conversation.rs:1806
+#: app/src/ui/conversation.rs:1809
 msgid "Remove from Topic"
 msgstr "Remover do Tópico"
 
-#: app/src/ui/conversation.rs:1860
+#: app/src/ui/conversation.rs:1863
 msgid "Unflag (Ctrl+Shift+L)"
 msgstr "Desmarcar (Ctrl+Shift+L)"
 
-#: app/src/ui/conversation.rs:1873
+#: app/src/ui/conversation.rs:1876
 msgid "Mark as Read (U)"
 msgstr "Marcar como lida (U)"
 
-#: app/src/ui/conversation.rs:1874
+#: app/src/ui/conversation.rs:1877
 msgid "Mark as Unread (U)"
 msgstr "Marcar como não lida (U)"
 
-#: app/src/ui/conversation.rs:2127
+#: app/src/ui/conversation.rs:2130
 msgid "{color} (Ctrl+Alt+{number})"
 msgstr "{color} (Ctrl+Alt+{number})"
 
-#: app/src/ui/conversation.rs:2144 app/src/ui/window/message_menu.rs:269
+#: app/src/ui/conversation.rs:2147 app/src/ui/window/message_menu.rs:269
 msgid "Clear Flag"
 msgstr "Retirar a marca"
 
@@ -9987,7 +9987,7 @@ msgstr "Última conta de calendário usada"
 msgid "Same as New Messages"
 msgstr "Igual às mensagens novas"
 
-#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:612
+#: app/src/ui/preferences/accounts.rs:204 app/src/ui/thread_list.rs:628
 msgid "All Inboxes"
 msgstr "Todas as caixas de entrada"
 
@@ -10424,7 +10424,7 @@ msgid "Mailboxes"
 msgstr "Caixas de correio"
 
 #: app/src/ui/sidebar.rs:388 app/src/ui/sidebar.rs:1515
-#: app/src/ui/thread_list.rs:717
+#: app/src/ui/thread_list.rs:733
 msgid "Mail"
 msgstr "Correio"
 
@@ -10692,42 +10692,42 @@ msgstr "Corpo"
 msgid "New Template"
 msgstr "Novo modelo"
 
-#: app/src/ui/thread_list.rs:575
+#: app/src/ui/thread_list.rs:591
 msgid "No Mail"
 msgstr "Sem correio"
 
 #. The two search terms are Gmail's own and stay in English.
-#: app/src/ui/thread_list.rs:593
+#: app/src/ui/thread_list.rs:609
 msgid "Search mail, e.g. from:ann has:attachment"
 msgstr "Pesquisar correio, por exemplo from:ana has:attachment"
 
-#: app/src/ui/thread_list.rs:632 app/src/ui/thread_list.rs:659
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:675
 msgid "Show Mailboxes"
 msgstr "Mostrar as caixas de correio"
 
-#: app/src/ui/thread_list.rs:637
+#: app/src/ui/thread_list.rs:653
 msgid "New Message (C)"
 msgstr "Nova mensagem (C)"
 
-#: app/src/ui/thread_list.rs:642
+#: app/src/ui/thread_list.rs:658
 msgid "Search (/)"
 msgstr "Pesquisar (/)"
 
-#: app/src/ui/thread_list.rs:646 app/src/ui/thread_list.rs:660
+#: app/src/ui/thread_list.rs:662 app/src/ui/thread_list.rs:676
 msgid "Group by Topic"
 msgstr "Agrupar por tópico"
 
-#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:663
+#: app/src/ui/thread_list.rs:663 app/src/ui/thread_list.rs:679
 msgid "Choose How to Group"
 msgstr "Escolher como agrupar"
 
 #. The tooltips already say what these do; the spoken name takes
 #. the words and leaves the keys to a property of their own.
-#: app/src/ui/thread_list.rs:658
+#: app/src/ui/thread_list.rs:674
 msgid "Search mail"
 msgstr "Pesquisar correio"
 
-#: app/src/ui/thread_list.rs:664
+#: app/src/ui/thread_list.rs:680
 msgid "Draws mail of one topic together in the list"
 msgstr "Mostra junto na lista o correio de um tópico"
 
@@ -10751,35 +10751,35 @@ msgid_plural "{count} in {topic}"
 msgstr[0] "{count} em {topic}"
 msgstr[1] "{count} em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:383
+#: app/src/ui/thread_list/bundle_line.rs:393
 msgid "Topic {topic}, {count} conversation"
 msgid_plural "Topic {topic}, {count} conversations"
 msgstr[0] "Tópico {topic}, {count} conversa"
 msgstr[1] "Tópico {topic}, {count} conversas"
 
-#: app/src/ui/thread_list/bundle_line.rs:389
+#: app/src/ui/thread_list/bundle_line.rs:399
 msgid "Topic {topic}, {count} message"
 msgid_plural "Topic {topic}, {count} messages"
 msgstr[0] "Tópico {topic}, {count} mensagem"
 msgstr[1] "Tópico {topic}, {count} mensagens"
 
-#: app/src/ui/thread_list/bundle_line.rs:395
+#: app/src/ui/thread_list/bundle_line.rs:405
 msgid "Show only unread in {topic}"
 msgstr "Mostrar só as não lidas em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:400
+#: app/src/ui/thread_list/bundle_line.rs:410
 msgid "Show {count} more in {topic}"
 msgid_plural "Show {count} more in {topic}"
 msgstr[0] "Mostrar mais {count} em {topic}"
 msgstr[1] "Mostrar mais {count} em {topic}"
 
-#: app/src/ui/thread_list/bundle_line.rs:407
+#: app/src/ui/thread_list/bundle_line.rs:417
 msgid "{count} read conversation in {topic}, show it"
 msgid_plural "{count} read conversations in {topic}, show them"
 msgstr[0] "{count} conversa lida em {topic}, mostrá-la"
 msgstr[1] "{count} conversas lidas em {topic}, mostrá-las"
 
-#: app/src/ui/thread_list/bundle_line.rs:413
+#: app/src/ui/thread_list/bundle_line.rs:423
 msgid "{count} read message in {topic}, show it"
 msgid_plural "{count} read messages in {topic}, show them"
 msgstr[0] "{count} mensagem lida em {topic}, mostrá-la"
@@ -10842,26 +10842,26 @@ msgstr "{sender}, {subject}, {snippet}"
 msgid "On the server, {lines}"
 msgstr "No servidor, {lines}"
 
-#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:50
 msgid "Topic name"
 msgstr "Nome do tópico"
 
-#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+#: app/src/ui/topic_picker.rs:53 app/src/ui/topic_picker.rs:93
 msgid "Known topics"
 msgstr "Tópicos conhecidos"
 
-#: app/src/ui/topic_picker.rs:51
+#: app/src/ui/topic_picker.rs:58
 msgid "Set Topic"
 msgstr "Definir Tópico"
 
-#: app/src/ui/topic_picker.rs:53
+#: app/src/ui/topic_picker.rs:60
 msgid ""
 "Mail on one topic is shown together in the list. A new name starts a topic."
 msgstr ""
 "O correio sobre um tópico aparece junto na lista. Um nome novo cria um "
 "tópico."
 
-#: app/src/ui/topic_picker.rs:57
+#: app/src/ui/topic_picker.rs:64
 msgid "Set"
 msgstr "Definir"
 

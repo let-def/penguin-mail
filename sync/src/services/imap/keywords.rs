@@ -74,7 +74,10 @@ pub(super) fn stored_keywords(permanent: &[String]) -> &'static [&'static str] {
     if permanent.iter().any(|f| f == "\\*") {
         return ANY_KEYWORD;
     }
-    match permanent.iter().any(|f| f.eq_ignore_ascii_case(keyword::MUTED)) {
+    match permanent
+        .iter()
+        .any(|f| f.eq_ignore_ascii_case(keyword::MUTED))
+    {
         true => EVERY_KEYWORD,
         false => SYSTEM_KEYWORDS,
     }
@@ -181,12 +184,22 @@ mod tests {
             })
         );
         assert!(
-            !changes.iter().any(|c| matches!(c, RemoteChange::Lost { memberships, .. }
+            !changes
+                .iter()
+                .any(|c| matches!(c, RemoteChange::Lost { memberships, .. }
                 if memberships.contains(&Membership::Keyword(topic::FAMILY.into())))),
             "the family is no keyword to lose"
         );
-        let closed = flag_changes("INBOX/1/4", &owned(&["\\Seen", &topic]), super::EVERY_KEYWORD);
-        assert!(!closed.iter().any(|c| matches!(c, RemoteChange::TopicsCarried { .. })));
+        let closed = flag_changes(
+            "INBOX/1/4",
+            &owned(&["\\Seen", &topic]),
+            super::EVERY_KEYWORD,
+        );
+        assert!(
+            !closed
+                .iter()
+                .any(|c| matches!(c, RemoteChange::TopicsCarried { .. }))
+        );
     }
 
     #[test]

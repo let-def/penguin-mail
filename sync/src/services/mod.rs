@@ -289,7 +289,10 @@ pub enum RemoteChange {
     /// engine takes away each one the store holds and this leaves out.
     /// Only a server that renames what it moves sends it; the engine turns
     /// it into a `Lost` when it reads the change under store ids.
-    TopicsCarried { id: String, keywords: Vec<String> },
+    TopicsCarried {
+        id: String,
+        keywords: Vec<String>,
+    },
 }
 
 /// The keywords one message carries on the server, by its UID.

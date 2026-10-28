@@ -85,10 +85,17 @@ const BAND_CLASSES: [&str; 3] = ["bundled", "bundle-start", "bundle-end"];
 /// so much as holding it then leaves GTK with widgets it no longer knows.
 /// By the time the mark goes on, the row may show another item, which
 /// then keeps the mark its own bind gives it.
-fn band_later(item: &gtk::ListItem, slot: &gtk::Widget, object: &glib::BoxedAnyObject, band: Option<Band>) {
+fn band_later(
+    item: &gtk::ListItem,
+    slot: &gtk::Widget,
+    object: &glib::BoxedAnyObject,
+    band: Option<Band>,
+) {
     let (item, slot, object) = (item.downgrade(), slot.downgrade(), object.downgrade());
     glib::idle_add_local_once(move || {
-        let (Some(item), Some(slot), Some(object)) = (item.upgrade(), slot.upgrade(), object.upgrade()) else {
+        let (Some(item), Some(slot), Some(object)) =
+            (item.upgrade(), slot.upgrade(), object.upgrade())
+        else {
             return;
         };
         let current = item.item().and_downcast::<glib::BoxedAnyObject>();
@@ -178,7 +185,8 @@ impl Shown {
 
     /// The bundle the item at `position` belongs to.
     fn bundle_of(&self, position: usize) -> Option<&bundles::Bundle> {
-        self.bundle_index(position).and_then(|b| self.layout.bundles.get(b))
+        self.bundle_index(position)
+            .and_then(|b| self.layout.bundles.get(b))
     }
 
     /// The bundle of `topic` whose rows include `row`.
@@ -294,16 +302,22 @@ fn items_of(rows: &[Row], layout: &Layout, threaded: bool, more: bool) -> Vec<It
                 },
                 band(at).expect("a header sits in its bundle"),
             ),
-            Entry::Trailer(b) => {
-                Item::Line(Kind::Trailer, shown(*b), band(at).expect("a trailer sits in its bundle"))
-            }
+            Entry::Trailer(b) => Item::Line(
+                Kind::Trailer,
+                shown(*b),
+                band(at).expect("a trailer sits in its bundle"),
+            ),
             Entry::Summary(b) => {
                 let hidden = layout.bundles[*b]
                     .members
                     .iter()
                     .map(|m| Rc::clone(&rows[*m]))
                     .collect();
-                Item::Line(Kind::Summary(hidden), shown(*b), band(at).expect("a summary sits in its bundle"))
+                Item::Line(
+                    Kind::Summary(hidden),
+                    shown(*b),
+                    band(at).expect("a summary sits in its bundle"),
+                )
             }
         })
         .collect()
@@ -494,8 +508,10 @@ impl ThreadList {
         let photos: Rc<RefCell<Option<Rc<ContactPhotos>>>> = Rc::default();
         let faces = Rc::clone(&photos);
         let bind: Rc<dyn Fn(&gtk::ListItem)> = Rc::new(move |item| {
-            let (Some(slot), Some(object)) = (item.child(), item.item().and_downcast::<glib::BoxedAnyObject>())
-            else {
+            let (Some(slot), Some(object)) = (
+                item.child(),
+                item.item().and_downcast::<glib::BoxedAnyObject>(),
+            ) else {
                 return;
             };
             let (Some(row), Some(line)) = (
@@ -997,7 +1013,9 @@ impl ThreadList {
         if text.is_empty() {
             return;
         }
-        let waiting = |row: &Row| mailrs_domain::Target::for_preview(row) == *target && row.snippet.is_empty();
+        let waiting = |row: &Row| {
+            mailrs_domain::Target::for_preview(row) == *target && row.snippet.is_empty()
+        };
         let mut shown = self.shown.borrow_mut();
         for row in shown.rows.iter_mut().filter(|row| waiting(row)) {
             Rc::make_mut(row).snippet = text.to_string();
@@ -1010,12 +1028,18 @@ impl ThreadList {
                 continue;
             }
             Rc::make_mut(row).snippet = text.to_string();
-            if let Some(object) = self.store.item(index as u32).and_downcast::<glib::BoxedAnyObject>() {
+            if let Some(object) = self
+                .store
+                .item(index as u32)
+                .and_downcast::<glib::BoxedAnyObject>()
+            {
                 *object.borrow_mut::<Item>() = item.clone();
             }
         }
         drop(shown);
-        self.redraw_made(false, |row| mailrs_domain::Target::for_preview(row) == *target);
+        self.redraw_made(false, |row| {
+            mailrs_domain::Target::for_preview(row) == *target
+        });
     }
 
     /// Marks rows from these addresses as VIP mail.
@@ -1228,7 +1252,9 @@ impl ThreadList {
                 return;
             };
             let (topic, members) = (bundle.topic.clone(), bundle.members.clone());
-            let Shown { opened, rows, kept, .. } = &mut *shown;
+            let Shown {
+                opened, rows, kept, ..
+            } = &mut *shown;
             opened.toggle(&topic, rows, &members, kept);
         }
         self.relayout();
@@ -1351,7 +1377,8 @@ impl ThreadList {
             let (Some(list), Some(scroller)) = (list.upgrade(), scroller.upgrade()) else {
                 return glib::ControlFlow::Break;
             };
-            let now = item_at(&list, position).and_then(|w| w.compute_point(&scroller, &graphene::Point::zero()));
+            let now = item_at(&list, position)
+                .and_then(|w| w.compute_point(&scroller, &graphene::Point::zero()));
             if let Some(now) = now {
                 let moved = f64::from(now.y() - was);
                 if moved.abs() >= 1.0 {
@@ -1467,12 +1494,17 @@ impl ThreadList {
         match shown.bundle_of(position) {
             Some(bundle) => {
                 let topic = &bundle.topic;
-                let all_there = dragged
-                    .iter()
-                    .all(|row| row.topics.iter().any(|t| mailrs_domain::topic::same(t, topic)));
+                let all_there = dragged.iter().all(|row| {
+                    row.topics
+                        .iter()
+                        .any(|t| mailrs_domain::topic::same(t, topic))
+                });
                 (!all_there).then(|| Some(topic.clone()))
             }
-            None => dragged.iter().any(|row| !row.topics.is_empty()).then_some(None),
+            None => dragged
+                .iter()
+                .any(|row| !row.topics.is_empty())
+                .then_some(None),
         }
     }
 
@@ -1655,7 +1687,9 @@ impl ThreadList {
         if let Some((topic, members)) = hiding {
             {
                 let mut shown = self.shown.borrow_mut();
-                let Shown { opened, rows, kept, .. } = &mut *shown;
+                let Shown {
+                    opened, rows, kept, ..
+                } = &mut *shown;
                 opened.toggle(&topic, rows, &members, kept);
             }
             self.relayout();
@@ -1862,7 +1896,11 @@ fn menu_keys() -> gtk::ShortcutController {
 /// selection made elsewhere can leave somewhere else. A press in the list
 /// brings the focus in to the row under the pointer, so that way in is
 /// left alone.
-fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection, pressed: Rc<Cell<bool>>) {
+fn land_on_selection(
+    view: &gtk::ListView,
+    selection: &gtk::MultiSelection,
+    pressed: Rc<Cell<bool>>,
+) {
     let press = gtk::GestureClick::builder().button(0).build();
     press.set_propagation_phase(gtk::PropagationPhase::Capture);
     let held = Rc::clone(&pressed);
@@ -1899,7 +1937,10 @@ fn land_on_selection(view: &gtk::ListView, selection: &gtk::MultiSelection, pres
 /// drop there does: put the dragged mail on the topic of the bundle the
 /// item belongs to, take it off its topic on a row outside every bundle,
 /// or nothing, which GTK then shows by refusing the drop.
-fn drop_target(item: &gtk::ListItem, me: &Rc<RefCell<std::rc::Weak<ThreadList>>>) -> gtk::DropTarget {
+fn drop_target(
+    item: &gtk::ListItem,
+    me: &Rc<RefCell<std::rc::Weak<ThreadList>>>,
+) -> gtk::DropTarget {
     let target = gtk::DropTarget::new(glib::Type::STRING, gdk::DragAction::MOVE);
     let at = {
         let item = item.downgrade();
@@ -1941,7 +1982,9 @@ fn drop_target(item: &gtk::ListItem, me: &Rc<RefCell<std::rc::Weak<ThreadList>>>
     });
     target.connect_drop(move |_, value, _, _| {
         value.get::<String>().is_ok_and(|v| v == DRAG_MAIL)
-            && at().zip(list()).is_some_and(|(position, list)| list.dropped_on(position))
+            && at()
+                .zip(list())
+                .is_some_and(|(position, list)| list.dropped_on(position))
     });
     target
 }
