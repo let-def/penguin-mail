@@ -5,6 +5,10 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 
 ## Unreleased
 
+### Fixed
+
+- A Fastmail or other JMAP account no longer stops syncing after the computer wakes from sleep, which left its messages on “Loading…”.
+
 ## 1.0.11 (2026-10-28)
 
 ### New

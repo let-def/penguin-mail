@@ -340,95 +340,122 @@ async fn run_account(
     // ends. A watch made anew at each turn would drop a waiting IDLE at
     // every poll and poke, and with it the connection. Gmail's never ends.
     let mail = &sync.services().mail;
-    let mut watch = Box::pin(mail.watch());
-    loop {
-        if !network.load(Ordering::SeqCst) {
-            if reported != Some(AccountState::Offline) {
-                reported = Some(AccountState::Offline);
-                report(&sync, AccountState::Offline).await;
-            }
-            // The network coming back pokes every loop, and so does Check
-            // for Mail.
-            poke.notified().await;
-            next_poll = Instant::now();
-        }
-        // Everything this loop asks Gmail for is background work, so it
-        // waits behind whatever the user is doing and leaves the account
-        // budget the user's next action needs.
-        match background(tick(
-            &sync,
-            &mut next_poll,
-            &mut next_prune,
-            &mut stagger,
-            &config,
-        ))
-        .await
-        {
-            Ok(more_background) => {
-                failures = 0;
-                if reported != Some(AccountState::Ok) {
-                    reported = Some(AccountState::Ok);
-                    report(&sync, AccountState::Ok).await;
+    let watched = Notify::new();
+    let turns = async {
+        loop {
+            if !network.load(Ordering::SeqCst) {
+                if reported != Some(AccountState::Offline) {
+                    reported = Some(AccountState::Offline);
+                    report(&sync, AccountState::Offline).await;
                 }
-                if more_background {
-                    // Backfill and prefetch have no hurry. A gap between
-                    // requests keeps the account's budget from running at
-                    // nothing, and a longer one gets out of the way of a
-                    // user action that is already waiting.
-                    let pause = match sync.foreground_waiting() {
-                        true => config.backfill_busy_pause,
-                        false => config.backfill_pause,
-                    };
+                // The network coming back pokes every loop, and so does Check
+                // for Mail.
+                poke.notified().await;
+                next_poll = Instant::now();
+            }
+            // Everything this loop asks Gmail for is background work, so it
+            // waits behind whatever the user is doing and leaves the account
+            // budget the user's next action needs.
+            match background(tick(
+                &sync,
+                &mut next_poll,
+                &mut next_prune,
+                &mut stagger,
+                &config,
+            ))
+            .await
+            {
+                Ok(more_background) => {
+                    failures = 0;
+                    if reported != Some(AccountState::Ok) {
+                        reported = Some(AccountState::Ok);
+                        report(&sync, AccountState::Ok).await;
+                    }
+                    if more_background {
+                        // Backfill and prefetch have no hurry. A gap between
+                        // requests keeps the account's budget from running at
+                        // nothing, and a longer one gets out of the way of a
+                        // user action that is already waiting.
+                        let pause = match sync.foreground_waiting() {
+                            true => config.backfill_busy_pause,
+                            false => config.backfill_pause,
+                        };
+                        tokio::select! {
+                            _ = tokio::time::sleep(pause) => {}
+                            // Somebody asked for a refresh, which still wants
+                            // history before the next page.
+                            _ = poke.notified() => next_poll = Instant::now(),
+                        }
+                        continue;
+                    }
                     tokio::select! {
-                        _ = tokio::time::sleep(pause) => {}
-                        // Somebody asked for a refresh, which still wants
-                        // history before the next page.
+                        _ = tokio::time::sleep_until(next_poll) => {}
                         _ = poke.notified() => next_poll = Instant::now(),
-                    }
-                    continue;
-                }
-                tokio::select! {
-                    _ = tokio::time::sleep_until(next_poll) => {}
-                    _ = poke.notified() => next_poll = Instant::now(),
-                    // A server that says when the Inbox changes wakes the
-                    // loop at once. Gmail never does.
-                    () = &mut watch => {
-                        next_poll = Instant::now();
-                        watch.set(mail.watch());
+                        // A server that says when the Inbox changes wakes the
+                        // loop at once. Gmail never does.
+                        () = watched.notified() => next_poll = Instant::now(),
                     }
                 }
+                Err(err) => match classify(&err, signs_in_with_password(sync.services())) {
+                    Failure::Reauth => {
+                        tracing::warn!(
+                            account = sync.account_id(),
+                            "Google rejected the refresh token; add the account again"
+                        );
+                        report(&sync, AccountState::NeedsReauth).await;
+                        return;
+                    }
+                    Failure::Retry { state, retry_after } => {
+                        tracing::warn!(account = sync.account_id(), error = %err, "sync failed; backing off");
+                        if reported != Some(state) {
+                            reported = Some(state);
+                            report(&sync, state).await;
+                        }
+                        // Gmail hands every account the same Retry-After, so
+                        // wait a jittered version of it rather than the number
+                        // itself, or all six come back on the same tick.
+                        let jitter = rand::random_range(-1.0..=1.0);
+                        let delay = match retry_after {
+                            Some(after) => with_jitter(after, jitter),
+                            None => backoff_delay(failures, config.max_backoff, jitter),
+                        };
+                        failures = failures.saturating_add(1);
+                        tokio::select! {
+                            _ = tokio::time::sleep(delay) => {}
+                            _ = poke.notified() => {}
+                        }
+                    }
+                },
             }
-            Err(err) => match classify(&err, signs_in_with_password(sync.services())) {
-                Failure::Reauth => {
-                    tracing::warn!(
-                        account = sync.account_id(),
-                        "Google rejected the refresh token; add the account again"
-                    );
-                    report(&sync, AccountState::NeedsReauth).await;
-                    return;
-                }
-                Failure::Retry { state, retry_after } => {
-                    tracing::warn!(account = sync.account_id(), error = %err, "sync failed; backing off");
-                    if reported != Some(state) {
-                        reported = Some(state);
-                        report(&sync, state).await;
-                    }
-                    // Gmail hands every account the same Retry-After, so
-                    // wait a jittered version of it rather than the number
-                    // itself, or all six come back on the same tick.
-                    let jitter = rand::random_range(-1.0..=1.0);
-                    let delay = match retry_after {
-                        Some(after) => with_jitter(after, jitter),
-                        None => backoff_delay(failures, config.max_backoff, jitter),
-                    };
-                    failures = failures.saturating_add(1);
-                    tokio::select! {
-                        _ = tokio::time::sleep(delay) => {}
-                        _ = poke.notified() => {}
-                    }
-                }
-            },
         }
+    };
+    beside_the_watch(|| mail.watch(), &watched, turns).await;
+}
+
+/// Runs `turns` with the account's watch beside it on the same task,
+/// starting a watch again each time one ends and saying so on `watched`.
+///
+/// The watch is polled whenever the task wakes, not only while the loop
+/// waits for it. A watch set aside while the loop looks at the account
+/// stops wherever it was. When that was inside a lock the look needs,
+/// such as the JMAP client's session read after a push stream failed in
+/// a suspend, the look waits for ever on a holder that never runs again.
+async fn beside_the_watch<W>(
+    watch: impl Fn() -> W,
+    watched: &Notify,
+    turns: impl Future<Output = ()>,
+) where
+    W: Future<Output = ()>,
+{
+    let watching = async {
+        loop {
+            watch().await;
+            watched.notify_one();
+        }
+    };
+    tokio::select! {
+        () = turns => {}
+        _ = watching => {}
     }
 }
 
@@ -523,6 +550,31 @@ mod tests {
         // A clock that went backwards checks now rather than waiting.
         assert_eq!(until_check(Some(now + HOUR), now), Duration::ZERO);
     }
+    #[tokio::test(start_paused = true)]
+    async fn a_look_gets_a_lock_the_watch_held_when_the_loop_turned_away() {
+        let lock = tokio::sync::Mutex::new(());
+        let inside = Notify::new();
+        let watched = Notify::new();
+        let watch = || async {
+            let _held = lock.lock().await;
+            inside.notify_one();
+            tokio::time::sleep(Duration::from_secs(1)).await;
+        };
+        let turns = async {
+            inside.notified().await;
+            // The look needs what the watch holds, as a JMAP call needs the
+            // session the watch is reading.
+            drop(lock.lock().await);
+            watched.notified().await;
+        };
+        tokio::time::timeout(
+            Duration::from_secs(60),
+            beside_the_watch(watch, &watched, turns),
+        )
+        .await
+        .expect("the watch went on and let go of the lock");
+    }
+
     #[test]
     fn gmails_bandwidth_alert_waits_an_hour_in_its_own_state() {
         let alert = mailrs_imap::ImapError::BandwidthLimit {
