@@ -1102,7 +1102,7 @@ impl Composer {
                 "<Primary><Shift>7",
                 Box::new(|c| c.list(BlockKind::Numbered)),
             ),
-            ("<Primary><Shift>9", Box::new(|c| c.list(BlockKind::Quote))),
+            ("<Primary><Shift>9", Box::new(|c| c.quote())),
         ] {
             let weak = Rc::downgrade(self);
             formatting.add_shortcut(gtk::Shortcut::new(
@@ -2324,23 +2324,26 @@ impl Composer {
             (
                 "view-list-bullet-symbolic",
                 gettext("Bulleted List (Ctrl+Shift+8)"),
-                BlockKind::Bullet,
+                Some(BlockKind::Bullet),
             ),
             (
                 "view-list-ordered-symbolic",
                 gettext("Numbered List (Ctrl+Shift+7)"),
-                BlockKind::Numbered,
+                Some(BlockKind::Numbered),
             ),
             (
                 "format-indent-more-symbolic",
                 gettext("Quote (Ctrl+Shift+9)"),
-                BlockKind::Quote,
+                None,
             ),
         ] {
             let weak = Rc::downgrade(self);
             button(&blocks, icon, tip).connect_clicked(move |_| {
                 if let Some(c) = weak.upgrade() {
-                    c.list(kind);
+                    match kind {
+                        Some(kind) => c.list(kind),
+                        None => c.quote(),
+                    }
                 }
             });
         }
@@ -2414,9 +2417,16 @@ impl Composer {
         self.refresh_toggles();
     }
 
-    /// Makes the lines the cursor touches a list, a quote, or plain again.
+    /// Makes the lines the cursor touches a list, or plain again.
     fn list(self: &Rc<Self>, kind: BlockKind) {
         self.editor.list(kind);
+        self.dirty.set(true);
+        self.body.grab_focus();
+    }
+
+    /// Quotes the lines the cursor touches, or takes the quote off.
+    fn quote(self: &Rc<Self>) {
+        self.editor.quote();
         self.dirty.set(true);
         self.body.grab_focus();
     }
@@ -3137,7 +3147,7 @@ fn block_name(kind: BlockKind) -> &'static str {
         BlockKind::Heading(2) => "heading2",
         BlockKind::Heading(_) => "heading3",
         BlockKind::Code => "code",
-        BlockKind::Bullet | BlockKind::Numbered | BlockKind::Quote => "",
+        BlockKind::Bullet | BlockKind::Numbered => "",
     }
 }
 
@@ -3217,7 +3227,6 @@ mod tests {
     #[test]
     fn a_list_line_marks_no_paragraph_style_in_the_menu() {
         assert_eq!(block_name(BlockKind::Bullet), "");
-        assert_eq!(block_name(BlockKind::Quote), "");
     }
 
     /// What a check item's handler heard, in order.
