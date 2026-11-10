@@ -13377,6 +13377,169 @@ msgstr "迷惑メールではないとする"
 msgid "Move to {folder}"
 msgstr "{folder}に移動"
 
+#: app/src/settings/mod.rs:710
+#, fuzzy
+#| msgid "Filter Messages"
+msgid "Within 20 Messages"
+msgstr "メッセージを絞り込む"
+
+#: app/src/settings/mod.rs:711
+#, fuzzy
+#| msgid "Week"
+msgid "By Week"
+msgstr "週"
+
+#: app/src/settings/mod.rs:712
+#, fuzzy
+#| msgid "Month"
+msgid "By Month"
+msgstr "月"
+
+#: app/src/ui/conversation.rs:1808
+msgid "Set Topic…"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1816
+msgid "Recent Topics"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1818
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Remove from Topic"
+msgstr "VIPから削除"
+
+#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:661
+msgid "Group by Topic"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:664
+msgid "Choose How to Group"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:665
+msgid "Draws mail of one topic together in the list"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+#, fuzzy
+#| msgid "Previous Month"
+msgid "Previous in {topic}"
+msgstr "前月"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+#, fuzzy
+#| msgid "Next · in {hours} h"
+msgid "Next in {topic}"
+msgstr "次の予定 · {hours} 時間後"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "他 {count} 件の予定"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+#, fuzzy
+#| msgid "{count} no"
+#| msgid_plural "{count} no"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "欠席{count}人"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+#, fuzzy
+#| msgid "{count} conversation"
+#| msgid_plural "{count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "{count} 件のスレッド"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+#, fuzzy
+#| msgid "{mailbox}, {count} message"
+#| msgid_plural "{mailbox}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "{mailbox}、{count}件のメッセージ"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "他 {count} 件の予定"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+#, fuzzy
+#| msgid "Moved {count} conversation to Trash"
+#| msgid_plural "Moved {count} conversations to Trash"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count}件のスレッドをゴミ箱に移動しました"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+#, fuzzy
+#| msgid "{count} unread message"
+#| msgid_plural "{count} unread messages"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} 件の未読メッセージ"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#, fuzzy
+#| msgid "it names"
+msgid "Topic name"
+msgstr "記載された名義"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:57
+#, fuzzy
+#| msgid "Sent"
+msgid "Set"
+msgstr "送信済み"
+
+#: app/src/ui/window.rs:419
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Added to {topic}"
+msgstr "{calendar}に追加しました"
+
+#: app/src/ui/window.rs:421
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Removed from topic"
+msgstr "VIPから削除"
+
+#: sync/src/actions.rs:132
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Add to {topic}"
+msgstr "{calendar}に追加しました"
+
+#: sync/src/actions.rs:1112
+msgid "“{topic}” cannot name a topic."
+msgstr ""
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

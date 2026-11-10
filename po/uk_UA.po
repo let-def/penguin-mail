@@ -13808,6 +13808,183 @@ msgstr "Позначити як не спам"
 msgid "Move to {folder}"
 msgstr "Перемістити до {folder}"
 
+#: app/src/settings/mod.rs:710
+#, fuzzy
+#| msgid "Filter Messages"
+msgid "Within 20 Messages"
+msgstr "Фільтр повідомлень"
+
+#: app/src/settings/mod.rs:711
+#, fuzzy
+#| msgid "Week"
+msgid "By Week"
+msgstr "Тиждень"
+
+#: app/src/settings/mod.rs:712
+#, fuzzy
+#| msgid "Month"
+msgid "By Month"
+msgstr "Місяць"
+
+#: app/src/ui/conversation.rs:1808
+msgid "Set Topic…"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1816
+msgid "Recent Topics"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1818
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Remove from Topic"
+msgstr "Прибрати з VIP-контактів"
+
+#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:661
+msgid "Group by Topic"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:664
+msgid "Choose How to Group"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:665
+msgid "Draws mail of one topic together in the list"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+#, fuzzy
+#| msgid "Previous Month"
+msgid "Previous in {topic}"
+msgstr "Попередній місяць"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+#, fuzzy
+#| msgid "Next · in {hours} h"
+msgid "Next in {topic}"
+msgstr "Далі · за {hours} год"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "ще {count} подія"
+msgstr[1] "ще {count} події"
+msgstr[2] "ще {count} подій"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+#, fuzzy
+#| msgid "{count} no"
+#| msgid_plural "{count} no"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} ні"
+msgstr[1] "{count} ні"
+msgstr[2] "{count} ні"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+#, fuzzy
+#| msgid "{count} conversation"
+#| msgid_plural "{count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "{count} розмова"
+msgstr[1] "{count} розмови"
+msgstr[2] "{count} розмов"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+#, fuzzy
+#| msgid "{mailbox}, {count} message"
+#| msgid_plural "{mailbox}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "{mailbox}, {count} повідомлення"
+msgstr[1] "{mailbox}, {count} повідомлення"
+msgstr[2] "{mailbox}, {count} повідомлень"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "ще {count} подія"
+msgstr[1] "ще {count} події"
+msgstr[2] "ще {count} подій"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+#, fuzzy
+#| msgid "Moved {count} conversation to Trash"
+#| msgid_plural "Moved {count} conversations to Trash"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count} розмову переміщено до «Смітника»"
+msgstr[1] "{count} розмови переміщено до «Смітника»"
+msgstr[2] "{count} розмов переміщено до «Смітника»"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+#, fuzzy
+#| msgid "{count} unread message"
+#| msgid_plural "{count} unread messages"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} непрочитане повідомлення"
+msgstr[1] "{count} непрочитані повідомлення"
+msgstr[2] "{count} непрочитаних повідомлень"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#, fuzzy
+#| msgid "it names"
+msgid "Topic name"
+msgstr "він вказує"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:57
+#, fuzzy
+#| msgid "Sent"
+msgid "Set"
+msgstr "Надіслані"
+
+#: app/src/ui/window.rs:419
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Added to {topic}"
+msgstr "Додано до «{calendar}»"
+
+#: app/src/ui/window.rs:421
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Removed from topic"
+msgstr "Прибрати з VIP-контактів"
+
+#: sync/src/actions.rs:132
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Add to {topic}"
+msgstr "Додано до «{calendar}»"
+
+#: sync/src/actions.rs:1112
+msgid "“{topic}” cannot name a topic."
+msgstr ""
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

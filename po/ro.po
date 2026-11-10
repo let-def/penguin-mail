@@ -13893,6 +13893,183 @@ msgstr "Marchează ca nefiind spam"
 msgid "Move to {folder}"
 msgstr "Mută în {folder}"
 
+#: app/src/settings/mod.rs:710
+#, fuzzy
+#| msgid "Filter Messages"
+msgid "Within 20 Messages"
+msgstr "Filtrează mesajele"
+
+#: app/src/settings/mod.rs:711
+#, fuzzy
+#| msgid "Week"
+msgid "By Week"
+msgstr "Săptămână"
+
+#: app/src/settings/mod.rs:712
+#, fuzzy
+#| msgid "Month"
+msgid "By Month"
+msgstr "Lună"
+
+#: app/src/ui/conversation.rs:1808
+msgid "Set Topic…"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1816
+msgid "Recent Topics"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1818
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Remove from Topic"
+msgstr "Elimină din contactele VIP"
+
+#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:661
+msgid "Group by Topic"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:664
+msgid "Choose How to Group"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:665
+msgid "Draws mail of one topic together in the list"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+#, fuzzy
+#| msgid "Previous Month"
+msgid "Previous in {topic}"
+msgstr "Luna anterioară"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+#, fuzzy
+#| msgid "Next · in {hours} h"
+msgid "Next in {topic}"
+msgstr "Urmează · peste {hours} h"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "Încă {count} eveniment"
+msgstr[1] "Încă {count} evenimente"
+msgstr[2] "Încă {count} de evenimente"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+#, fuzzy
+#| msgid "{count} no"
+#| msgid_plural "{count} no"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} nu"
+msgstr[1] "{count} nu"
+msgstr[2] "{count} nu"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+#, fuzzy
+#| msgid "{count} conversation"
+#| msgid_plural "{count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "{count} conversație"
+msgstr[1] "{count} conversații"
+msgstr[2] "{count} de conversații"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+#, fuzzy
+#| msgid "{mailbox}, {count} message"
+#| msgid_plural "{mailbox}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "{mailbox}, {count} mesaj"
+msgstr[1] "{mailbox}, {count} mesaje"
+msgstr[2] "{mailbox}, {count} de mesaje"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "Încă {count} eveniment"
+msgstr[1] "Încă {count} evenimente"
+msgstr[2] "Încă {count} de evenimente"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+#, fuzzy
+#| msgid "Moved {count} conversation to Trash"
+#| msgid_plural "Moved {count} conversations to Trash"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count} conversație mutată în Coșul de gunoi"
+msgstr[1] "{count} conversații mutate în Coșul de gunoi"
+msgstr[2] "{count} de conversații mutate în Coșul de gunoi"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+#, fuzzy
+#| msgid "{count} unread message"
+#| msgid_plural "{count} unread messages"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} mesaj necitit"
+msgstr[1] "{count} mesaje necitite"
+msgstr[2] "{count} de mesaje necitite"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#, fuzzy
+#| msgid "it names"
+msgid "Topic name"
+msgstr "numește"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:57
+#, fuzzy
+#| msgid "Sent"
+msgid "Set"
+msgstr "Trimise"
+
+#: app/src/ui/window.rs:419
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Added to {topic}"
+msgstr "Adăugat în {calendar}"
+
+#: app/src/ui/window.rs:421
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Removed from topic"
+msgstr "Elimină din contactele VIP"
+
+#: sync/src/actions.rs:132
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Add to {topic}"
+msgstr "Adăugat în {calendar}"
+
+#: sync/src/actions.rs:1112
+msgid "“{topic}” cannot name a topic."
+msgstr ""
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

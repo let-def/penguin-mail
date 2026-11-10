@@ -13691,6 +13691,135 @@ msgstr "Marcar como não sendo spam"
 msgid "Move to {folder}"
 msgstr "Mover para {folder}"
 
+#: app/src/settings/mod.rs:710
+msgid "Within 20 Messages"
+msgstr "Num intervalo de 20 mensagens"
+
+#: app/src/settings/mod.rs:711
+msgid "By Week"
+msgstr "Por semana"
+
+#: app/src/settings/mod.rs:712
+msgid "By Month"
+msgstr "Por mês"
+
+#: app/src/ui/conversation.rs:1808
+msgid "Set Topic…"
+msgstr "Definir Tópico…"
+
+#: app/src/ui/conversation.rs:1816
+msgid "Recent Topics"
+msgstr "Tópicos Recentes"
+
+#: app/src/ui/conversation.rs:1818
+msgid "Remove from Topic"
+msgstr "Remover do Tópico"
+
+#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:661
+msgid "Group by Topic"
+msgstr "Agrupar por tópico"
+
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:664
+msgid "Choose How to Group"
+msgstr "Escolher como agrupar"
+
+#: app/src/ui/thread_list.rs:665
+msgid "Draws mail of one topic together in the list"
+msgstr "Mostra junto na lista o correio de um tópico"
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+msgid "Previous in {topic}"
+msgstr "Anterior em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+msgid "Next in {topic}"
+msgstr "Seguinte em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "mais {count} em {topic}"
+msgstr[1] "mais {count} em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} em {topic}"
+msgstr[1] "{count} em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "Tópico {topic}, {count} conversa"
+msgstr[1] "Tópico {topic}, {count} conversas"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "Tópico {topic}, {count} mensagem"
+msgstr[1] "Tópico {topic}, {count} mensagens"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr "Mostrar só as não lidas em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "Mostrar mais {count} em {topic}"
+msgstr[1] "Mostrar mais {count} em {topic}"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count} conversa lida em {topic}, mostrá-la"
+msgstr[1] "{count} conversas lidas em {topic}, mostrá-las"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} mensagem lida em {topic}, mostrá-la"
+msgstr[1] "{count} mensagens lidas em {topic}, mostrá-las"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+msgid "Topic name"
+msgstr "Nome do tópico"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr "Tópicos conhecidos"
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr "Definir Tópico"
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+"O correio sobre um tópico aparece junto na lista. Um nome novo cria um "
+"tópico."
+
+#: app/src/ui/topic_picker.rs:57
+msgid "Set"
+msgstr "Definir"
+
+#: app/src/ui/window.rs:419
+msgid "Added to {topic}"
+msgstr "Adicionado a {topic}"
+
+#: app/src/ui/window.rs:421
+msgid "Removed from topic"
+msgstr "Removido do tópico"
+
+#: sync/src/actions.rs:132
+msgid "Add to {topic}"
+msgstr "Adicionar a {topic}"
+
+#: sync/src/actions.rs:1112
+msgid "“{topic}” cannot name a topic."
+msgstr "“{topic}” não pode ser o nome de um tópico."
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"

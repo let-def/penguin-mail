@@ -13648,6 +13648,176 @@ msgstr "Tandai bukan spam"
 msgid "Move to {folder}"
 msgstr "Pindahkan ke {folder}"
 
+#: app/src/settings/mod.rs:710
+#, fuzzy
+#| msgid "Filter Messages"
+msgid "Within 20 Messages"
+msgstr "Filter Pesan"
+
+#: app/src/settings/mod.rs:711
+#, fuzzy
+#| msgid "Week"
+msgid "By Week"
+msgstr "Minggu"
+
+#: app/src/settings/mod.rs:712
+#, fuzzy
+#| msgid "Month"
+msgid "By Month"
+msgstr "Bulan"
+
+#: app/src/ui/conversation.rs:1808
+msgid "Set Topic…"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1816
+msgid "Recent Topics"
+msgstr ""
+
+#: app/src/ui/conversation.rs:1818
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Remove from Topic"
+msgstr "Hapus dari VIP"
+
+#: app/src/ui/thread_list.rs:647 app/src/ui/thread_list.rs:661
+msgid "Group by Topic"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:648 app/src/ui/thread_list.rs:664
+msgid "Choose How to Group"
+msgstr ""
+
+#: app/src/ui/thread_list.rs:665
+msgid "Draws mail of one topic together in the list"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:278
+#, fuzzy
+#| msgid "Previous Month"
+msgid "Previous in {topic}"
+msgstr "Bulan Sebelumnya"
+
+#: app/src/ui/thread_list/bundle_line.rs:279
+#, fuzzy
+#| msgid "Next · in {hours} h"
+msgid "Next in {topic}"
+msgstr "Berikutnya · dalam {hours} jam"
+
+#: app/src/ui/thread_list/bundle_line.rs:290
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "{count} more in {topic}"
+msgid_plural "{count} more in {topic}"
+msgstr[0] "{count} acara lainnya"
+msgstr[1] "{count} acara lainnya"
+
+#: app/src/ui/thread_list/bundle_line.rs:296
+#, fuzzy
+#| msgid "{count} no"
+#| msgid_plural "{count} no"
+msgid "{count} in {topic}"
+msgid_plural "{count} in {topic}"
+msgstr[0] "{count} tidak"
+msgstr[1] "{count} tidak"
+
+#: app/src/ui/thread_list/bundle_line.rs:383
+#, fuzzy
+#| msgid "{count} conversation"
+#| msgid_plural "{count} conversations"
+msgid "Topic {topic}, {count} conversation"
+msgid_plural "Topic {topic}, {count} conversations"
+msgstr[0] "{count} percakapan"
+msgstr[1] "{count} percakapan"
+
+#: app/src/ui/thread_list/bundle_line.rs:389
+#, fuzzy
+#| msgid "{mailbox}, {count} message"
+#| msgid_plural "{mailbox}, {count} messages"
+msgid "Topic {topic}, {count} message"
+msgid_plural "Topic {topic}, {count} messages"
+msgstr[0] "{mailbox}, {count} pesan"
+msgstr[1] "{mailbox}, {count} pesan"
+
+#: app/src/ui/thread_list/bundle_line.rs:395
+msgid "Show only unread in {topic}"
+msgstr ""
+
+#: app/src/ui/thread_list/bundle_line.rs:400
+#, fuzzy
+#| msgid "{count} more event"
+#| msgid_plural "{count} more events"
+msgid "Show {count} more in {topic}"
+msgid_plural "Show {count} more in {topic}"
+msgstr[0] "{count} acara lainnya"
+msgstr[1] "{count} acara lainnya"
+
+#: app/src/ui/thread_list/bundle_line.rs:407
+#, fuzzy
+#| msgid "Moved {count} conversation to Trash"
+#| msgid_plural "Moved {count} conversations to Trash"
+msgid "{count} read conversation in {topic}, show it"
+msgid_plural "{count} read conversations in {topic}, show them"
+msgstr[0] "{count} percakapan dipindahkan ke Sampah"
+msgstr[1] "{count} percakapan dipindahkan ke Sampah"
+
+#: app/src/ui/thread_list/bundle_line.rs:413
+#, fuzzy
+#| msgid "{count} unread message"
+#| msgid_plural "{count} unread messages"
+msgid "{count} read message in {topic}, show it"
+msgid_plural "{count} read messages in {topic}, show them"
+msgstr[0] "{count} pesan belum dibaca"
+msgstr[1] "{count} pesan belum dibaca"
+
+#: app/src/ui/topic_picker.rs:39 app/src/ui/topic_picker.rs:43
+#, fuzzy
+#| msgid "it names"
+msgid "Topic name"
+msgstr "yang tercantum"
+
+#: app/src/ui/topic_picker.rs:46 app/src/ui/topic_picker.rs:86
+msgid "Known topics"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:51
+msgid "Set Topic"
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:53
+msgid ""
+"Mail on one topic is shown together in the list. A new name starts a topic."
+msgstr ""
+
+#: app/src/ui/topic_picker.rs:57
+#, fuzzy
+#| msgid "Sent"
+msgid "Set"
+msgstr "Terkirim"
+
+#: app/src/ui/window.rs:419
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Added to {topic}"
+msgstr "Ditambahkan ke {calendar}"
+
+#: app/src/ui/window.rs:421
+#, fuzzy
+#| msgid "Remove from VIPs"
+msgid "Removed from topic"
+msgstr "Hapus dari VIP"
+
+#: sync/src/actions.rs:132
+#, fuzzy
+#| msgid "Added to {calendar}"
+msgid "Add to {topic}"
+msgstr "Ditambahkan ke {calendar}"
+
+#: sync/src/actions.rs:1112
+msgid "“{topic}” cannot name a topic."
+msgstr ""
+
 #~ msgid ""
 #~ "Run this command for the skill {skill}?\n"
 #~ "\n"
