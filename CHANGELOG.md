@@ -8,6 +8,10 @@ the [releases page](https://github.com/c9dev/penguin-mail/releases).
 ### Fixed
 
 - A reply to a reply keeps every level of quoting after "•••" opens the earlier messages, and a list in a quoted message stays quoted.
+- A Fastmail or other JMAP account no longer stops syncing after the computer wakes from sleep, which left its messages on “Loading…”.
+- A conversation found by search that does not load says why and tries again by itself, or at once when you click it again in the list. Once it loads, its newest message is open.
+- A server that asks Penguin Mail to slow down no longer leaves the action you took unfinished, such as a conversation opened from search showing no messages.
+- Mail syncs again soon after the computer wakes from sleep, instead of staying stuck on a connection the server dropped.
 - Closing Customize Mailboxes releases its folder lists.
 - Smart mailboxes combining Gmail folders over IMAP include selected Trash and Junk messages and keep the newest matches when results are limited.
 - Renaming or moving IMAP folders preserves their Favorites, visibility and custom order, including nested folders.
